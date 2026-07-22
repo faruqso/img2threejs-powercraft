@@ -67,9 +67,9 @@ export const demos: DemoEntry[] = [
     blurb:
       'The black Anker MagGo 5,000mAh power bank rebuilt from a single three-quarter product image ' +
       'at its measured 107.3 × 69.5 × 20.5 mm proportions. The procedural model includes the layered ' +
-      'matte-and-gloss enclosure, MagSafe charging surface, recessed blue USB-C and flush power button ' +
-      'on the lower control edge, circular four-LED display, subtle turntable rotation, and touch-friendly ' +
-      'orbit and pinch zoom.',
+      'matte-and-gloss enclosure, MagSafe charging surface, reference-derived side USB-C with blue tongue ' +
+      'and contact pads, an opposing flush power button, circular four-LED display, subtle turntable rotation, ' +
+      'and touch-friendly orbit and pinch zoom.',
     referenceImage: `${BASE}references/anker-maggo-a1618.jpg`,
     sourcePath: 'src/demos/anker-maggo-a1618/createAnkerMaggoA1618Model.ts',
     sourceUrl: import.meta.env.VITE_SOURCE_REPO_URL
