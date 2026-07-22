@@ -784,7 +784,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   model.position.y = 0.62;
   const productSpecEngraving = makeRegulatoryPlane('power-bank-product-spec-engraving', '5,000 mAh');
   productSpecEngraving.rotation.y = Math.PI;
-  productSpecEngraving.position.set(-0.1, 0.43, -0.294);
+  // Match the lower clearance to the left-side clearance for a balanced regulatory block.
+  productSpecEngraving.position.set(-0.34, 0.43, -0.294);
   model.add(productSpecEngraving);
 
   const capacityEngraving = makeEngravedPlane(
