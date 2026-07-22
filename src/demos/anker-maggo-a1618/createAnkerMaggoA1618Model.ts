@@ -80,21 +80,33 @@ function makePanel(
 
 function makeSidePort(
   shadows: boolean,
-  shellMaterial: THREE.Material,
+  recessMaterial: THREE.Material,
   blueMaterial: THREE.Material,
 ): THREE.Group {
   const port = new THREE.Group();
   port.name = 'usb-c-port';
 
-  const recess = makePanel('usb-c-recess', 0.22, 0.115, 0.010, 0.048, shellMaterial, shadows, 0.005);
+  // A real USB-C opening has a dark outer bezel, a recessed cavity, and a
+  // slim central tongue. The blue is deliberately limited to that tongue.
+  const recess = makePanel('usb-c-bezel', 0.20, 0.092, 0.010, 0.040, recessMaterial, shadows, 0.004);
   recess.rotation.y = -Math.PI / 2;
-  recess.position.x = -BODY_WIDTH / 2 - 0.006;
+  recess.position.x = -BODY_WIDTH / 2 + 0.001;
   port.add(recess);
 
-  const blue = makePanel('usb-c-blue-insert', 0.145, 0.034, 0.006, 0.014, blueMaterial, false, 0.003);
-  blue.rotation.y = -Math.PI / 2;
-  blue.position.x = -BODY_WIDTH / 2 - 0.013;
-  port.add(blue);
+  const cavityMaterial = new THREE.MeshStandardMaterial({
+    color: 0x05070a,
+    roughness: 0.5,
+    metalness: 0.05,
+  });
+  const cavity = makePanel('usb-c-cavity', 0.152, 0.046, 0.004, 0.020, cavityMaterial, false, 0.002);
+  cavity.rotation.y = -Math.PI / 2;
+  cavity.position.x = -BODY_WIDTH / 2 + 0.006;
+  port.add(cavity);
+
+  const tongue = makePanel('usb-c-blue-tongue', 0.102, 0.011, 0.004, 0.005, blueMaterial, false, 0.002);
+  tongue.rotation.y = -Math.PI / 2;
+  tongue.position.x = -BODY_WIDTH / 2 + 0.002;
+  port.add(tongue);
 
   return port;
 }
@@ -243,7 +255,7 @@ export function createAnkerMaggoA1618Model(
   const statusDisplay = makeStatusDisplay(shadows, ringMaterial, displayMaterial, ledMaterial);
   root.add(statusDisplay);
 
-  const usbPort = makeSidePort(shadows, satinGraphite, blueMaterial);
+  const usbPort = makeSidePort(shadows, edgeMaterial, blueMaterial);
   usbPort.position.y = 0.63;
   root.add(usbPort);
 
