@@ -920,6 +920,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     glossControl.value = '45';
     glossValue.textContent = '45%';
     widthControl.value = '100';
+    selectedIndicator = 'leds';
     const indicatorInput = mount.querySelector<HTMLInputElement>('input[name="indicator-type"][value="leds"]');
     if (indicatorInput) indicatorInput.checked = true;
     ledControl.value = '80';
