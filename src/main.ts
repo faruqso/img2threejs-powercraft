@@ -1,6 +1,9 @@
 import './styles.css';
 import { currentRoute, onRouteChange } from './router';
 import { renderHome } from './pages/home';
+import { renderAbout } from './pages/about';
+import { renderMyAccount } from './pages/my-account';
+import { renderArchive } from './pages/archive';
 import { renderDemo } from './pages/demo';
 import { renderPowerBankCustomizer } from './pages/power-bank-customizer';
 
@@ -19,6 +22,12 @@ function render(): void {
     cleanupCurrentRoute = renderDemo(app, route.id);
   } else if (route.name === 'power-bank-customizer') {
     cleanupCurrentRoute = renderPowerBankCustomizer(app);
+  } else if (route.name === 'about') {
+    cleanupCurrentRoute = renderAbout(app);
+  } else if (route.name === 'my-account') {
+    cleanupCurrentRoute = renderMyAccount(app);
+  } else if (route.name === 'archive') {
+    cleanupCurrentRoute = renderArchive(app);
   } else {
     cleanupCurrentRoute = renderHome(app);
   }

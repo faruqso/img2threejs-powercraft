@@ -520,7 +520,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       <div class="customizer-canvas-mount" id="power-bank-canvas"></div>
 
       <header class="global-header">
-        <div class="header-brand">
+        <a href="#/" class="header-brand" style="text-decoration:none;">
           <div class="brand-logo">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M7 2.5H13.5L9.5 10.5H3.5L7 2.5Z" fill="#00C9B1"/>
@@ -531,18 +531,18 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             <strong>POWERCRAFT</strong>
             <span>CUSTOM. BRANDED. YOURS.</span>
           </div>
-        </div>
+        </a>
         <nav class="header-nav">
-          <a href="#/" class="active">Build</a>
-          <a href="#/">Gallery</a>
-          <a href="#/">About</a>
+          <a href="#/">Home</a>
+          <a href="#/customize/power-bank" class="active">Build</a>
+          <a href="#/about">About</a>
         </nav>
         <div class="header-actions" style="display: flex; align-items: center;">
           <button class="theme-switch" id="theme-toggle" title="Toggle dark mode">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
           </button>
           <div class="header-divider"></div>
-          <a href="#/" class="profile-btn">
+          <a href="#/account" class="profile-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             My Account
           </a>
@@ -554,22 +554,15 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <h1 class="page-title">Custom power banks.<br>Built for <span class="text-teal">your brand.</span></h1>
           <p class="page-subtitle">Design, personalise and order premium power banks tailored to your brand and customers.</p>
 
-          <div class="customizer-card top-card">
-            <div class="top-card-header">
-              <div class="model-info">
-                <div class="model-thumb" aria-hidden="true"></div>
-                <div class="model-name">
-                  <strong>Anker MagGo 5,000 mAh</strong>
-                  <a href="#" class="change-model-link">Change model</a>
-                </div>
-              </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
-          </div>
-
           <div class="left-control-stack">
             <div class="customizer-card">
-              <h3 class="card-title">Body colour</h3>
+              <div class="card-header-row">
+                <div class="card-header-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <h3 class="card-title">Body colour</h3>
+                <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
               <div class="swatch-grid body-swatch-grid">
                 ${Object.entries(FINISHES)
                   .map(
@@ -585,9 +578,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             </div>
 
             <div class="customizer-card">
-              <div class="control-heading">
+              <div class="card-header-row">
+                <div class="card-header-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M5.2 5.2A7 7 0 0 0 5 7"/><path d="M19 12a7 7 0 0 1-7 7"/></svg>
+                </div>
                 <h3 class="card-title">Surface gloss</h3>
-                <strong id="gloss-value">45%</strong>
+                <strong id="gloss-value" class="card-header-aside">45%</strong>
+                <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
               </div>
               <label class="range-control range-control-compact">
                 <input id="gloss-control" type="range" min="0" max="100" value="45" />
@@ -595,7 +592,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             </div>
 
             <div class="customizer-card">
-              <h3 class="card-title">Personalisation</h3>
+              <div class="card-header-row">
+                <div class="card-header-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </div>
+                <h3 class="card-title">Personalisation</h3>
+                <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
               <label class="text-control">
                 <span class="input-label">Inscription</span>
                 <div class="input-wrapper">
@@ -618,7 +621,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
         <div class="customizer-column customizer-column-right">
           <div class="customizer-card capacity-output-card">
-            <h3 class="card-title">Capacity size</h3>
+            <div class="card-header-row">
+              <div class="card-header-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 11h2a2 2 0 0 1 0 4h-2"/></svg>
+              </div>
+              <h3 class="card-title">Capacity size</h3>
+              <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
             <div class="segmented-control capacity-segmented capacity-grid">
               ${Object.entries(CAPACITIES)
                 .map(
@@ -652,7 +661,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
 
           <div class="customizer-card">
-            <h3 class="card-title">Charging features</h3>
+            <div class="card-header-row">
+              <div class="card-header-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <h3 class="card-title">Charging features</h3>
+              <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
             
             <label class="toggle-row">
               <span class="info-label">Add MagSafe <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
@@ -693,9 +708,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
 
           <div class="customizer-card">
-            <div class="card-header-with-badge">
-              <h3 class="card-title" style="margin: 0;">Port configuration</h3>
+            <div class="card-header-row">
+              <div class="card-header-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="14" height="10" rx="2"/><line x1="7" y1="12" x2="11" y2="12"/></svg>
+              </div>
+              <h3 class="card-title" style="margin:0;">Port configuration</h3>
               <span class="port-status-badge" id="port-status-badge">No Ports (Wireless Only)</span>
+              <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
             <div class="port-choice-grid">
               <label class="port-choice-card">
@@ -783,7 +802,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
 
           <div class="customizer-card summary-card">
-            <h3 class="card-title">Order summary & booking</h3>
+            <div class="card-header-row">
+              <div class="card-header-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              </div>
+              <h3 class="card-title">Order summary &amp; booking</h3>
+              <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
             
             <div class="order-spec-grid">
               <div class="order-spec-item">
@@ -1242,7 +1267,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const titleEl = card.querySelector<HTMLElement>('.card-title');
     if (!titleEl) continue;
 
-    let headerEl = card.querySelector<HTMLElement>('.card-header-with-badge, .card-header-accordion');
+    // Prefer a pre-built header element (card-header-row, card-header-with-badge, or card-header-accordion)
+    let headerEl = card.querySelector<HTMLElement>('.card-header-row, .card-header-with-badge, .card-header-accordion');
     if (!headerEl) {
       headerEl = document.createElement('div');
       headerEl.className = 'card-header-accordion';
@@ -1387,7 +1413,16 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   };
 
   listen(magsafeToggle, 'change', () => {
-    setVisibility(model, ['magsafe-alignment-ring', 'magsafe-center-pad', 'magsafe-alignment-bar'], magsafeToggle.checked);
+    const magsafeVisible = magsafeToggle.checked;
+    // Hide/show the entire magsafe-charging-surface group (includes ring, center-pad, grooves, bar)
+    setVisibility(model, ['magsafe-charging-surface'], magsafeVisible);
+    // Belt-and-suspenders: also traverse to catch any individually-visible groove meshes
+    const magsafeSurface = model.getObjectByName('magsafe-charging-surface');
+    if (magsafeSurface) {
+      magsafeSurface.traverse((child) => {
+        child.visible = magsafeVisible;
+      });
+    }
     ensureValidChargingMechanism();
     syncPorts();
   });

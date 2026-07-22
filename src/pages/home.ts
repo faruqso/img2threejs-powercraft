@@ -1,152 +1,173 @@
-import { demos, type DemoEntry } from '../demos/registry';
-import { HeroStage } from '../hero-stage';
+import {
+  createAnkerMaggoA1618LookDevLights,
+  createAnkerMaggoA1618Model,
+} from '../demos/anker-maggo-a1618/createAnkerMaggoA1618Model';
+import { Viewer } from '../scene';
 
-const GITHUB_URL = 'https://github.com/hoainho/img2threejs';
-const BASE = import.meta.env.BASE_URL;
-const DONATE_URL = `${BASE}donate.html`;
-
-/** Renders the home page and returns a cleanup function that tears down the hero stage. */
 export function renderHome(mount: HTMLElement): () => void {
-  const firstId = demos[0]?.id ?? '';
-
-  const cards = demos
-    .map(
-      (demo, i) => `
-      <a class="card" href="#/demo/${demo.id}" data-index="${i}" style="--i:${i}">
-        <div class="card-media">
-          <img class="card-thumb" src="${demo.referenceImage}" alt="${demo.title} reference"
-               loading="lazy" onerror="this.classList.add('missing')" />
-          <span class="card-status status-${demo.status}">${demo.status}</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">${demo.title}</div>
-          <div class="card-author">by ${demo.author}</div>
-          <div class="badges">
-            <span class="badge badge-${demo.subjectClass}">${demo.subjectClass}</span>
-            <span class="badge">${demo.generatedWith}</span>
+  mount.innerHTML = `
+    <div class="home-page light-mesh-bg">
+      <header class="global-header">
+        <div class="header-brand">
+          <div class="brand-logo">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 2.5H13.5L9.5 10.5H3.5L7 2.5Z" fill="#00C9B1"/>
+              <path d="M14.5 13.5H21L17 21.5H11L14.5 13.5Z" fill="#00C9B1"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <strong>POWERCRAFT</strong>
+            <span>CUSTOM. BRANDED. YOURS.</span>
           </div>
         </div>
-      </a>`,
-    )
-    .join('');
-
-  mount.innerHTML = `
-    <div class="home">
-      <div class="aurora" aria-hidden="true"></div>
-
-      <header class="nav">
-        <a class="brand" href="#/">
-          <img class="brand-mark" src="${BASE}favicon.svg" alt="" width="30" height="30" />
-          <span class="brand-name">img2threejs</span>
-        </a>
-        <div class="nav-actions">
-          <a class="nav-donate" href="${DONATE_URL}" target="_blank" rel="noopener noreferrer">
-            &#9829; Sponsor
-          </a>
-          <a class="nav-star" href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">
-            &#9733; Star on GitHub
+        <nav class="header-nav">
+          <a href="#/" class="active">Home</a>
+          <a href="#/customize/power-bank">Build</a>
+          <a href="#/about">About</a>
+        </nav>
+        <div class="header-actions" style="display: flex; align-items: center;">
+          <button class="theme-switch" id="home-theme-toggle" title="Toggle dark mode">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </button>
+          <div class="header-divider"></div>
+          <a href="#/account" class="profile-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            My Account
           </a>
         </div>
       </header>
 
-      <section class="hero">
-        <div class="hero-copy">
-          <span class="hero-eyebrow">live demo gallery &middot; v1.2</span>
-          <h1 class="hero-title">
-            One photo in.<br />
-            A <span class="grad">procedural 3D</span> model out.
-          </h1>
-          <p class="hero-sub">
-            img2threejs rebuilds the object or character in a single reference image as a
-            quality-gated, animation-ready Three.js model &mdash; written entirely in code,
-            no imported meshes. Everything below is running live in your browser.
-          </p>
-          <div class="cta-row">
-            <a class="btn btn-primary" href="#/demo/${firstId}">Explore the demos</a>
-            <a class="btn btn-star" href="#/customize/power-bank">Customize power bank</a>
-            <a class="btn btn-star" href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">
-              &#9733; Star img2threejs
+      <section class="home-hero">
+        <div class="home-hero-copy">
+          <span class="home-eyebrow">Premium branded power banks</span>
+          <h1 class="home-hero-title">Custom power banks.<br>Built for <span class="text-teal">your brand.</span></h1>
+          <p class="home-hero-sub">Design, personalise and order premium power banks tailored to your brand and customers. MOQ from 50 units with free laser branding included.</p>
+          <div class="home-hero-cta">
+            <a href="#/customize/power-bank" class="btn-primary home-cta-btn" id="home-cta-customise">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Start Customising
+            </a>
+            <a href="#/customize/power-bank" class="btn-secondary-outline home-cta-btn" id="home-cta-order">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              Place an Order
             </a>
           </div>
-          <ol class="pipeline" aria-label="how it works">
-            <li><span class="pip-num">01</span> Reference photo</li>
-            <li class="pip-arrow" aria-hidden="true">&rarr;</li>
-            <li><span class="pip-num">02</span> Analyze &amp; spec</li>
-            <li class="pip-arrow" aria-hidden="true">&rarr;</li>
-            <li><span class="pip-num">03</span> Procedural Three.js</li>
-          </ol>
+          <div class="home-stats">
+            <div class="home-stat">
+              <strong>50+</strong>
+              <span>Units MOQ</span>
+            </div>
+            <div class="home-stat-divider"></div>
+            <div class="home-stat">
+              <strong>5–7</strong>
+              <span>Day lead time</span>
+            </div>
+            <div class="home-stat-divider"></div>
+            <div class="home-stat">
+              <strong>Free</strong>
+              <span>Laser branding</span>
+            </div>
+          </div>
         </div>
-
-        <div class="hero-stage">
-          <figure class="stage-input" id="stage-input">
-            <img class="stage-photo" id="stage-photo" alt="current demo source reference"
-                 onerror="this.closest('.stage-input').classList.add('no-photo')" />
-            <figcaption>source photo</figcaption>
-          </figure>
-          <div class="stage-beam" aria-hidden="true"></div>
-          <div class="stage-canvas" id="hero-canvas">
-            <span class="stage-badge" id="stage-badge"></span>
-            <span class="stage-hint">rebuilt in code</span>
+        <div class="home-hero-canvas-wrap">
+          <div class="home-canvas-glow" aria-hidden="true"></div>
+          <div class="home-hero-canvas" id="home-hero-canvas"></div>
+          <div class="home-canvas-badge">
+            <span class="home-canvas-badge-dot"></span>
+            Live 3D Preview
           </div>
         </div>
       </section>
 
-      <section class="gallery">
-        <div class="gallery-head">
-          <h2>Live reconstructions</h2>
-          <p>Each model is generated TypeScript &mdash; orbit it, and read the source it was built from.</p>
+      <section class="home-features">
+        <div class="home-features-grid">
+          <div class="home-feature-card">
+            <div class="home-feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </div>
+            <h3>Full Customisation</h3>
+            <p>Choose colour, finish, capacity, ports, MagSafe and a personalised inscription — all from a live 3D preview.</p>
+          </div>
+          <div class="home-feature-card">
+            <div class="home-feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </div>
+            <h3>Premium Hardware</h3>
+            <p>Built on market-leading Anker MagGo power bank hardware with MagSafe, fast charging and airline-safe capacity options.</p>
+          </div>
+          <div class="home-feature-card">
+            <div class="home-feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3>Fast Turnaround</h3>
+            <p>5 to 7 day lead time with free laser engraving included. Sample units available for £25 before committing to full orders.</p>
+          </div>
+          <div class="home-feature-card">
+            <div class="home-feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3>Brand Consistency</h3>
+            <p>Match your exact brand colours, add your logo via laser inscription, and deliver a cohesive branded experience.</p>
+          </div>
         </div>
-        <div class="grid">${cards}</div>
       </section>
 
-      <footer class="footer">
-        source &middot;
-        <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">github.com/hoainho/img2threejs</a>
-        &nbsp;&middot;&nbsp;
-        <a href="${DONATE_URL}" target="_blank" rel="noopener noreferrer">&#9829; Sponsor this project</a>
+      <footer class="site-footer">
+        <div class="footer-brand">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 2.5H13.5L9.5 10.5H3.5L7 2.5Z" fill="#00C9B1"/>
+            <path d="M14.5 13.5H21L17 21.5H11L14.5 13.5Z" fill="#00C9B1"/>
+          </svg>
+          <strong>POWERCRAFT</strong>
+        </div>
+        <div class="footer-links">
+          <a href="#/customize/power-bank">Customise</a>
+          <a href="#/about">About</a>
+          <a href="#/account">My Account</a>
+          <a href="#/archive">Archive</a>
+        </div>
+        <p class="footer-copy">&copy; 2025 PowerCraft. All rights reserved.</p>
       </footer>
     </div>
   `;
 
-  // Entrance animation: reveal on next frame.
-  const home = mount.querySelector('.home') as HTMLElement;
-  requestAnimationFrame(() => home.classList.add('ready'));
+  const homePage = mount.querySelector<HTMLElement>('.home-page')!;
+  requestAnimationFrame(() => homePage.classList.add('ready'));
 
-  // Wire the hero 3D stage.
-  const canvasMount = mount.querySelector('#hero-canvas') as HTMLElement;
-  const photo = mount.querySelector('#stage-photo') as HTMLImageElement;
-  const badge = mount.querySelector('#stage-badge') as HTMLElement;
-  const cardEls = Array.from(mount.querySelectorAll<HTMLElement>('.card'));
+  // Spin up the 3D preview
+  const canvasMount = mount.querySelector<HTMLElement>('#home-hero-canvas')!;
+  const viewer = new Viewer(canvasMount, {
+    cameraPosition: [-4.5, 1.2, 9.5],
+    cameraTarget: [0, 0.2, 0],
+    cameraFov: 36,
+    installLights: (scene) => scene.add(createAnkerMaggoA1618LookDevLights()),
+  });
+  const model = createAnkerMaggoA1618Model({ shadows: true, rotationSpeed: 0.025 });
+  viewer.scene.add(model);
 
-  let stage: HeroStage | null = null;
-
-  const onDemo = (demo: DemoEntry, index: number): void => {
-    // Crossfade the source photo to match the demo currently materializing.
-    const input = mount.querySelector('#stage-input') as HTMLElement;
-    input.classList.remove('no-photo');
-    input.classList.add('swapping');
-    window.setTimeout(() => {
-      photo.src = demo.referenceImage;
-      input.classList.remove('swapping');
-    }, 260);
-    badge.textContent = demo.title;
-    cardEls.forEach((el, i) => el.classList.toggle('active', i === index));
+  let raf = 0;
+  let lastT = 0;
+  const tick = (t: number): void => {
+    const dt = Math.min((t - lastT) / 1000, 0.05);
+    lastT = t;
+    if (model.userData.tick) model.userData.tick(dt);
+    viewer.controls.update();
+    viewer.renderer.render(viewer.scene, viewer.camera);
+    raf = requestAnimationFrame(tick);
   };
+  raf = requestAnimationFrame((t) => { lastT = t; raf = requestAnimationFrame(tick); });
 
-  if (demos.length > 0) {
-    stage = new HeroStage(canvasMount, demos, onDemo);
-    stage.start();
-    // Hovering a card jumps the turntable to that demo.
-    cardEls.forEach((el) => {
-      el.addEventListener('mouseenter', () => {
-        const idx = Number(el.dataset.index);
-        if (!Number.isNaN(idx)) stage?.focus(idx);
-      });
+  // Dark mode toggle
+  const themeToggle = mount.querySelector<HTMLButtonElement>('#home-theme-toggle');
+  if (themeToggle && homePage) {
+    themeToggle.addEventListener('click', () => {
+      homePage.classList.toggle('dark-mode');
     });
   }
 
   return () => {
-    stage?.dispose();
-    stage = null;
+    cancelAnimationFrame(raf);
+    viewer.renderer.dispose();
+    viewer.controls.dispose();
   };
 }

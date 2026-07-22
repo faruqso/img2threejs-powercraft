@@ -1,5 +1,8 @@
 export type Route =
   | { name: 'home' }
+  | { name: 'about' }
+  | { name: 'my-account' }
+  | { name: 'archive' }
   | { name: 'demo'; id: string }
   | { name: 'power-bank-customizer' };
 
@@ -15,6 +18,15 @@ export function parseRoute(hash: string): Route {
   }
   if (parts[0] === 'customize' && parts[1] === 'power-bank') {
     return { name: 'power-bank-customizer' };
+  }
+  if (parts[0] === 'about') {
+    return { name: 'about' };
+  }
+  if (parts[0] === 'account') {
+    return { name: 'my-account' };
+  }
+  if (parts[0] === 'archive') {
+    return { name: 'archive' };
   }
   return { name: 'home' };
 }
