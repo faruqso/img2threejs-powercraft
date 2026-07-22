@@ -22,7 +22,25 @@ type DefaultsSnapshot = {
   materials: MaterialSnapshot[];
   visibility: Array<{ object: THREE.Object3D; visible: boolean }>;
   lights: Array<{ light: THREE.Light; intensity: number }>;
+  position: THREE.Vector3;
   rotation: THREE.Euler;
+  scale: THREE.Vector3;
+};
+
+type CapacityKey = '5k' | '10k' | '20k';
+type WattageKey = '15w' | '30w' | '65w';
+
+type CapacityPreset = {
+  label: string;
+  sizeLabel: string;
+  scale: THREE.Vector3Tuple;
+};
+
+type WattagePreset = {
+  label: string;
+  outputLabel: string;
+  ledBoost: number;
+  accent: number;
 };
 
 interface FinishPreset {
@@ -69,6 +87,18 @@ const USB_COLORS = {
   lime: { label: 'Lime', value: 0x91ff7b },
   amber: { label: 'Amber', value: 0xffbf47 },
   white: { label: 'White', value: 0xffffff },
+};
+
+const CAPACITIES: Record<CapacityKey, CapacityPreset> = {
+  '5k': { label: '5K', sizeLabel: '5,000 mAh pocket', scale: [1, 1, 1] },
+  '10k': { label: '10K', sizeLabel: '10,000 mAh daily', scale: [1.06, 1.08, 1.24] },
+  '20k': { label: '20K', sizeLabel: '20,000 mAh travel', scale: [1.12, 1.16, 1.52] },
+};
+
+const WATTAGES: Record<WattageKey, WattagePreset> = {
+  '15w': { label: '15W', outputLabel: 'Qi2 wireless output', ledBoost: 1, accent: 0x00aaff },
+  '30w': { label: '30W', outputLabel: 'Fast USB-C output', ledBoost: 1.24, accent: 0x7dff8f },
+  '65w': { label: '65W', outputLabel: 'Laptop-class output', ledBoost: 1.48, accent: 0xffbd4a },
 };
 
 function materialOf(object: THREE.Object3D): THREE.Material | null {
@@ -119,6 +149,65 @@ function setSurfaceGloss(root: THREE.Object3D, gloss: number): void {
   }
 }
 
+function makeRevealPlateau(): THREE.Group {
+  const stage = new THREE.Group();
+  stage.name = 'power-bank-reveal-plateau';
+
+  const baseMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xdfe4eb,
+    roughness: 0.34,
+    metalness: 0.05,
+    clearcoat: 0.42,
+    clearcoatRoughness: 0.28,
+  });
+  const edgeMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0x9da8b6,
+    roughness: 0.22,
+    metalness: 0.34,
+    clearcoat: 0.65,
+    clearcoatRoughness: 0.18,
+  });
+  const glowMaterial = new THREE.MeshBasicMaterial({
+    color: 0x9fc7ff,
+    transparent: true,
+    opacity: 0.28,
+    depthWrite: false,
+  });
+
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(1.58, 1.72, 0.18, 96), baseMaterial);
+  base.name = 'reveal-plateau-base';
+  base.position.y = 0.09;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  stage.add(base);
+
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.018, 16, 112), edgeMaterial);
+  rim.name = 'reveal-plateau-rim';
+  rim.rotation.x = Math.PI / 2;
+  rim.position.y = 0.195;
+  rim.castShadow = true;
+  stage.add(rim);
+
+  const lightRing = new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.01, 12, 112), glowMaterial);
+  lightRing.name = 'reveal-plateau-light-ring';
+  lightRing.rotation.x = Math.PI / 2;
+  lightRing.position.y = 0.205;
+  stage.add(lightRing);
+
+  const halo = new THREE.Mesh(new THREE.RingGeometry(0.72, 1.42, 112), glowMaterial);
+  halo.name = 'reveal-plateau-halo';
+  halo.rotation.x = -Math.PI / 2;
+  halo.position.y = 0.212;
+  stage.add(halo);
+
+  const column = new THREE.PointLight(0x9fc7ff, 0.75, 4.2, 1.7);
+  column.name = 'reveal-plateau-lift-light';
+  column.position.set(0, 0.85, 0);
+  stage.add(column);
+
+  return stage;
+}
+
 function captureDefaults(root: THREE.Object3D, lights: THREE.Light[]): DefaultsSnapshot {
   const materials: MaterialSnapshot[] = [];
   const seenMaterials = new Set<THREE.Material>();
@@ -159,11 +248,13 @@ function captureDefaults(root: THREE.Object3D, lights: THREE.Light[]): DefaultsS
     materials,
     visibility,
     lights: lights.map((light) => ({ light, intensity: light.intensity })),
+    position: root.position.clone(),
     rotation: root.rotation.clone(),
+    scale: root.scale.clone(),
   };
 }
 
-function restoreDefaults(defaults: DefaultsSnapshot): void {
+function restoreDefaults(root: THREE.Object3D, defaults: DefaultsSnapshot): void {
   for (const snapshot of defaults.materials) {
     const physical = snapshot.material as THREE.MeshPhysicalMaterial;
     const standard = snapshot.material as THREE.MeshStandardMaterial;
@@ -187,6 +278,10 @@ function restoreDefaults(defaults: DefaultsSnapshot): void {
   for (const snapshot of defaults.lights) {
     snapshot.light.intensity = snapshot.intensity;
   }
+
+  root.position.copy(defaults.position);
+  root.rotation.copy(defaults.rotation);
+  root.scale.copy(defaults.scale);
 }
 
 /** Renders a product configurator around the Anker MagGo power bank canvas. */
@@ -231,6 +326,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <input id="gloss-control" type="range" min="0" max="100" value="45" />
         </label>
 
+        <label class="range-control">
+          <span>
+            Body width
+            <strong id="width-value">100%</strong>
+          </span>
+          <input id="width-control" type="range" min="86" max="124" value="100" />
+        </label>
+
         <fieldset class="control-group">
           <legend>USB tongue colour</legend>
           <div class="segmented-control">
@@ -246,6 +349,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               .join('')}
           </div>
         </fieldset>
+
+        <div class="spec-readout" aria-live="polite">
+          <span id="capacity-readout">5,000 mAh pocket</span>
+          <strong id="wattage-readout">Qi2 wireless output</strong>
+        </div>
       </aside>
 
       <aside class="customizer-panel customizer-panel-right" aria-label="Power bank feature options">
@@ -253,6 +361,38 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <span class="panel-kicker">Features</span>
           <h2>Hardware details</h2>
         </div>
+
+        <fieldset class="control-group">
+          <legend>Capacity size</legend>
+          <div class="segmented-control segmented-control-three">
+            ${Object.entries(CAPACITIES)
+              .map(
+                ([key, capacity]) => `
+                  <label>
+                    <input type="radio" name="capacity" value="${key}" ${key === '5k' ? 'checked' : ''} />
+                    <span>${capacity.label}</span>
+                  </label>
+                `,
+              )
+              .join('')}
+          </div>
+        </fieldset>
+
+        <fieldset class="control-group">
+          <legend>Wattage output</legend>
+          <div class="segmented-control segmented-control-three">
+            ${Object.entries(WATTAGES)
+              .map(
+                ([key, wattage]) => `
+                  <label>
+                    <input type="radio" name="wattage" value="${key}" ${key === '15w' ? 'checked' : ''} />
+                    <span>${wattage.label}</span>
+                  </label>
+                `,
+              )
+              .join('')}
+          </div>
+        </fieldset>
 
         <label class="toggle-row">
           <span>MagSafe alignment ring</span>
@@ -295,18 +435,27 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const canvasMount = mount.querySelector<HTMLDivElement>('#power-bank-canvas')!;
   const viewer = new Viewer(canvasMount, {
     cameraPosition: [-3.1, 2.45, 4.2],
-    cameraTarget: [0, 1.35, 0],
+    cameraTarget: [0, 1.55, 0],
     cameraFov: 32,
-    background: 0xf4f5f7,
+    background: 0xf6f8fb,
     installLights: (scene) => scene.add(createAnkerMaggoA1618LookDevLights()),
   });
 
+  const revealPlateau = makeRevealPlateau();
+  viewer.scene.add(revealPlateau);
+
   const model = createAnkerMaggoA1618Model({ shadows: true, rotationSpeed: 0 });
+  model.position.y = 0.62;
   viewer.scene.add(model);
 
+  let selectedCapacity: CapacityKey = '5k';
+  let selectedWattage: WattageKey = '15w';
+  let widthPercent = 100;
   let autoSpin = true;
-  model.userData.tick = (dt: number): void => {
+  const suspendedBaseY = model.position.y;
+  model.userData.tick = (dt: number, elapsed: number): void => {
     if (autoSpin) model.rotation.y += dt * 0.16;
+    model.position.y = suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
   };
 
   const ambientLights: Array<{ light: THREE.Light; baseIntensity: number }> = [];
@@ -337,6 +486,44 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     setMaterialColor(model, ['front-polished-gasket', 'magsafe-alignment-ring'], finish.edge);
     setMaterialColor(model, ['magsafe-center-pad', 'power-button'], finish.panel);
     setMaterialColor(model, ['status-ring'], finish.ring);
+    applyWattage();
+  };
+
+  const widthControl = mount.querySelector<HTMLInputElement>('#width-control')!;
+  const widthValue = mount.querySelector<HTMLElement>('#width-value')!;
+  const capacityReadout = mount.querySelector<HTMLElement>('#capacity-readout')!;
+  const wattageReadout = mount.querySelector<HTMLElement>('#wattage-readout')!;
+
+  const applyDimensions = (): void => {
+    const capacity = CAPACITIES[selectedCapacity];
+    model.scale.set(
+      capacity.scale[0] * (widthPercent / 100),
+      capacity.scale[1],
+      capacity.scale[2],
+    );
+    widthValue.textContent = `${widthPercent}%`;
+    capacityReadout.textContent = capacity.sizeLabel;
+  };
+
+  const applyWattage = (): void => {
+    const wattage = WATTAGES[selectedWattage];
+    setMaterialColor(model, ['status-ring'], wattage.accent);
+    const lightRing = materialOf(
+      revealPlateau.getObjectByName('reveal-plateau-light-ring') ?? new THREE.Object3D(),
+    );
+    const halo = materialOf(revealPlateau.getObjectByName('reveal-plateau-halo') ?? new THREE.Object3D());
+    for (const material of [lightRing, halo]) {
+      if (material && 'color' in material && material.color instanceof THREE.Color) {
+        material.color.setHex(wattage.accent);
+      }
+    }
+    const liftLight = revealPlateau.getObjectByName('reveal-plateau-lift-light');
+    if (liftLight instanceof THREE.PointLight) {
+      liftLight.color.setHex(wattage.accent);
+      liftLight.intensity = 0.75 * wattage.ledBoost;
+    }
+    wattageReadout.textContent = wattage.outputLabel;
+    syncLeds();
   };
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="finish"]')) {
@@ -362,16 +549,36 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     setSurfaceGloss(model, value / 100);
   });
 
+  listen(widthControl, 'input', () => {
+    widthPercent = Number(widthControl.value);
+    applyDimensions();
+  });
+
   const ledToggle = mount.querySelector<HTMLInputElement>('#led-toggle')!;
   const ledControl = mount.querySelector<HTMLInputElement>('#led-control')!;
   const ledValue = mount.querySelector<HTMLElement>('#led-value')!;
   const syncLeds = (): void => {
     const value = Number(ledControl.value);
+    const wattage = WATTAGES[selectedWattage];
     ledValue.textContent = `${value}%`;
-    setLedPower(model, ledToggle.checked, THREE.MathUtils.lerp(0.6, 4.2, value / 100));
+    setLedPower(model, ledToggle.checked, THREE.MathUtils.lerp(0.6, 4.2, value / 100) * wattage.ledBoost);
   };
   listen(ledToggle, 'change', syncLeds);
   listen(ledControl, 'input', syncLeds);
+
+  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="capacity"]')) {
+    listen(input, 'change', () => {
+      selectedCapacity = input.value as CapacityKey;
+      applyDimensions();
+    });
+  }
+
+  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="wattage"]')) {
+    listen(input, 'change', () => {
+      selectedWattage = input.value as WattageKey;
+      applyWattage();
+    });
+  }
 
   const magsafeToggle = mount.querySelector<HTMLInputElement>('#magsafe-toggle')!;
   listen(magsafeToggle, 'change', () => {
@@ -395,25 +602,35 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const resetButton = mount.querySelector<HTMLButtonElement>('#reset-customizer')!;
   listen(resetButton, 'click', () => {
-    restoreDefaults(defaults);
-    model.rotation.copy(defaults.rotation);
+    restoreDefaults(model, defaults);
+    selectedCapacity = '5k';
+    selectedWattage = '15w';
+    widthPercent = 100;
     autoSpin = true;
 
     const finishInput = mount.querySelector<HTMLInputElement>('input[name="finish"][value="graphite"]');
     const usbInput = mount.querySelector<HTMLInputElement>('input[name="usb-color"][value="cyan"]');
+    const capacityInput = mount.querySelector<HTMLInputElement>('input[name="capacity"][value="5k"]');
+    const wattageInput = mount.querySelector<HTMLInputElement>('input[name="wattage"][value="15w"]');
     if (finishInput) finishInput.checked = true;
     if (usbInput) usbInput.checked = true;
+    if (capacityInput) capacityInput.checked = true;
+    if (wattageInput) wattageInput.checked = true;
     glossControl.value = '45';
     glossValue.textContent = '45%';
+    widthControl.value = '100';
     ledToggle.checked = true;
     ledControl.value = '80';
-    ledValue.textContent = '80%';
     magsafeToggle.checked = true;
     spinToggle.checked = true;
     lightControl.value = '70';
     lightValue.textContent = '70%';
+    applyDimensions();
+    applyWattage();
   });
 
+  applyDimensions();
+  applyWattage();
   viewer.start();
 
   return () => {
