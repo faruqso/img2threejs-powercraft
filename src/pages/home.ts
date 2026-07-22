@@ -63,6 +63,7 @@ export function renderHome(mount: HTMLElement): () => void {
           </p>
           <div class="cta-row">
             <a class="btn btn-primary" href="#/demo/${firstId}">Explore the demos</a>
+            <a class="btn btn-star" href="#/customize/power-bank">Customize power bank</a>
             <a class="btn btn-star" href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">
               &#9733; Star img2threejs
             </a>

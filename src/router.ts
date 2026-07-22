@@ -1,4 +1,7 @@
-export type Route = { name: 'home' } | { name: 'demo'; id: string };
+export type Route =
+  | { name: 'home' }
+  | { name: 'demo'; id: string }
+  | { name: 'power-bank-customizer' };
 
 /** Parses `location.hash` into a Route. Defaults to home for anything unrecognized. */
 export function parseRoute(hash: string): Route {
@@ -9,6 +12,9 @@ export function parseRoute(hash: string): Route {
   const parts = clean.split('/').filter(Boolean);
   if (parts[0] === 'demo' && parts[1]) {
     return { name: 'demo', id: parts[1] };
+  }
+  if (parts[0] === 'customize' && parts[1] === 'power-bank') {
+    return { name: 'power-bank-customizer' };
   }
   return { name: 'home' };
 }
