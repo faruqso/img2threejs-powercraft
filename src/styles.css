@@ -284,6 +284,7 @@
 }
 
 .complete-engraving {
+  display: none;
   width: 40px;
   min-width: 40px;
   min-height: 40px;
@@ -294,6 +295,10 @@
   font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
+}
+
+.customizer-page.is-brand-entry-dirty .complete-engraving {
+  display: block;
 }
 
 .complete-engraving:hover {
