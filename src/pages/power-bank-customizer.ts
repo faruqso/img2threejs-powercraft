@@ -973,6 +973,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   viewer.controls.addEventListener('start', () => {
     isCameraTransitioning = false;
+    targetCameraPosition.copy(viewer.camera.position);
+    targetCameraTarget.copy(viewer.controls.target);
+    targetCameraZoom = viewer.camera.zoom;
   });
 
   model.userData.tick = (dt: number, elapsed: number): void => {
@@ -1242,15 +1245,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     });
   }
 
-  listen(document, 'click', (e: Event) => {
-    const target = e.target as HTMLElement | null;
-    if (!target) return;
-    const clickedInsideCard = allCards.some(card => card.contains(target));
-    const clickedCanvas = target.closest('#power-bank-canvas');
-    if (!clickedInsideCard || clickedCanvas) {
-      resetCameraFocus();
-    }
-  });
+  // FAB listeners & Recenter controls handle view resetting smoothly
 
   // Enable accordion collapse/expand on all customizer cards with chevron icons
   for (const card of allCards) {
@@ -1430,6 +1425,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const fabOrbit = mount.querySelector<HTMLButtonElement>('#fab-orbit');
   const fabCenter = mount.querySelector<HTMLButtonElement>('#fab-center');
   const fabZoom = mount.querySelector<HTMLButtonElement>('#fab-zoom');
+  
+  if (fabCenter) {
+    listen(fabCenter, 'click', () => resetCameraFocus());
+  }
+  if (fabOrbit) {
+    listen(fabOrbit, 'click', () => resetCameraFocus());
+  }
   
   const themeToggle = mount.querySelector<HTMLButtonElement>('#theme-toggle');
   const customizerPage = mount.querySelector('.customizer-page');
