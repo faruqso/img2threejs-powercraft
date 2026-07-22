@@ -143,9 +143,9 @@ function makeStatusDisplay(
   const ledAngles = [150, 112, 73, 34];
   for (const [index, angleDegrees] of ledAngles.entries()) {
     const angle = THREE.MathUtils.degToRad(angleDegrees);
-    const led = new THREE.Mesh(new THREE.CircleGeometry(0.016, 20), ledMaterial);
+    const led = new THREE.Mesh(new THREE.CircleGeometry(0.018, 20), ledMaterial);
     led.name = `status-led-${index + 1}`;
-    led.position.set(Math.cos(angle) * ledRadius, Math.sin(angle) * ledRadius, 0.004);
+    led.position.set(Math.cos(angle) * ledRadius, Math.sin(angle) * ledRadius, 0.012);
     display.add(led);
   }
 
