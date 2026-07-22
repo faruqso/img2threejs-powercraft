@@ -1718,3 +1718,192 @@ code,
   background: linear-gradient(105deg, #0cc8b6 0%, #60d7a1 100%);
   box-shadow: 0 8px 22px rgba(13, 201, 177, 0.2);
 }
+
+/* Right rail and product stage follow the reference card proportions. */
+.customizer-page .customizer-column-right {
+  gap: 1.25rem;
+}
+
+.customizer-page .customizer-column-right .customizer-card {
+  padding: 1.45rem;
+}
+
+.customizer-page .capacity-segmented {
+  gap: 0.6rem;
+  padding: 0;
+  background: transparent;
+}
+
+.customizer-page .capacity-segmented label {
+  min-width: 0;
+}
+
+.customizer-page .capacity-segmented .segmented-box {
+  min-height: 70px;
+  justify-content: center;
+  border: 1px solid #dfe5ea;
+  border-radius: 11px;
+  background: #fbfcfd;
+  box-shadow: none;
+}
+
+.customizer-page .capacity-segmented input:checked + .segmented-box {
+  border-color: #0dc9b1;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(13, 201, 177, 0.08);
+}
+
+.customizer-page .capacity-segmented strong {
+  font-size: 0.95rem;
+}
+
+.customizer-page .capacity-segmented small {
+  font-size: 0.68rem;
+}
+
+.customizer-page .customizer-column-right .control-row,
+.customizer-page .customizer-column-right .toggle-row {
+  margin-bottom: 1.1rem;
+}
+
+.customizer-page .customizer-column-right .segmented-control:not(.capacity-segmented) {
+  gap: 0.65rem;
+  padding: 0;
+  background: transparent;
+}
+
+.customizer-page .customizer-column-right .segmented-control:not(.capacity-segmented) .segmented-pill {
+  padding: 0.72rem 0.35rem;
+  border: 1px solid #dce3e9;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.customizer-page .customizer-column-right .segmented-control:not(.capacity-segmented) input:checked + .segmented-pill {
+  border-color: #0dc9b1;
+  color: #1a1f2b;
+  box-shadow: none;
+}
+
+.customizer-page .apple-switch {
+  width: 38px;
+  height: 22px;
+  background: #dfe4ea;
+}
+
+.customizer-page .apple-switch::after {
+  width: 18px;
+  height: 18px;
+}
+
+.customizer-page .apple-switch:checked {
+  background: #0dc9b1;
+}
+
+.customizer-page .apple-switch:checked::after {
+  transform: translateX(16px);
+}
+
+.customizer-page .customizer-column-right input[type='range'] {
+  accent-color: #0dc9b1;
+}
+
+.customizer-page .summary-card .card-title {
+  margin-bottom: 1.5rem;
+}
+
+.customizer-page .summary-rows {
+  gap: 0.85rem;
+  margin-bottom: 1.35rem;
+  padding-bottom: 1.35rem;
+  border-bottom-color: #dbe1e6;
+}
+
+.customizer-page .summary-row span,
+.customizer-page .summary-row strong {
+  font-size: 0.83rem;
+}
+
+.customizer-page .summary-total {
+  margin-bottom: 1.35rem;
+}
+
+.customizer-page .summary-total span {
+  font-size: 0.82rem;
+}
+
+.customizer-page .summary-total strong {
+  font-size: 1.35rem;
+}
+
+.customizer-page .customizer-reset {
+  min-height: 48px;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 550;
+}
+
+.customizer-page .floating-actions {
+  right: auto;
+  left: 50%;
+  bottom: 10.8rem;
+  flex-direction: row;
+  transform: translateX(-50%);
+  gap: 0.8rem;
+}
+
+.customizer-page .fab {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  border-color: #eef1f4;
+}
+
+.customizer-page .fab:nth-child(2) {
+  color: #0dc9b1;
+  border-color: #77dfd1;
+}
+
+.customizer-page .customizer-hint {
+  bottom: 8.1rem;
+  padding: 0;
+  background: transparent;
+  backdrop-filter: none;
+  color: #737e8e;
+  font-size: 0.68rem;
+}
+
+.customizer-page .feature-strip {
+  right: 2rem;
+  left: 2rem;
+  bottom: 1.1rem;
+  transform: none;
+  justify-content: space-around;
+  gap: 0;
+  padding: 1.15rem 2.5rem;
+  border: 1px solid #eff2f4;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 28px rgba(30, 43, 55, 0.04);
+}
+
+.customizer-page .feature-item {
+  min-width: 190px;
+}
+
+.customizer-page .feature-icon {
+  width: 42px;
+  height: 42px;
+  background: #eefbf9;
+}
+
+.customizer-page .feature-text strong {
+  font-size: 0.78rem;
+}
+
+.customizer-page .feature-text span {
+  font-size: 0.72rem;
+}
