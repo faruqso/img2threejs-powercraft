@@ -154,6 +154,41 @@ function makeSidePowerButton(
   return buttonGroup;
 }
 
+function makeBatteryPercentageDisplay(): THREE.Mesh {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 160;
+  const context = canvas.getContext('2d');
+  if (!context) {
+    throw new Error('Unable to create the battery percentage display texture.');
+  }
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = '#d9dee5';
+  context.font = '700 94px "SFMono-Regular", Consolas, "Liberation Mono", monospace';
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  context.fillText('86%', canvas.width / 2, canvas.height / 2 + 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+
+  const display = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.172, 0.054),
+    new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false,
+    }),
+  );
+  display.name = 'battery-percentage-display';
+  display.renderOrder = 2;
+  return display;
+}
+
 function makeStatusDisplay(
   shadows: boolean,
   ringMaterial: THREE.Material,
@@ -183,6 +218,10 @@ function makeStatusDisplay(
     led.position.set(Math.cos(angle) * ledRadius, Math.sin(angle) * ledRadius, 0.012);
     display.add(led);
   }
+
+  const percentage = makeBatteryPercentageDisplay();
+  percentage.position.set(0, -0.082, 0.014);
+  display.add(percentage);
 
   return display;
 }
