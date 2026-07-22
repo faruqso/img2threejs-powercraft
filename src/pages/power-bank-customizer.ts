@@ -88,12 +88,12 @@ const USB_COLORS = {
 };
 
 const CAPACITIES: Record<CapacityKey, CapacityPreset> = {
-  '5k': { label: '5,000 mAh', sizeLabel: '5,000 mAh', scale: [0.72, 0.72, 0.76], unitPrice: 14.5 },
-  '10k': { label: '10,000 mAh', sizeLabel: '10,000 mAh', scale: [0.72, 1.24, 0.82], unitPrice: 20.5 },
-  '20k': { label: '20,000 mAh', sizeLabel: '20,000 mAh', scale: [1.04, 1.04, 1.04], unitPrice: 27.5 },
-  '40k': { label: '40,000 mAh', sizeLabel: '40,000 mAh', scale: [1.18, 1.4, 1.22], unitPrice: 38.5 },
-  '60k': { label: '60,000 mAh', sizeLabel: '60,000 mAh', scale: [1.34, 1.58, 1.38], unitPrice: 49.5 },
-  '120k': { label: '120,000 mAh', sizeLabel: '120,000 mAh', scale: [1.54, 1.84, 1.6], unitPrice: 74.5 },
+  '5k': { label: '5,000 mAh', sizeLabel: '5,000 mAh', scale: [1.0, 0.88, 0.75], unitPrice: 14.5 },
+  '10k': { label: '10,000 mAh', sizeLabel: '10,000 mAh', scale: [1.0, 0.96, 0.88], unitPrice: 20.5 },
+  '20k': { label: '20,000 mAh', sizeLabel: '20,000 mAh', scale: [1.0, 1.0, 1.0], unitPrice: 27.5 },
+  '40k': { label: '40,000 mAh', sizeLabel: '40,000 mAh', scale: [1.0, 1.08, 1.22], unitPrice: 38.5 },
+  '60k': { label: '60,000 mAh', sizeLabel: '60,000 mAh', scale: [1.0, 1.18, 1.42], unitPrice: 49.5 },
+  '120k': { label: '120,000 mAh', sizeLabel: '120,000 mAh', scale: [1.0, 1.28, 1.65], unitPrice: 74.5 },
 };
 
 const WATTAGES: Record<WattageKey, WattagePreset> = {
@@ -913,11 +913,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     model.scale.lerp(targetScale, 1 - Math.exp(-dt * 5.6));
     contactShadow.scale.set(model.scale.x, model.scale.z, 1);
 
-    const invScale = new THREE.Vector3(
-      1 / model.scale.x,
-      1 / model.scale.y,
-      1 / model.scale.z,
-    );
+    const invScaleY = 1 / model.scale.y;
+    const invScaleZ = 1 / model.scale.z;
 
     const bodyMeshNames = new Set([
       'glossy-rear-shell',
@@ -927,7 +924,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
     for (const child of model.children) {
       if (!bodyMeshNames.has(child.name)) {
-        child.scale.copy(invScale);
+        child.scale.set(1.0, invScaleY, invScaleZ);
       }
     }
 
