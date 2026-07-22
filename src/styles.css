@@ -225,7 +225,7 @@
 .model-thumb {
   width: 48px;
   height: 48px;
-  background: #f0f3f6 url('/power-bank-thumb.png') center/cover;
+  background: #f0f3f6;
   border-radius: 12px;
 }
 
@@ -1529,4 +1529,192 @@ code,
 .customizer-page .summary-row strong,
 .customizer-page .model-name strong {
   color: #1a1f2b;
+}
+
+/* Left-side control stack mirrors the compact reference controls. */
+.customizer-page .model-thumb {
+  width: 42px;
+  height: 52px;
+  border-radius: 10px;
+  background-color: #edf0f4;
+  background-image: url('/references/anker-maggo-a1618.jpg');
+  background-position: 33% center;
+  background-size: 185%;
+  background-repeat: no-repeat;
+}
+
+.customizer-page .left-control-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(30, 43, 55, 0.05);
+}
+
+.customizer-page .left-control-stack .customizer-card {
+  border-radius: 0;
+  border-color: #f0f2f5;
+  box-shadow: none;
+  padding: 1.35rem 1.25rem;
+}
+
+.customizer-page .left-control-stack .customizer-card:first-child {
+  border-radius: 20px 20px 0 0;
+}
+
+.customizer-page .left-control-stack .customizer-card:last-child {
+  border-radius: 0 0 20px 20px;
+}
+
+.customizer-page .body-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 34px);
+  align-items: center;
+  gap: 15px;
+  flex-wrap: nowrap;
+}
+
+.customizer-page .body-swatch-grid .swatch-option {
+  width: 34px;
+  height: 34px;
+}
+
+.customizer-page .body-swatch-grid .swatch:last-child {
+  width: 28px;
+  height: 28px;
+  display: block !important;
+}
+
+.customizer-page .control-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+.customizer-page .control-heading .card-title {
+  margin: 0;
+}
+
+.customizer-page .control-heading strong {
+  color: #1a1f2b;
+  font-size: 0.9rem;
+}
+
+.customizer-page .range-control-compact {
+  margin: 0;
+}
+
+.customizer-page .usb-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: start;
+  gap: 0.45rem;
+}
+
+.customizer-page .label-swatch {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.35rem;
+}
+
+.customizer-page .label-swatch:has(input:checked) {
+  border: 0;
+  background: transparent;
+}
+
+.customizer-page .label-swatch .swatch {
+  width: 25px;
+  height: 25px;
+}
+
+.customizer-page .swatch-label {
+  font-size: 0.72rem;
+  color: #596171;
+  font-weight: 500;
+}
+
+.customizer-page .text-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.customizer-page .input-label {
+  position: static;
+  padding: 0;
+  background: transparent;
+  color: #596171;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.customizer-page .text-control input {
+  padding: 0.7rem 2.8rem 0.7rem 0.8rem;
+  border-color: #dce2e8;
+  border-radius: 10px;
+  font-size: 0.82rem;
+}
+
+.customizer-page .text-control input:focus {
+  border-color: #0dc9b1;
+  box-shadow: 0 0 0 2px rgba(13, 201, 177, 0.12);
+}
+
+.customizer-page .check-circle {
+  width: 22px;
+  height: 22px;
+  right: 10px;
+  background: #0dc9b1;
+}
+
+.customizer-page .left-control-stack .card-desc {
+  margin: 0.55rem 0 0;
+  font-size: 0.7rem;
+}
+
+.customizer-page .left-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  padding: 0.75rem 0.65rem;
+  border: 1px solid #eff2f4;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 26px rgba(30, 43, 55, 0.035);
+}
+
+.customizer-page .left-benefit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  color: #425068;
+  font-size: 0.63rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.customizer-page .left-benefit-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: #eefbf9;
+  color: #0dc9b1;
+  font-size: 0.9rem;
+}
+
+.customizer-page .customizer-reset {
+  background: linear-gradient(105deg, #0cc8b6 0%, #60d7a1 100%);
+  box-shadow: 0 8px 22px rgba(13, 201, 177, 0.2);
 }

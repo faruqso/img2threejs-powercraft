@@ -444,7 +444,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <div class="customizer-card top-card">
             <div class="top-card-header">
               <div class="model-info">
-                <div class="model-thumb"></div>
+                <div class="model-thumb" aria-hidden="true"></div>
                 <div class="model-name">
                   <strong>Anker MagGo 5,000 mAh</strong>
                   <a href="#" class="change-model-link">Change model</a>
@@ -454,57 +454,67 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             </div>
           </div>
 
-          <div class="customizer-card">
-            <h3 class="card-title">Body colour</h3>
-            <div class="swatch-grid">
-              ${Object.entries(FINISHES)
-                .map(
-                  ([key, finish]) => `
-                    <label class="swatch-option ${key === 'graphite' ? 'active' : ''}" title="${finish.label}">
-                      <input type="radio" name="finish" value="${key}" ${key === 'graphite' ? 'checked' : ''} />
-                      <span class="swatch" style="--swatch-color:#${finish.body.toString(16).padStart(6, '0')}"></span>
-                    </label>
-                  `,
-                )
-                .join('')}
-            </div>
-          </div>
-          
-          <div class="customizer-card">
-            <h3 class="card-title">Surface gloss</h3>
-            <label class="range-control">
-              <input id="gloss-control" type="range" min="0" max="100" value="45" />
-              <span class="range-readout"><strong id="gloss-value">45%</strong></span>
-            </label>
-          </div>
-
-          <div class="customizer-card">
-            <h3 class="card-title">USB tongue colour</h3>
-            <div class="swatch-grid label-grid">
-              ${Object.entries(USB_COLORS)
-                .map(
-                  ([key, color]) => `
-                    <label class="swatch-option label-swatch ${key === 'cyan' ? 'active' : ''}" title="${color.label}">
-                      <input type="radio" name="usb-color" value="${key}" ${key === 'cyan' ? 'checked' : ''} />
-                      <span class="swatch" style="--swatch-color:#${color.value.toString(16).padStart(6, '0')}"></span>
-                      <span class="swatch-label">${color.label}</span>
-                    </label>
-                  `,
-                )
-                .join('')}
-            </div>
-          </div>
-
-          <div class="customizer-card">
-            <h3 class="card-title">Personalisation</h3>
-            <label class="text-control">
-              <span class="input-label">Inscription</span>
-              <div class="input-wrapper">
-                <input id="brand-control" type="text" value="ANKER" maxlength="15" autocomplete="off" placeholder="Enter words or names" />
-                <div class="check-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+          <div class="left-control-stack">
+            <div class="customizer-card">
+              <h3 class="card-title">Body colour</h3>
+              <div class="swatch-grid body-swatch-grid">
+                ${Object.entries(FINISHES)
+                  .map(
+                    ([key, finish]) => `
+                      <label class="swatch-option ${key === 'graphite' ? 'active' : ''}" title="${finish.label}">
+                        <input type="radio" name="finish" value="${key}" ${key === 'graphite' ? 'checked' : ''} />
+                        <span class="swatch" style="--swatch-color:#${finish.body.toString(16).padStart(6, '0')}"></span>
+                      </label>
+                    `,
+                  )
+                  .join('')}
               </div>
-            </label>
-            <p class="card-desc">Up to 15 characters</p>
+            </div>
+
+            <div class="customizer-card">
+              <div class="control-heading">
+                <h3 class="card-title">Surface gloss</h3>
+                <strong id="gloss-value">45%</strong>
+              </div>
+              <label class="range-control range-control-compact">
+                <input id="gloss-control" type="range" min="0" max="100" value="45" />
+              </label>
+            </div>
+
+            <div class="customizer-card">
+              <h3 class="card-title">USB tongue colour</h3>
+              <div class="usb-swatch-grid">
+                ${Object.entries(USB_COLORS)
+                  .map(
+                    ([key, color]) => `
+                      <label class="swatch-option label-swatch ${key === 'cyan' ? 'active' : ''}" title="${color.label}">
+                        <input type="radio" name="usb-color" value="${key}" ${key === 'cyan' ? 'checked' : ''} />
+                        <span class="swatch" style="--swatch-color:#${color.value.toString(16).padStart(6, '0')}"></span>
+                        <span class="swatch-label">${color.label}</span>
+                      </label>
+                    `,
+                  )
+                  .join('')}
+              </div>
+            </div>
+
+            <div class="customizer-card">
+              <h3 class="card-title">Personalisation</h3>
+              <label class="text-control">
+                <span class="input-label">Inscription</span>
+                <div class="input-wrapper">
+                  <input id="brand-control" type="text" value="ANKER" maxlength="15" autocomplete="off" placeholder="Enter words or names" />
+                  <div class="check-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                </div>
+              </label>
+              <p class="card-desc">Up to 15 characters</p>
+            </div>
+          </div>
+
+          <div class="left-benefits" aria-label="Product benefits">
+            <div class="left-benefit"><span class="left-benefit-icon">&#9670;</span><span>Premium<br>Build</span></div>
+            <div class="left-benefit"><span class="left-benefit-icon">&#9889;</span><span>Safe<br>Charging</span></div>
+            <div class="left-benefit"><span class="left-benefit-icon">&#9992;</span><span>Travel<br>Friendly</span></div>
           </div>
         </div>
 
