@@ -244,23 +244,16 @@ function makeRevealPlateau(): THREE.Group {
   stage.name = 'power-bank-reveal-plateau';
 
   const baseMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xdfe4eb,
-    roughness: 0.34,
+    color: 0xffffff,
+    roughness: 0.1,
     metalness: 0.05,
-    clearcoat: 0.42,
-    clearcoatRoughness: 0.28,
-  });
-  const edgeMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x9da8b6,
-    roughness: 0.22,
-    metalness: 0.34,
-    clearcoat: 0.65,
-    clearcoatRoughness: 0.18,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.1,
   });
   const glowMaterial = new THREE.MeshBasicMaterial({
-    color: 0x9fc7ff,
+    color: 0x0dc9b1,
     transparent: true,
-    opacity: 0.28,
+    opacity: 0.7,
     depthWrite: false,
   });
 
@@ -271,7 +264,7 @@ function makeRevealPlateau(): THREE.Group {
   base.receiveShadow = true;
   stage.add(base);
 
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.018, 16, 112), edgeMaterial);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.018, 16, 112), baseMaterial);
   rim.name = 'reveal-plateau-rim';
   rim.rotation.x = Math.PI / 2;
   rim.position.y = 0.195;
@@ -290,7 +283,7 @@ function makeRevealPlateau(): THREE.Group {
   halo.position.y = 0.212;
   stage.add(halo);
 
-  const column = new THREE.PointLight(0x9fc7ff, 0.75, 4.2, 1.7);
+  const column = new THREE.PointLight(0x0dc9b1, 0.75, 4.2, 1.7);
   column.name = 'reveal-plateau-lift-light';
   column.position.set(0, 0.85, 0);
   stage.add(column);
@@ -407,6 +400,18 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   mount.innerHTML = `
     <div class="customizer-page light-mesh-bg">
       <div class="customizer-canvas-mount" id="power-bank-canvas"></div>
+      
+      <div class="floating-actions">
+        <button class="fab" id="fab-orbit" title="Drag to orbit">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/><path d="M6 11V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/></svg>
+        </button>
+        <button class="fab" id="fab-center" title="Center view">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="20" y2="12"/></svg>
+        </button>
+        <button class="fab" id="fab-zoom" title="Zoom to fit">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        </button>
+      </div>
 
       <header class="global-header">
         <div class="header-brand">
@@ -416,7 +421,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <strong>img2threejs</strong>
         </div>
         <nav class="header-nav">
-          <a href="#/">Home</a>
           <a href="#/" class="active">Build</a>
           <a href="#/">Gallery</a>
           <a href="#/">About</a>
@@ -432,16 +436,19 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       <div class="customizer-columns">
         <div class="customizer-column customizer-column-left">
           <a class="back-link" href="#/">&larr; Back to models</a>
-          <h1 class="page-title">Build your<br>power bank</h1>
-          <p class="page-subtitle">Create your ideal power bank with <strong>img2threejs</strong></p>
+          <h1 class="page-title">Design your<br>power bank</h1>
+          <p class="page-subtitle">Customise every detail and create the power bank that's uniquely yours.</p>
 
           <div class="customizer-card top-card">
             <div class="top-card-header">
-              <label class="radio-label active-radio">
-                <input type="radio" checked>
-                <span>Anker MagGo 5,000 mAh</span>
-              </label>
-              <a href="#" class="change-model-link">Change model</a>
+              <div class="model-info">
+                <div class="model-thumb"></div>
+                <div class="model-name">
+                  <strong>Anker MagGo 5,000 mAh</strong>
+                  <a href="#" class="change-model-link">Change model</a>
+                </div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
             </div>
           </div>
 
@@ -451,104 +458,104 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               ${Object.entries(FINISHES)
                 .map(
                   ([key, finish]) => `
-                    <label class="swatch-option" title="${finish.label}">
+                    <label class="swatch-option ${key === 'graphite' ? 'active' : ''}" title="${finish.label}">
                       <input type="radio" name="finish" value="${key}" ${key === 'graphite' ? 'checked' : ''} />
                       <span class="swatch" style="--swatch-color:#${finish.body.toString(16).padStart(6, '0')}"></span>
-                      <span>${finish.label}</span>
                     </label>
                   `,
                 )
                 .join('')}
             </div>
           </div>
-
-          <div class="customizer-card row-card">
-            <div class="col-half">
-              <h3 class="card-title">Surface gloss</h3>
-              <label class="range-control">
-                <span class="range-readout"><strong id="gloss-value">45%</strong></span>
-                <input id="gloss-control" type="range" min="0" max="100" value="45" />
-              </label>
-            </div>
+          
+          <div class="customizer-card">
+            <h3 class="card-title">Surface gloss</h3>
+            <label class="range-control">
+              <input id="gloss-control" type="range" min="0" max="100" value="45" />
+              <span class="range-readout"><strong id="gloss-value">45%</strong></span>
+            </label>
           </div>
 
           <div class="customizer-card">
             <h3 class="card-title">USB tongue colour</h3>
-            <div class="segmented-control">
+            <div class="swatch-grid label-grid">
               ${Object.entries(USB_COLORS)
                 .map(
                   ([key, color]) => `
-                    <label>
+                    <label class="swatch-option label-swatch ${key === 'cyan' ? 'active' : ''}" title="${color.label}">
                       <input type="radio" name="usb-color" value="${key}" ${key === 'cyan' ? 'checked' : ''} />
-                      <span>${color.label}</span>
+                      <span class="swatch" style="--swatch-color:#${color.value.toString(16).padStart(6, '0')}"></span>
+                      <span class="swatch-label">${color.label}</span>
                     </label>
                   `,
                 )
                 .join('')}
             </div>
+          </div>
+
+          <div class="customizer-card">
+            <h3 class="card-title">Personalisation</h3>
+            <label class="text-control">
+              <span class="input-label">Inscription</span>
+              <div class="input-wrapper">
+                <input id="brand-control" type="text" value="ANKER" maxlength="15" autocomplete="off" placeholder="Enter words or names" />
+                <div class="check-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+              </div>
+            </label>
+            <p class="card-desc">Up to 15 characters</p>
           </div>
         </div>
 
         <div class="customizer-column customizer-column-right">
           <div class="customizer-card">
-            <h3 class="card-title">Hardware options</h3>
-
-            <div class="control-row">
-              <span class="row-label">Capacity size</span>
-              <div class="segmented-control segmented-control-three">
-                ${Object.entries(CAPACITIES)
-                  .map(
-                    ([key, capacity]) => `
-                      <label>
-                        <input type="radio" name="capacity" value="${key}" ${key === '5k' ? 'checked' : ''} />
-                        <span>${capacity.label}</span>
-                      </label>
-                    `,
-                  )
-                  .join('')}
-              </div>
+            <h3 class="card-title">Capacity size</h3>
+            <div class="segmented-control segmented-control-three capacity-segmented">
+              ${Object.entries(CAPACITIES)
+                .map(
+                  ([key, capacity]) => `
+                    <label>
+                      <input type="radio" name="capacity" value="${key}" ${key === '5k' ? 'checked' : ''} />
+                      <span class="segmented-box">
+                        <strong>${capacity.label.split(' ')[0]}</strong>
+                        <small>mAh</small>
+                      </span>
+                    </label>
+                  `,
+                )
+                .join('')}
             </div>
-
-          </div>
-
-          <div class="customizer-card">
-            <h3 class="card-title">Personalised Monogram</h3>
-            <p class="card-desc">Engrave your name or any other personalised word on your power bank</p>
-            <h4 class="card-subtitle">Inscription</h4>
-            <label class="text-control">
-              <input id="brand-control" type="text" value="ANKER" maxlength="18" autocomplete="off" placeholder="Enter words or names" />
-              <div class="check-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-            </label>
           </div>
 
           <div class="customizer-card">
             <h3 class="card-title">Stage controls</h3>
-            <label class="toggle-row inline-toggle">
-              <span>Add MagSafe</span>
-              <input id="magsafe-toggle" type="checkbox" checked />
+            
+            <label class="toggle-row">
+              <span class="info-label">Add MagSafe <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+              <input id="magsafe-toggle" class="apple-switch" type="checkbox" checked />
             </label>
+            
             <div class="control-row">
-              <span class="row-label">Battery indicator</span>
+              <span class="row-label info-label">Battery indicator <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
               <div class="segmented-control">
                 <label>
                   <input type="radio" name="indicator-type" value="leds" checked />
-                  <span>LED dots</span>
+                  <span class="segmented-pill">LED dots</span>
                 </label>
                 <label>
                   <input type="radio" name="indicator-type" value="screen" />
-                  <span>Info screen</span>
+                  <span class="segmented-pill">Info screen</span>
                 </label>
               </div>
             </div>
-            <label class="toggle-row inline-toggle">
-              <span>Auto rotation</span>
-              <input id="spin-toggle" type="checkbox" />
+            
+            <label class="toggle-row">
+              <span class="info-label">Auto rotation <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+              <input id="spin-toggle" class="apple-switch" type="checkbox" />
             </label>
-
+            
             <div class="control-row">
-              <span class="row-label">Stage light</span>
+              <span class="row-label info-label">Stage light <strong id="light-value" style="float: right;">70%</strong></span>
               <label class="range-control no-margin">
-                <span class="range-readout"><strong id="light-value">70%</strong></span>
                 <input id="light-control" type="range" min="20" max="120" value="70" />
               </label>
             </div>
@@ -556,31 +563,56 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
           <div class="customizer-card summary-card">
             <h3 class="card-title">Build summary</h3>
-
+            
             <div class="summary-rows" aria-live="polite">
               <div class="summary-row">
-                <span id="capacity-readout">5,000 mAh</span>
-                <strong>£40</strong>
+                <span id="capacity-readout">Power bank</span>
+                <strong>£40.00</strong>
               </div>
               <div class="summary-row">
-                <span>Custom monogram</span>
-                <strong>£5</strong>
+                <span>Custom inscription</span>
+                <strong>£5.00</strong>
               </div>
             </div>
 
             <div class="summary-total">
               <span>Total Price:</span>
-              <strong>£60</strong>
+              <strong>£45.00</strong>
             </div>
 
             <button class="btn-primary customizer-reset" id="reset-customizer" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
               Reset to code default
             </button>
           </div>
         </div>
       </div>
 
-      <div class="customizer-hint">drag to orbit &middot; pinch or scroll to zoom</div>
+      <div class="feature-strip">
+        <div class="feature-item">
+          <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0dc9b1" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg></div>
+          <div class="feature-text">
+            <strong>5,000 mAh</strong>
+            <span>Reliable power on the go</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0dc9b1" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="feature-text">
+            <strong>MagSafe Ready</strong>
+            <span>Seamless wireless charging</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0dc9b1" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="feature-text">
+            <strong>Smart Protection</strong>
+            <span>Advanced safety features</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="customizer-hint">Drag to orbit &middot; Scroll to zoom</div>
     </div>
   `;
 
@@ -847,6 +879,44 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     viewer.controls.target.copy(defaultCameraTarget);
     viewer.controls.update();
   });
+
+  const fabOrbit = mount.querySelector<HTMLButtonElement>('#fab-orbit');
+  const fabCenter = mount.querySelector<HTMLButtonElement>('#fab-center');
+  const fabZoom = mount.querySelector<HTMLButtonElement>('#fab-zoom');
+  
+  if (fabOrbit) {
+    listen(fabOrbit, 'click', () => {
+      autoSpin = !autoSpin;
+      spinToggle.checked = autoSpin;
+    });
+  }
+  if (fabCenter) {
+    listen(fabCenter, 'click', () => {
+      viewer.controls.target.copy(defaultCameraTarget);
+      viewer.camera.position.copy(defaultCameraPosition);
+      viewer.controls.update();
+    });
+  }
+  if (fabZoom) {
+    listen(fabZoom, 'click', () => {
+      viewer.camera.position.copy(defaultCameraTarget).add(new THREE.Vector3(0, 0.4, 2.8));
+      viewer.controls.update();
+    });
+  }
+
+  // Active state for swatch selection (since active class is needed in HTML)
+  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="finish"]')) {
+    listen(input, 'change', () => {
+      mount.querySelectorAll('input[name="finish"]').forEach(r => r.parentElement?.classList.remove('active'));
+      input.parentElement?.classList.add('active');
+    });
+  }
+  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="usb-color"]')) {
+    listen(input, 'change', () => {
+      mount.querySelectorAll('input[name="usb-color"]').forEach(r => r.parentElement?.classList.remove('active'));
+      input.parentElement?.classList.add('active');
+    });
+  }
 
   applyDimensions();
   syncLeds();
