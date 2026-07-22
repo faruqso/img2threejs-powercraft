@@ -78,34 +78,6 @@ function makePanel(
   return mesh;
 }
 
-function createBrandLabel(): THREE.Mesh {
-  const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 128;
-  const context = canvas.getContext('2d')!;
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = 'rgba(208, 211, 216, 0.72)';
-  context.font = '700 62px Arial, sans-serif';
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.fillText('ANKER', 256, 63);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.minFilter = THREE.LinearFilter;
-
-  const material = new THREE.MeshBasicMaterial({
-    map: texture,
-    transparent: true,
-    depthWrite: false,
-    side: THREE.DoubleSide,
-    toneMapped: false,
-  });
-  const label = new THREE.Mesh(new THREE.PlaneGeometry(0.58, 0.145), material);
-  label.name = 'rear-anker-wordmark';
-  return label;
-}
-
 function makeSidePort(
   shadows: boolean,
   shellMaterial: THREE.Material,
@@ -147,20 +119,21 @@ function makeStatusDisplay(
   display.name = 'battery-status-display';
   display.position.set(0, 0.62, BODY_DEPTH / 2 + 0.075);
 
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.198, 0.023, 16, 64), ringMaterial);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.192, 0.018, 16, 64), ringMaterial);
   rim.name = 'status-ring';
   rim.castShadow = shadows;
   display.add(rim);
 
-  const face = new THREE.Mesh(new THREE.CircleGeometry(0.174, 64), displayMaterial);
+  const face = new THREE.Mesh(new THREE.CircleGeometry(0.171, 64), displayMaterial);
   face.name = 'status-face';
-  face.position.z = 0.008;
+  face.position.z = 0.004;
   display.add(face);
 
-  const ledRadius = 0.122;
-  for (let index = 0; index < 5; index += 1) {
-    const angle = THREE.MathUtils.degToRad(150 - index * 30);
-    const led = new THREE.Mesh(new THREE.CircleGeometry(0.019, 20), ledMaterial);
+  const ledRadius = 0.116;
+  const ledAngles = [150, 112, 73, 34];
+  for (const [index, angleDegrees] of ledAngles.entries()) {
+    const angle = THREE.MathUtils.degToRad(angleDegrees);
+    const led = new THREE.Mesh(new THREE.CircleGeometry(0.016, 20), ledMaterial);
     led.name = `status-led-${index + 1}`;
     led.position.set(Math.cos(angle) * ledRadius, Math.sin(angle) * ledRadius, 0.014);
     display.add(led);
@@ -169,54 +142,45 @@ function makeStatusDisplay(
   return display;
 }
 
-function makeKickstand(
+function makeMagneticBack(
   shadows: boolean,
-  shellMaterial: THREE.Material,
-  standMaterial: THREE.Material,
+  ringMaterial: THREE.Material,
+  backMaterial: THREE.Material,
+  detailMaterial: THREE.Material,
 ): THREE.Group {
-  const stand = new THREE.Group();
-  stand.name = 'fold-out-kickstand';
+  const back = new THREE.Group();
+  back.name = 'magnetic-charging-back';
 
-  const surround = makePanel(
-    'kickstand-recess',
-    BODY_WIDTH * 0.73,
-    BODY_HEIGHT * 0.65,
-    0.055,
-    0.17,
-    shellMaterial,
-    shadows,
-    0.018,
+  // The rear is a flush Qi2/MagSafe alignment surface: a dark outer ring and
+  // a slightly softer circular center pad, positioned high on the body.
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.352, 0.408, 96), ringMaterial);
+  ring.name = 'magnetic-alignment-ring';
+  ring.rotation.y = Math.PI;
+  ring.castShadow = shadows;
+  back.add(ring);
+
+  const pad = new THREE.Mesh(new THREE.CircleGeometry(0.352, 72), backMaterial);
+  pad.name = 'magnetic-center-pad';
+  pad.rotation.y = Math.PI;
+  pad.position.z = 0.004;
+  pad.receiveShadow = shadows;
+  back.add(pad);
+
+  const alignmentBar = makePanel(
+    'magnetic-alignment-bar',
+    0.058,
+    0.245,
+    0.012,
+    0.028,
+    detailMaterial,
+    false,
+    0.004,
   );
-  stand.add(surround);
+  alignmentBar.rotation.y = Math.PI;
+  alignmentBar.position.set(0, -0.76, 0.004);
+  back.add(alignmentBar);
 
-  const plate = makePanel(
-    'kickstand-plate',
-    BODY_WIDTH * 0.66,
-    BODY_HEIGHT * 0.60,
-    0.052,
-    0.145,
-    standMaterial,
-    shadows,
-    0.016,
-  );
-  plate.position.z = -0.034;
-  stand.add(plate);
-
-  const hinge = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.055, 0.055, BODY_WIDTH * 0.43, 28),
-    standMaterial,
-  );
-  hinge.name = 'kickstand-hinge';
-  hinge.rotation.z = Math.PI / 2;
-  hinge.position.set(0, BODY_HEIGHT * 0.305, -0.058);
-  hinge.castShadow = shadows;
-  stand.add(hinge);
-
-  const grip = makePanel('kickstand-grip', 0.30, 0.055, 0.025, 0.025, shellMaterial, false, 0.008);
-  grip.position.set(0, -BODY_HEIGHT * 0.302, -0.066);
-  stand.add(grip);
-
-  return stand;
+  return back;
 }
 
 /**
@@ -296,8 +260,8 @@ export function createAnkerMaggoA1618Model(
   // A narrow polished gasket remains visible around the matte charging face.
   const frontGasket = makePanel(
     'front-polished-gasket',
-    BODY_WIDTH * 0.965,
-    BODY_HEIGHT * 0.972,
+    BODY_WIDTH * 0.982,
+    BODY_HEIGHT * 0.986,
     0.045,
     0.18,
     edgeMaterial,
@@ -309,8 +273,8 @@ export function createAnkerMaggoA1618Model(
 
   const chargingFace = makePanel(
     'matte-charging-face',
-    BODY_WIDTH * 0.925,
-    BODY_HEIGHT * 0.935,
+    BODY_WIDTH * 0.955,
+    BODY_HEIGHT * 0.963,
     0.036,
     0.17,
     satinGraphite,
@@ -323,47 +287,29 @@ export function createAnkerMaggoA1618Model(
   const statusDisplay = makeStatusDisplay(shadows, ringMaterial, displayMaterial, ledMaterial);
   root.add(statusDisplay);
 
-  const kickstand = makeKickstand(shadows, satinGraphite, bodyGraphite);
-  kickstand.position.set(0, BODY_CENTER_Y - 0.03, -BODY_DEPTH / 2 - 0.032);
-  root.add(kickstand);
-
-  const wordmark = createBrandLabel();
-  wordmark.position.set(0, 0.42, -BODY_DEPTH / 2 - 0.094);
-  wordmark.rotation.y = Math.PI;
-  root.add(wordmark);
+  const magneticBack = makeMagneticBack(shadows, edgeMaterial, bodyGraphite, edgeMaterial);
+  magneticBack.position.set(0, BODY_CENTER_Y + 0.25, -BODY_DEPTH / 2 - 0.023);
+  root.add(magneticBack);
 
   const usbPort = makeSidePort(shadows, satinGraphite, blueMaterial);
   usbPort.position.y = 0.63;
   root.add(usbPort);
 
-  const powerButton = makePanel(
-    'side-power-button',
-    0.25,
-    0.082,
-    0.035,
-    0.035,
-    edgeMaterial,
-    false,
-    0.008,
+  // The left edge carries the long flush kickstand release visible in the
+  // supplied side views, running down toward the blue USB-C inset.
+  const standSeam = makePanel(
+    'left-kickstand-seam',
+    0.255,
+    BODY_HEIGHT * 0.49,
+    0.006,
+    0.075,
+    bodyGraphite,
+    shadows,
+    0.006,
   );
-  powerButton.rotation.y = Math.PI / 2;
-  powerButton.position.set(BODY_WIDTH / 2 + 0.021, 0.70, 0.02);
-  root.add(powerButton);
-
-  // A fine side seam separates the front module from the polished rear shell.
-  const seamMaterial = new THREE.MeshStandardMaterial({
-    color: 0x030405,
-    roughness: 0.42,
-  });
-  for (const side of [-1, 1]) {
-    const seam = new THREE.Mesh(
-      new THREE.BoxGeometry(0.012, BODY_HEIGHT * 0.82, 0.012),
-      seamMaterial,
-    );
-    seam.name = side < 0 ? 'left-side-seam' : 'right-side-seam';
-    seam.position.set(side * (BODY_WIDTH / 2 + 0.008), BODY_CENTER_Y + 0.03, 0.095);
-    root.add(seam);
-  }
+  standSeam.rotation.y = -Math.PI / 2;
+  standSeam.position.set(-BODY_WIDTH / 2 - 0.006, BODY_CENTER_Y + 0.015, -0.012);
+  root.add(standSeam);
 
   root.userData.tick = (dt: number): void => {
     root.rotation.y += dt * rotationSpeed;
