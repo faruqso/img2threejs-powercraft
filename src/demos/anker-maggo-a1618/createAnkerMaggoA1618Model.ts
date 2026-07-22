@@ -314,15 +314,13 @@ function makeBatteryPercentageDisplay(): THREE.Mesh {
   return display;
 }
 
-export type RingShapeKey = 'circle' | 'squircle' | 'square' | 'hexagon';
+export type RingShapeKey = 'circle' | 'squircle' | 'hexagon';
 
 export function createRingRimGeometry(shapeKey: RingShapeKey): THREE.BufferGeometry {
   if (shapeKey === 'circle') {
     return new THREE.TorusGeometry(0.192, 0.015, 16, 64);
   } else if (shapeKey === 'hexagon') {
     return new THREE.TorusGeometry(0.198, 0.015, 16, 6);
-  } else if (shapeKey === 'square') {
-    return new THREE.TorusGeometry(0.208, 0.015, 16, 4);
   } else {
     // Squircle (Rounded Square)
     const shape = new THREE.Shape();
@@ -348,8 +346,6 @@ export function createRingFaceGeometry(shapeKey: RingShapeKey): THREE.BufferGeom
     return new THREE.CircleGeometry(0.176, 64);
   } else if (shapeKey === 'hexagon') {
     return new THREE.CircleGeometry(0.182, 6);
-  } else if (shapeKey === 'square') {
-    return new THREE.PlaneGeometry(0.35, 0.35);
   } else {
     // Squircle face
     const shape = new THREE.Shape();

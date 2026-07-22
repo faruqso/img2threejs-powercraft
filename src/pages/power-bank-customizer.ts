@@ -773,10 +773,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   <span class="segmented-pill">Squircle</span>
                 </label>
                 <label>
-                  <input type="radio" name="ring-shape" value="square" />
-                  <span class="segmented-pill">Square</span>
-                </label>
-                <label>
                   <input type="radio" name="ring-shape" value="hexagon" />
                   <span class="segmented-pill">Hexagon</span>
                 </label>
@@ -985,8 +981,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const invScaleY = 1 / model.scale.y;
     const invScaleZ = 1 / model.scale.z;
 
-    // Keep ANKER text anchored at top-right corner at 1:1 scale without font scaling
+    // Keep ANKER text anchored at top-right corner at 1:1 scale without font stretching
     brandEngraving.position.y = 1.46 + (model.scale.y - 1.0) * 0.72;
+    // brandEngraving is rotated -90deg on Z, so local X maps to world Y. Set local X to invScaleY to cancel model.scale.y!
+    brandEngraving.scale.set(invScaleY, 1.0, invScaleZ);
 
     const bodyMeshNames = new Set([
       'glossy-rear-shell',
@@ -1005,7 +1003,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     ]);
 
     for (const child of model.children) {
-      if (!bodyMeshNames.has(child.name)) {
+      if (!bodyMeshNames.has(child.name) && child !== brandEngraving) {
         if (uniformScaledNames.has(child.name)) {
           child.scale.set(model.scale.y, 1.0, invScaleZ);
         } else {
