@@ -1,4 +1,8 @@
 import * as THREE from 'three';
+import {
+  createAnkerMaggoA1618LookDevLights,
+  createAnkerMaggoA1618Model,
+} from './anker-maggo-a1618/createAnkerMaggoA1618Model';
 import { createCrownChestModel } from './crown-chest/createCrownChestModel';
 import {
   createWarHaulerModel,
@@ -56,6 +60,36 @@ const SOURCE_BRANCH = import.meta.env.VITE_SOURCE_BRANCH || 'main';
 const REPO = `${SOURCE_REPO.replace(/\/$/, '')}/blob/${SOURCE_BRANCH}`;
 
 export const demos: DemoEntry[] = [
+  {
+    id: 'anker-maggo-a1618',
+    title: 'Anker MagGo Power Bank 5K (A1618)',
+    subjectClass: 'object',
+    blurb:
+      'The black Anker MagGo 5,000mAh power bank rebuilt from a single three-quarter product image ' +
+      'at its measured 107.3 × 69.5 × 20.5 mm proportions. The procedural model includes the layered ' +
+      'matte-and-gloss enclosure, fold-out rear stand, blue USB-C insert, circular five-LED status ' +
+      'display, subtle turntable rotation, and touch-friendly orbit and pinch zoom.',
+    referenceImage: `${BASE}references/anker-maggo-a1618.jpg`,
+    sourcePath: 'src/demos/anker-maggo-a1618/createAnkerMaggoA1618Model.ts',
+    sourceUrl: import.meta.env.VITE_SOURCE_REPO_URL
+      ? `${REPO}/src/demos/anker-maggo-a1618/createAnkerMaggoA1618Model.ts`
+      : '',
+    generatedWith: 'Codex · procedural Three.js',
+    author: 'Codex + project owner',
+    authorUrl: 'https://openai.com/codex/',
+    status: 'final',
+    cameraPosition: [-3.4, 2.75, 4.6],
+    cameraTarget: [0, 1.35, 0],
+    cameraFov: 34,
+    build: (scene) => {
+      scene.background = new THREE.Color(0xe8eaed);
+      const group = createAnkerMaggoA1618Model({ shadows: true, rotationSpeed: 0.038 });
+      scene.add(group);
+      const lights = createAnkerMaggoA1618LookDevLights();
+      scene.add(lights);
+      return group;
+    },
+  },
   {
     id: 'sony-wf1000xm3',
     title: 'Sony WF-1000XM3 Earbuds + Case',

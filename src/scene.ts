@@ -51,6 +51,14 @@ export class Viewer {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
+    this.controls.enableRotate = true;
+    this.controls.enableZoom = true;
+    this.controls.enablePan = false;
+    this.controls.minDistance = 1.15;
+    this.controls.maxDistance = 12;
+    this.controls.touches.ONE = THREE.TOUCH.ROTATE;
+    this.controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
+    this.renderer.domElement.style.touchAction = 'none';
     const [tx, ty, tz] = options.cameraTarget ?? [0, 0, 0];
     this.controls.target.set(tx, ty, tz);
     this.controls.update();

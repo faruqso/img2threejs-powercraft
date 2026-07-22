@@ -16,32 +16,41 @@ export function renderDemo(mount: HTMLElement, id: string): () => void {
     return () => {};
   }
 
+  const compactPanel = window.matchMedia('(max-width: 640px)').matches;
+
   mount.innerHTML = `
     <div class="demo-page">
       <div class="demo-canvas-mount" id="demo-canvas-mount"></div>
-      <div class="demo-panel">
-        <a class="back-link" href="#/">&larr; Back to gallery</a>
-        <h2>${demo.title}</h2>
-        <p class="demo-author">by
-          <a href="${demo.authorUrl}" target="_blank" rel="noopener noreferrer">${demo.author}</a>
-        </p>
-        <img class="demo-ref-thumb" src="${demo.referenceImage}" alt="${demo.title} reference" />
-        <div class="demo-meta">
-          <span class="badge badge-${demo.subjectClass}">${demo.subjectClass}</span>
-          <span class="badge">${demo.generatedWith}</span>
-          <span class="badge">${demo.status}</span>
-          <p>${demo.blurb}</p>
+      <details class="demo-panel"${compactPanel ? '' : ' open'}>
+        <summary class="demo-panel-summary">${demo.title} &middot; details</summary>
+        <div class="demo-panel-content">
+          <a class="back-link" href="#/">&larr; Back to gallery</a>
+          <h2>${demo.title}</h2>
+          <p class="demo-author">by
+            <a href="${demo.authorUrl}" target="_blank" rel="noopener noreferrer">${demo.author}</a>
+          </p>
+          <img class="demo-ref-thumb" src="${demo.referenceImage}" alt="${demo.title} reference" />
+          <div class="demo-meta">
+            <span class="badge badge-${demo.subjectClass}">${demo.subjectClass}</span>
+            <span class="badge">${demo.generatedWith}</span>
+            <span class="badge">${demo.status}</span>
+            <p>${demo.blurb}</p>
+          </div>
+          <div class="demo-links">
+            ${
+              demo.sourceUrl
+                ? `<a class="btn" href="${demo.sourceUrl}" target="_blank" rel="noopener noreferrer">
+                    View generated source
+                  </a>`
+                : ''
+            }
+            <a class="btn btn-star" href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">
+              &#9733; Star img2threejs on GitHub
+            </a>
+          </div>
         </div>
-        <div class="demo-links">
-          <a class="btn" href="${demo.sourceUrl}" target="_blank" rel="noopener noreferrer">
-            View generated source
-          </a>
-          <a class="btn btn-star" href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">
-            &#9733; Star img2threejs on GitHub
-          </a>
-        </div>
-      </div>
-      <div class="hint">drag to orbit &middot; scroll to zoom</div>
+      </details>
+      <div class="hint">drag / swipe to orbit &middot; scroll / pinch to zoom</div>
     </div>
   `;
 
