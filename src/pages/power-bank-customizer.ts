@@ -671,38 +671,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             </div>
             <div class="port-choice-grid">
               <label class="port-choice-card">
-                <input type="checkbox" name="port-option" value="type-c-1" />
-                <div class="port-choice-inner">
-                  <div class="port-icon-wrapper">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
-                  </div>
-                  <div class="port-choice-info">
-                    <strong>USB-C 1</strong>
-                    <small>Primary PD</small>
-                  </div>
-                  <div class="port-checkbox-icon">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
-                  </div>
-                </div>
-              </label>
-
-              <label class="port-choice-card">
-                <input type="checkbox" name="port-option" value="type-c-2" />
-                <div class="port-choice-inner">
-                  <div class="port-icon-wrapper">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
-                  </div>
-                  <div class="port-choice-info">
-                    <strong>USB-C 2</strong>
-                    <small>Secondary C</small>
-                  </div>
-                  <div class="port-checkbox-icon">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
-                  </div>
-                </div>
-              </label>
-
-              <label class="port-choice-card">
                 <input type="checkbox" name="port-option" value="type-a" />
                 <div class="port-choice-inner">
                   <div class="port-icon-wrapper">
@@ -710,7 +678,39 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   </div>
                   <div class="port-choice-info">
                     <strong>USB-A</strong>
-                    <small>Legacy port</small>
+                    <small>High-speed</small>
+                  </div>
+                  <div class="port-checkbox-icon">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+              </label>
+
+              <label class="port-choice-card">
+                <input type="checkbox" name="port-option" value="legacy-usb" />
+                <div class="port-choice-inner">
+                  <div class="port-icon-wrapper">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+                  </div>
+                  <div class="port-choice-info">
+                    <strong>Legacy USB</strong>
+                    <small>Standard port</small>
+                  </div>
+                  <div class="port-checkbox-icon">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+              </label>
+
+              <label class="port-choice-card">
+                <input type="checkbox" name="port-option" value="type-c" />
+                <div class="port-choice-inner">
+                  <div class="port-icon-wrapper">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
+                  </div>
+                  <div class="port-choice-info">
+                    <strong>USB-C</strong>
+                    <small>Fast charge</small>
                   </div>
                   <div class="port-checkbox-icon">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1073,29 +1073,29 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     });
   }
 
-  const usbCPort = model.getObjectByName('usb-c-port');
   const usbAPort = model.getObjectByName('usb-a-port');
-  const standardUsbPort = model.getObjectByName('standard-usb-port');
+  const legacyUsbPort = model.getObjectByName('legacy-usb-port');
+  const usbCPort = model.getObjectByName('usb-c-port');
   const lightningPort = model.getObjectByName('lightning-port');
 
   const portInputs = Array.from(mount.querySelectorAll<HTMLInputElement>('input[name="port-option"]'));
   const portStatusBadge = mount.querySelector<HTMLElement>('#port-status-badge');
 
   const syncPorts = (): void => {
-    const hasTypeC1 = portInputs.some(i => i.value === 'type-c-1' && i.checked);
-    const hasTypeC2 = portInputs.some(i => i.value === 'type-c-2' && i.checked);
     const hasTypeA = portInputs.some(i => i.value === 'type-a' && i.checked);
+    const hasLegacyUsb = portInputs.some(i => i.value === 'legacy-usb' && i.checked);
+    const hasTypeC = portInputs.some(i => i.value === 'type-c' && i.checked);
     const hasLightning = portInputs.some(i => i.value === 'lightning' && i.checked);
 
-    if (usbCPort) usbCPort.visible = hasTypeC1;
-    if (usbAPort) usbAPort.visible = hasTypeC2;
-    if (standardUsbPort) standardUsbPort.visible = hasTypeA;
+    if (usbAPort) usbAPort.visible = hasTypeA;
+    if (legacyUsbPort) legacyUsbPort.visible = hasLegacyUsb;
+    if (usbCPort) usbCPort.visible = hasTypeC;
     if (lightningPort) lightningPort.visible = hasLightning;
 
     const activePorts: string[] = [];
-    if (hasTypeC1) activePorts.push('USB-C 1');
-    if (hasTypeC2) activePorts.push('USB-C 2');
     if (hasTypeA) activePorts.push('USB-A');
+    if (hasLegacyUsb) activePorts.push('Legacy USB');
+    if (hasTypeC) activePorts.push('USB-C');
     if (hasLightning) activePorts.push('Lightning');
 
     if (portStatusBadge) {

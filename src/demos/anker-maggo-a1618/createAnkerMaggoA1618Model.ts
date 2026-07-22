@@ -162,7 +162,7 @@ function makeUsbAPort(
   blueMaterial: THREE.Material,
 ): THREE.Group {
   const port = new THREE.Group();
-  port.name = 'usb-a-port';
+  port.name = 'legacy-usb-port';
 
   const cavityMaterial = new THREE.MeshStandardMaterial({ color: 0x010101, roughness: 0.40, metalness: 0.06 });
   const cavity = makePanel('usb-a-cavity', 0.142, 0.048, 0.005, 0.018, cavityMaterial, false, 0.002);
@@ -193,7 +193,7 @@ function makeStandardUsbPort(
   recessMaterial: THREE.Material,
 ): THREE.Group {
   const port = new THREE.Group();
-  port.name = 'standard-usb-port';
+  port.name = 'usb-a-port';
 
   const cavityMaterial = new THREE.MeshStandardMaterial({ color: 0x010101, roughness: 0.35, metalness: 0.10 });
   const chromeMaterial = new THREE.MeshPhysicalMaterial({
