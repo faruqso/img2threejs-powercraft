@@ -912,6 +912,25 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   model.userData.tick = (dt: number, elapsed: number): void => {
     model.scale.lerp(targetScale, 1 - Math.exp(-dt * 5.6));
     contactShadow.scale.set(model.scale.x, model.scale.z, 1);
+
+    const invScale = new THREE.Vector3(
+      1 / model.scale.x,
+      1 / model.scale.y,
+      1 / model.scale.z,
+    );
+
+    const bodyMeshNames = new Set([
+      'glossy-rear-shell',
+      'front-polished-gasket',
+      'matte-charging-face',
+    ]);
+
+    for (const child of model.children) {
+      if (!bodyMeshNames.has(child.name)) {
+        child.scale.copy(invScale);
+      }
+    }
+
     if (autoSpin) {
       model.rotation.y += dt * 0.16;
     }
