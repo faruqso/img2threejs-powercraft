@@ -10,7 +10,15 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "new-demo": "node scripts/new-showcase.mjs"
+    "new-demo": "node scripts/new-showcase.mjs",
+    "reconstruct:probe": "python3 tools/img2threejs/forge/stage1_intake/probe_image.py",
+    "reconstruct:details": "python3 tools/img2threejs/forge/stage1_intake/build_detail_inventory.py",
+    "reconstruct:camera": "python3 tools/img2threejs/forge/stage1_intake/solve_camera_pose.py",
+    "reconstruct:pbr": "python3 tools/img2threejs/forge/stage1_intake/extract_pbr_evidence.py",
+    "reconstruct:assessment": "python3 tools/img2threejs/forge/stage2_spec/new_pre_spec_assessment.py",
+    "reconstruct:spec": "python3 tools/img2threejs/forge/stage2_spec/new_sculpt_spec.py",
+    "reconstruct:validate": "python3 tools/img2threejs/forge/stage2_spec/validate_sculpt_spec.py",
+    "reconstruct:compare": "python3 tools/img2threejs/forge/stage4_review/make_comparison_sheet.py"
   },
   "dependencies": {
     "three": "^0.169.0"
