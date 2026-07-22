@@ -289,11 +289,11 @@ function makeBatteryPercentageDisplay(): THREE.Mesh {
   }
 
   context.clearRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = '#d9dee5';
-  context.font = '700 94px "SFMono-Regular", Consolas, "Liberation Mono", monospace';
+  context.fillStyle = '#00ffcc';
+  context.font = '700 118px "SFMono-Regular", Consolas, sans-serif';
   context.textAlign = 'center';
   context.textBaseline = 'middle';
-  context.fillText('86%', canvas.width / 2, canvas.height / 2 + 2);
+  context.fillText('86%', canvas.width / 2, canvas.height / 2);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -301,7 +301,7 @@ function makeBatteryPercentageDisplay(): THREE.Mesh {
   texture.magFilter = THREE.LinearFilter;
 
   const display = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.172, 0.054),
+    new THREE.PlaneGeometry(0.22, 0.11),
     new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
@@ -395,7 +395,8 @@ function makeStatusDisplay(
   }
 
   const percentage = makeBatteryPercentageDisplay();
-  percentage.position.set(0, -0.082, 0.014);
+  percentage.position.set(0, 0, 0.014);
+  percentage.visible = false; // LED dots mode by default has ONLY dots
   display.add(percentage);
 
   return display;

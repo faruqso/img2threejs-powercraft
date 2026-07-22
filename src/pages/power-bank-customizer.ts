@@ -936,26 +936,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   capacityEngraving.position.set(-0.23, 0.29, 0.322);
   model.add(capacityEngraving);
 
-  const screenInset = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.36, 0.22),
-    new THREE.MeshBasicMaterial({ color: 0x061c22, side: THREE.DoubleSide, toneMapped: false }),
-  );
-  screenInset.name = 'power-bank-screen-inset';
-  screenInset.position.set(0, 0.62, 0.318);
-  screenInset.visible = false;
-  model.add(screenInset);
-
-  const screenDisplay = makeEngravedPlane(
-    'power-bank-screen-display',
-    0.32,
-    0.18,
-    ['82%'],
-    '#7fffe9',
-  );
-  screenDisplay.position.set(0, 0.62, 0.321);
-  screenDisplay.visible = false;
-  model.add(screenDisplay);
-
   const brandEngraving = makeBrandPlane('power-bank-brand-engraving', 'ANKER');
   // The wordmark is rotated vertically, moved slightly left to 0.53, and anchored to the top-right corner.
   brandEngraving.rotation.z = -Math.PI / 2;
@@ -1333,12 +1313,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const isLeds = selectedIndicator === 'leds';
     setLedPower(model, isLeds, 2.4);
     
-    if (screenDisplay) {
-      screenDisplay.visible = !isLeds;
-      screenInset.visible = !isLeds;
-      const material = screenDisplay.material as THREE.MeshBasicMaterial;
-      material.opacity = 0.9;
-      material.color.setHex(0x7fffe9);
+    const percentageDisplay = model.getObjectByName('battery-percentage-display');
+    if (percentageDisplay) {
+      percentageDisplay.visible = !isLeds;
     }
   };
 
