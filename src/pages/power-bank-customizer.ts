@@ -249,6 +249,89 @@ function updateCapacityPlane(mesh: THREE.Mesh, label: string): void {
   previous?.dispose();
 }
 
+function makeRegulatoryTexture(capacity: string): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 512;
+  const context = canvas.getContext('2d')!;
+  const etch = '#a7a39f';
+  const compactCapacity = capacity.replace(' ', '');
+  const capacityMark = `${capacity.split(',')[0]}K`;
+  const lines = [
+    `Anker MagGo Power Bank (${capacityMark})`,
+    `Model: A1618    Battery Capacity: ${compactCapacity} 3.85Vdc/19.25Wh`,
+    'USB-C Input: 5V---3A / 9V---2.22A',
+    'USB-C Output: 5V---3A / 9V---2.22A / 12V---1.67A (20W Max)',
+    'Wireless Output: 5W / 7.5W / 10W / 15W (Max)',
+    'Total Output: 5V---3A (15W Max)',
+    'Anker Innovations Limited | Made in China    S/N: AFYXXXXXXXXXX',
+  ];
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.textBaseline = 'middle';
+  context.fillStyle = etch;
+  lines.forEach((line, index) => {
+    context.font = index === 0 ? '600 31px Arial, sans-serif' : '400 23px Arial, sans-serif';
+    context.fillText(line, 38, 48 + index * 42);
+  });
+
+  const marksY = 394;
+  context.font = '600 58px Arial, sans-serif';
+  context.fillText('CE', 42, marksY);
+  context.font = '700 35px Arial, sans-serif';
+  context.fillText('UK', 164, marksY - 18);
+  context.fillText('CA', 164, marksY + 20);
+
+  context.lineWidth = 3;
+  context.strokeStyle = etch;
+  context.beginPath();
+  context.arc(295, marksY, 31, 0, Math.PI * 2);
+  context.stroke();
+  context.font = '600 25px Arial, sans-serif';
+  context.fillText('PSE', 272, marksY + 2);
+
+  context.strokeRect(395, marksY - 29, 34, 45);
+  context.beginPath();
+  context.moveTo(385, marksY - 45);
+  context.lineTo(440, marksY + 30);
+  context.moveTo(440, marksY - 45);
+  context.lineTo(385, marksY + 30);
+  context.stroke();
+  context.font = '600 22px Arial, sans-serif';
+  context.fillText('Li-ion', 510, marksY + 4);
+  context.font = '700 28px Arial, sans-serif';
+  context.fillText('RoHS', 650, marksY + 4);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  return texture;
+}
+
+function makeRegulatoryPlane(name: string, capacity: string): THREE.Mesh {
+  const material = new THREE.MeshBasicMaterial({
+    map: makeRegulatoryTexture(capacity),
+    transparent: true,
+    opacity: 0.84,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+  });
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.16, 0.6), material);
+  mesh.name = name;
+  return mesh;
+}
+
+function updateRegulatoryPlane(mesh: THREE.Mesh, capacity: string): void {
+  const material = mesh.material as THREE.MeshBasicMaterial;
+  const previous = material.map;
+  material.map = makeRegulatoryTexture(capacity);
+  material.needsUpdate = true;
+  previous?.dispose();
+}
+
 function makeEngravedPlane(
   name: string,
   width: number,
@@ -449,10 +532,16 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
       <header class="global-header">
         <div class="header-brand">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L22 12L12 22L2 12L12 2Z" fill="currentColor"/>
-          </svg>
-          <strong>img2threejs</strong>
+          <div class="brand-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 2L15 2L11 11L5 11Z" fill="#0dc9b1"/>
+              <path d="M13 13L19 13L15 22L9 22Z" fill="#06a58e"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <strong>POWERCRAFT</strong>
+            <span>CUSTOM. BRANDED. YOURS.</span>
+          </div>
         </div>
         <nav class="header-nav">
           <a href="#/" class="active">Build</a>
@@ -469,9 +558,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
       <div class="customizer-columns">
         <div class="customizer-column customizer-column-left">
-          <a class="back-link" href="#/">&larr; Back to models</a>
-          <h1 class="page-title">Design your<br>power bank</h1>
-          <p class="page-subtitle">Customise every detail and create the power bank that's uniquely yours.</p>
+          <h1 class="page-title">Custom power banks.<br>Built for <span class="text-teal">your brand.</span></h1>
+          <p class="page-subtitle">Design, personalise and order premium power banks tailored to your brand and customers.</p>
 
           <div class="customizer-card top-card">
             <div class="top-card-header">
@@ -690,24 +778,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (mesh.isMesh) mesh.castShadow = false;
   });
   model.position.y = 0.62;
-  const productSpecEngraving = makeEngravedPlane(
-    'power-bank-product-spec-engraving',
-    0.74,
-    0.58,
-    [
-      'ANKER MAGGO 5,000 mAh',
-      'MODEL A1618  |  5,000 mAh',
-      'USB-C INPUT 5V 3A',
-      'USB-C OUTPUT 15W MAX',
-      'QI2 WIRELESS OUTPUT',
-      'MADE IN CHINA',
-    ],
-    '#d5c8b5',
-    'center',
-    '#d79a68',
-  );
+  const productSpecEngraving = makeRegulatoryPlane('power-bank-product-spec-engraving', '5,000 mAh');
   productSpecEngraving.rotation.y = Math.PI;
-  productSpecEngraving.position.set(0, 0.63, -0.291);
+  productSpecEngraving.position.set(-0.1, 0.43, -0.294);
   model.add(productSpecEngraving);
 
   const capacityEngraving = makeEngravedPlane(
@@ -812,20 +885,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const updateProductSpecification = (): void => {
     const capacity = CAPACITIES[selectedCapacity];
-    updateTextPlane(
-      productSpecEngraving,
-      [
-        `ANKER MAGGO ${capacity.label}`,
-        `MODEL A1618  |  ${capacity.label}`,
-        'USB-C INPUT 5V 3A',
-        'USB-C OUTPUT 15W MAX',
-        'QI2 WIRELESS OUTPUT',
-        'MADE IN CHINA',
-      ],
-      '#d5c8b5',
-      'center',
-      '#d79a68',
-    );
+    updateRegulatoryPlane(productSpecEngraving, capacity.label);
   };
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="finish"]')) {
