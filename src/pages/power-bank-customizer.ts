@@ -149,23 +149,68 @@ function setSurfaceGloss(root: THREE.Object3D, gloss: number): void {
   }
 }
 
-function makeTextTexture(lines: string[], color = '#11141a', align: CanvasTextAlign = 'center'): THREE.CanvasTexture {
+function drawTrackedText(
+  context: CanvasRenderingContext2D,
+  value: string,
+  x: number,
+  y: number,
+  font: string,
+  color: string,
+  tracking: number,
+): void {
+  context.font = font;
+  context.fillStyle = color;
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  const characters = [...value];
+  const widths = characters.map((character) => context.measureText(character).width);
+  const totalWidth = widths.reduce((total, width) => total + width, 0) + tracking * (characters.length - 1);
+  let cursor = x - totalWidth / 2;
+
+  characters.forEach((character, index) => {
+    context.fillText(character, cursor + widths[index] / 2, y);
+    cursor += widths[index] + tracking;
+  });
+}
+
+function makeTextTexture(
+  lines: string[],
+  color = '#ded8cc',
+  align: CanvasTextAlign = 'center',
+  accent?: string,
+): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 256;
   const context = canvas.getContext('2d')!;
   context.clearRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = color;
   context.textAlign = align;
   context.textBaseline = 'middle';
-  context.font = '600 32px ui-monospace, SFMono-Regular, Menlo, monospace';
 
   const x = align === 'left' ? 34 : canvas.width / 2;
-  const lineHeight = 42;
+  const lineHeight = lines.length === 1 ? 44 : lines.length >= 5 ? 26 : 38;
   const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
   lines.forEach((line, index) => {
+    context.fillStyle = color;
+    context.font =
+      index === 0
+        ? lines.length >= 5
+          ? '700 28px Arial, sans-serif'
+          : '700 34px Arial, sans-serif'
+        : lines.length >= 5
+          ? '500 18px Arial, sans-serif'
+          : '500 23px Arial, sans-serif';
+    if (index === 0 && align === 'center') {
+      drawTrackedText(context, line, x, startY + index * lineHeight, context.font, color, 2.6);
+      return;
+    }
     context.fillText(line, x, startY + index * lineHeight);
   });
+
+  if (accent) {
+    context.fillStyle = accent;
+    context.fillRect(canvas.width * 0.39, startY + (lines.length - 1) * lineHeight + 28, canvas.width * 0.22, 5);
+  }
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -173,10 +218,16 @@ function makeTextTexture(lines: string[], color = '#11141a', align: CanvasTextAl
   return texture;
 }
 
-function updateTextPlane(mesh: THREE.Mesh, lines: string[], color = '#11141a', align: CanvasTextAlign = 'center'): void {
+function updateTextPlane(
+  mesh: THREE.Mesh,
+  lines: string[],
+  color = '#ded8cc',
+  align: CanvasTextAlign = 'center',
+  accent?: string,
+): void {
   const material = mesh.material as THREE.MeshBasicMaterial;
   const previous = material.map;
-  material.map = makeTextTexture(lines, color, align);
+  material.map = makeTextTexture(lines, color, align, accent);
   material.needsUpdate = true;
   previous?.dispose();
 }
@@ -186,13 +237,14 @@ function makeEngravedPlane(
   width: number,
   height: number,
   lines: string[],
-  color = '#11141a',
+  color = '#ded8cc',
   align: CanvasTextAlign = 'center',
+  accent?: string,
 ): THREE.Mesh {
   const material = new THREE.MeshBasicMaterial({
-    map: makeTextTexture(lines, color, align),
+    map: makeTextTexture(lines, color, align, accent),
     transparent: true,
-    opacity: 0.58,
+    opacity: 0.76,
     depthWrite: false,
     polygonOffset: true,
     polygonOffsetFactor: -2,
@@ -513,13 +565,22 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   model.position.y = 0.62;
   const productSpecEngraving = makeEngravedPlane(
     'power-bank-product-spec-engraving',
-    0.42,
-    0.82,
-    ['MAGGO A1618', 'USB-C PD', 'WIRELESS'],
-    '#07090d',
+    0.74,
+    0.58,
+    [
+      'ANKER MAGGO 5K',
+      'MODEL A1618  |  5,000 mAh',
+      'USB-C INPUT 5V 3A',
+      'USB-C OUTPUT 15W MAX',
+      'QI2 WIRELESS OUTPUT',
+      'MADE IN CHINA',
+    ],
+    '#d5c8b5',
+    'center',
+    '#d79a68',
   );
-  productSpecEngraving.rotation.y = Math.PI / 2;
-  productSpecEngraving.position.set(0.9, 1.42, 0);
+  productSpecEngraving.rotation.y = Math.PI;
+  productSpecEngraving.position.set(0, 0.63, -0.291);
   model.add(productSpecEngraving);
 
   const capacityEngraving = makeEngravedPlane(
@@ -527,7 +588,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     0.38,
     0.28,
     ['5000 mAh'],
-    '#07090d',
+    '#d5c8b5',
   );
   capacityEngraving.rotation.y = Math.PI / 2;
   capacityEngraving.position.set(0.905, 2.12, 0);
@@ -538,7 +599,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     0.76,
     0.16,
     ['ANKER'],
-    '#07090d',
+    '#d79a68',
   );
   // The rotated wordmark follows the long axis of the front face, as on the reference device.
   brandEngraving.rotation.z = -Math.PI / 2;
@@ -613,7 +674,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     );
     widthValue.textContent = `${widthPercent}%`;
     capacityReadout.textContent = capacity.sizeLabel;
-    updateTextPlane(capacityEngraving, [`${capacity.label.replace('K', ',000')} mAh`], '#07090d');
+    updateTextPlane(capacityEngraving, [`${capacity.label.replace('K', ',000')} mAh`], '#d5c8b5');
+    updateProductSpecification();
   };
 
   const applyWattage = (): void => {
@@ -634,7 +696,27 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       liftLight.intensity = 0.75 * wattage.ledBoost;
     }
     wattageReadout.textContent = wattage.outputLabel;
+    updateProductSpecification();
     syncLeds();
+  };
+
+  const updateProductSpecification = (): void => {
+    const capacity = CAPACITIES[selectedCapacity];
+    const wattage = WATTAGES[selectedWattage];
+    updateTextPlane(
+      productSpecEngraving,
+      [
+        `ANKER MAGGO ${capacity.label}`,
+        `MODEL A1618  |  ${capacity.label.replace('K', ',000')} mAh`,
+        'USB-C INPUT 5V 3A',
+        `USB-C OUTPUT ${wattage.label} MAX`,
+        'QI2 WIRELESS OUTPUT',
+        'MADE IN CHINA',
+      ],
+      '#d5c8b5',
+      'center',
+      '#d79a68',
+    );
   };
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="finish"]')) {
@@ -655,7 +737,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   listen(brandControl, 'input', () => {
     const brandName = brandControl.value.trim().toUpperCase();
     brandEngraving.visible = brandName.length > 0;
-    if (brandName) updateTextPlane(brandEngraving, [brandName], '#07090d');
+    if (brandName) updateTextPlane(brandEngraving, [brandName], '#d79a68');
   });
 
   const glossControl = mount.querySelector<HTMLInputElement>('#gloss-control')!;
@@ -771,7 +853,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     lightValue.textContent = '70%';
     brandControl.value = 'ANKER';
     brandEngraving.visible = true;
-    updateTextPlane(brandEngraving, ['ANKER'], '#07090d');
+    updateTextPlane(brandEngraving, ['ANKER'], '#d79a68');
     applyDimensions();
     applyWattage();
   });
