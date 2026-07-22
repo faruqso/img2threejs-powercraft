@@ -533,9 +533,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       <header class="global-header">
         <div class="header-brand">
           <div class="brand-logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 2L15 2L11 11L5 11Z" fill="#0dc9b1"/>
-              <path d="M13 13L19 13L15 22L9 22Z" fill="#06a58e"/>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 2.5H13.5L9.5 10.5H3.5L7 2.5Z" fill="#00C9B1"/>
+              <path d="M14.5 13.5H21L17 21.5H11L14.5 13.5Z" fill="#00C9B1"/>
             </svg>
           </div>
           <div class="brand-text">
@@ -562,8 +562,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
       <div class="customizer-columns">
         <div class="customizer-column customizer-column-left">
-          <h1 class="page-title">Custom power banks.<br>Built for <span class="text-teal">your brand.</span></h1>
-          <p class="page-subtitle">Design, personalise and order premium power banks tailored to your brand and customers.</p>
+          <h1 class="page-title">Custom power<br>banks.<br>Built for <span class="text-teal">your<br>brand.</span></h1>
+          <p class="page-subtitle">Design, personalise and order premium power<br>banks tailored to your brand and customers.</p>
 
           <div class="customizer-card top-card">
             <div class="top-card-header">
