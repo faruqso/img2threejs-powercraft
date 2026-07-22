@@ -259,10 +259,15 @@
   margin-bottom: 1rem;
 }
 
-.text-control > span {
+.text-control > label {
   color: #333944;
   font-size: 0.84rem;
   font-weight: 650;
+}
+
+.engraving-input-row {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .text-control input {
@@ -276,6 +281,23 @@
   color: #11141a;
   font-family: var(--mono);
   font-size: 0.78rem;
+}
+
+.complete-engraving {
+  width: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border: 1px solid rgba(17, 20, 26, 0.16);
+  border-radius: 8px;
+  background: #11141a;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.complete-engraving:hover {
+  background: #1f2630;
 }
 
 .text-control input:focus {

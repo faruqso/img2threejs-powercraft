@@ -455,10 +455,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
         </fieldset>
 
-        <label class="text-control">
-          <span>Body engraving</span>
-          <input id="brand-control" type="text" value="ANKER" maxlength="18" autocomplete="off" />
-        </label>
+        <div class="text-control">
+          <label for="brand-control">Body engraving</label>
+          <div class="engraving-input-row">
+            <input id="brand-control" type="text" value="ANKER" maxlength="18" autocomplete="off" />
+            <button class="complete-engraving" id="complete-brand-edit" type="button" title="Finish engraving" aria-label="Finish engraving">&check;</button>
+          </div>
+        </div>
 
         <div class="spec-readout" aria-live="polite">
           <span id="capacity-readout">5,000 mAh pocket</span>
@@ -612,11 +615,36 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   let widthPercent = 100;
   let autoSpin = true;
   let inspectionMode = false;
+  let editingBrand = false;
   const targetScale = new THREE.Vector3(1, 1, 1);
+  const standardCameraPosition = new THREE.Vector3(-3.1, 2.45, 4.2);
+  const standardCameraTarget = new THREE.Vector3(0, 1.55, 0);
+  const brandCameraPosition = new THREE.Vector3(0.85, 1.62, 2.25);
+  const brandCameraTarget = new THREE.Vector3(0.2, 1.55, 0.08);
+  const inspectionCameraPosition = new THREE.Vector3(2.45, 1.75, 4.4);
+  const inspectionCameraTarget = new THREE.Vector3(0, 1.62, 0);
   const suspendedBaseY = model.position.y;
   model.userData.tick = (dt: number, elapsed: number): void => {
     model.scale.lerp(targetScale, 1 - Math.exp(-dt * 5.6));
-    if (autoSpin) {
+    const smoothing = 1 - Math.exp(-dt * 5.2);
+    const cameraPosition = inspectionMode
+      ? inspectionCameraPosition
+      : editingBrand
+        ? brandCameraPosition
+        : standardCameraPosition;
+    const cameraTarget = inspectionMode
+      ? inspectionCameraTarget
+      : editingBrand
+        ? brandCameraTarget
+        : standardCameraTarget;
+    viewer.camera.position.lerp(cameraPosition, smoothing);
+    viewer.controls.target.lerp(cameraTarget, smoothing);
+
+    if (editingBrand) {
+      model.rotation.y = THREE.MathUtils.damp(model.rotation.y, 0, 6, dt);
+      model.rotation.x = THREE.MathUtils.damp(model.rotation.x, 0, 6, dt);
+      model.rotation.z = THREE.MathUtils.damp(model.rotation.z, 0, 6, dt);
+    } else if (autoSpin) {
       if (inspectionMode) {
         model.rotation.x += dt * 0.34;
         model.rotation.y += dt * 0.22;
@@ -664,6 +692,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const capacityReadout = mount.querySelector<HTMLElement>('#capacity-readout')!;
   const wattageReadout = mount.querySelector<HTMLElement>('#wattage-readout')!;
   const brandControl = mount.querySelector<HTMLInputElement>('#brand-control')!;
+  const completeBrandEdit = mount.querySelector<HTMLButtonElement>('#complete-brand-edit')!;
 
   const applyDimensions = (): void => {
     const capacity = CAPACITIES[selectedCapacity];
@@ -740,6 +769,23 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (brandName) updateTextPlane(brandEngraving, [brandName], '#d79a68');
   });
 
+  const setBrandEditing = (active: boolean): void => {
+    editingBrand = active;
+    viewer.controls.enableRotate = !active;
+  };
+  listen(brandControl, 'focus', () => setBrandEditing(true));
+  listen(completeBrandEdit, 'click', () => {
+    setBrandEditing(false);
+    brandControl.blur();
+  });
+  listen(brandControl, 'keydown', (event: KeyboardEvent) => {
+    if (event.key === 'Escape' || event.key === 'Enter') {
+      event.preventDefault();
+      setBrandEditing(false);
+      brandControl.blur();
+    }
+  });
+
   const glossControl = mount.querySelector<HTMLInputElement>('#gloss-control')!;
   const glossValue = mount.querySelector<HTMLElement>('#gloss-value')!;
   listen(glossControl, 'input', () => {
@@ -792,16 +838,12 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const page = mount.querySelector<HTMLElement>('.customizer-page')!;
   const inspectButton = mount.querySelector<HTMLButtonElement>('#fullscreen-inspect')!;
   const exitInspectButton = mount.querySelector<HTMLButtonElement>('#exit-fullscreen-inspect')!;
-  const standardCameraPosition = new THREE.Vector3(-3.1, 2.45, 4.2);
-  const inspectionCameraPosition = new THREE.Vector3(2.45, 1.75, 4.4);
 
   const setInspectionMode = (active: boolean): void => {
     inspectionMode = active;
     revealPlateau.visible = !active;
     page.classList.toggle('is-inspection-mode', active);
-    viewer.camera.position.copy(active ? inspectionCameraPosition : standardCameraPosition);
-    viewer.controls.target.set(0, active ? 1.62 : 1.55, 0);
-    viewer.controls.update();
+    if (active) setBrandEditing(false);
   };
 
   const syncFullscreenState = (): void => {
@@ -833,6 +875,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     selectedWattage = '15w';
     widthPercent = 100;
     autoSpin = true;
+    setBrandEditing(false);
 
     const finishInput = mount.querySelector<HTMLInputElement>('input[name="finish"][value="graphite"]');
     const usbInput = mount.querySelector<HTMLInputElement>('input[name="usb-color"][value="cyan"]');
