@@ -1907,3 +1907,168 @@ code,
 .customizer-page .feature-text span {
   font-size: 0.72rem;
 }
+
+/* ---------- Dark Mode Overrides ---------- */
+.customizer-page.dark-mode {
+  background: #11141a;
+  color: #fcfdfe;
+}
+.customizer-page.dark-mode.light-mesh-bg {
+  background:
+    radial-gradient(40% 50% at 80% 10%, rgba(13, 201, 177, 0.1), transparent 70%),
+    radial-gradient(50% 60% at 20% 90%, rgba(6, 165, 142, 0.08), transparent 70%),
+    radial-gradient(35% 35% at 50% 50%, rgba(13, 201, 177, 0.05), transparent 70%),
+    #0f1218;
+}
+
+.customizer-page.dark-mode .header-brand strong,
+.customizer-page.dark-mode .brand-text strong {
+  color: #ffffff;
+}
+.customizer-page.dark-mode .brand-text span {
+  color: #8a94a6;
+}
+
+.customizer-page.dark-mode .header-nav {
+  background: rgba(30, 35, 45, 0.6);
+}
+.customizer-page.dark-mode .header-nav a {
+  color: #8a94a6;
+}
+.customizer-page.dark-mode .header-nav a:hover,
+.customizer-page.dark-mode .header-nav a.active {
+  color: #0dc9b1;
+}
+
+.customizer-page.dark-mode .profile-btn {
+  background: transparent;
+  color: #fcfdfe;
+}
+
+.customizer-page.dark-mode .page-title {
+  color: #fcfdfe;
+}
+.customizer-page.dark-mode .page-subtitle {
+  color: #8a94a6;
+}
+
+.customizer-page.dark-mode .customizer-card {
+  background: rgba(30, 35, 45, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.customizer-page.dark-mode .card-subtitle,
+.customizer-page.dark-mode .model-name strong,
+.customizer-page.dark-mode .active-radio,
+.customizer-page.dark-mode .swatch-label,
+.customizer-page.dark-mode .segmented-control input:checked + span,
+.customizer-page.dark-mode .range-readout,
+.customizer-page.dark-mode .inline-toggle span,
+.customizer-page.dark-mode .text-control input,
+.customizer-page.dark-mode .summary-row strong,
+.customizer-page.dark-mode .summary-total span,
+.customizer-page.dark-mode .summary-total strong,
+.customizer-page.dark-mode .feature-text strong {
+  color: #fcfdfe;
+}
+
+.customizer-page.dark-mode .card-desc,
+.customizer-page.dark-mode .row-label,
+.customizer-page.dark-mode .toggle-row span,
+.customizer-page.dark-mode .summary-row span,
+.customizer-page.dark-mode .feature-text span {
+  color: #8a94a6;
+}
+
+.customizer-page.dark-mode .model-thumb {
+  background-color: #2a303c;
+}
+
+.customizer-page.dark-mode .label-swatch {
+  background: rgba(255,255,255,0.05);
+}
+
+.customizer-page.dark-mode .swatch-option:not(.label-swatch):has(input:checked) {
+  border-color: rgba(255,255,255,0.2);
+}
+
+.customizer-page.dark-mode .segmented-control {
+  background: rgba(0,0,0,0.2);
+}
+
+.customizer-page.dark-mode .segmented-control span {
+  color: #8a94a6;
+}
+.customizer-page.dark-mode .segmented-control input:checked + span {
+  background: #2a303c;
+  color: #fcfdfe;
+}
+
+.customizer-page.dark-mode .apple-switch {
+  background: #2a303c;
+}
+.customizer-page.dark-mode .apple-switch:checked {
+  background: #0dc9b1;
+}
+
+.customizer-page.dark-mode .inline-toggle {
+  background: rgba(0,0,0,0.2);
+}
+
+.customizer-page.dark-mode .text-control input {
+  background: transparent;
+  border-color: rgba(255,255,255,0.1);
+  color: #fcfdfe;
+}
+.customizer-page.dark-mode .text-control input:focus {
+  border-color: #0dc9b1;
+}
+.customizer-page.dark-mode .input-label {
+  background: #1e232d;
+  color: #8a94a6;
+}
+
+.customizer-page.dark-mode .fab,
+.customizer-page.dark-mode .feature-strip {
+  background: rgba(30, 35, 45, 0.8);
+  border-color: rgba(255,255,255,0.08);
+  color: #8a94a6;
+}
+.customizer-page.dark-mode .fab:hover {
+  background: #2a303c;
+  color: #0dc9b1;
+}
+
+.customizer-page.dark-mode .customizer-hint {
+  background: rgba(30, 35, 45, 0.6);
+  color: #8a94a6;
+}
+
+/* Header theme switcher */
+.theme-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #596171;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+.theme-switch:hover {
+  color: #0dc9b1;
+}
+.customizer-page.dark-mode .theme-switch {
+  color: #8a94a6;
+}
+.customizer-page.dark-mode .theme-switch:hover {
+  color: #0dc9b1;
+}
+.header-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(0,0,0,0.1);
+  margin: 0 0.5rem;
+}
+.customizer-page.dark-mode .header-divider {
+  background: rgba(255,255,255,0.1);
+}

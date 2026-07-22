@@ -548,10 +548,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <a href="#/">Gallery</a>
           <a href="#/">About</a>
         </nav>
-        <div class="header-actions">
+        <div class="header-actions" style="display: flex; align-items: center;">
+          <button class="theme-switch" id="theme-toggle" title="Toggle dark mode">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </button>
+          <div class="header-divider"></div>
           <a href="#/" class="profile-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            My Profile
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            My Account
           </a>
         </div>
       </header>
@@ -996,9 +1000,26 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     viewer.controls.update();
   });
 
+  // FAB Listeners
   const fabOrbit = mount.querySelector<HTMLButtonElement>('#fab-orbit');
   const fabCenter = mount.querySelector<HTMLButtonElement>('#fab-center');
   const fabZoom = mount.querySelector<HTMLButtonElement>('#fab-zoom');
+  
+  const themeToggle = mount.querySelector<HTMLButtonElement>('#theme-toggle');
+  const customizerPage = mount.querySelector('.customizer-page');
+
+  if (themeToggle && customizerPage) {
+    listen(themeToggle, 'click', () => {
+      const isDark = customizerPage.classList.toggle('dark-mode');
+      
+      // Toggle icon
+      if (isDark) {
+        themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+      } else {
+        themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+      }
+    });
+  }
   
   if (fabOrbit) {
     listen(fabOrbit, 'click', () => {
