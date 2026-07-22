@@ -2066,6 +2066,37 @@ code,
   color: #8a94a6;
 }
 
+.customizer-page.dark-mode .card-title {
+  color: #94a3b8;
+}
+
+.customizer-page.dark-mode .top-card-header svg {
+  stroke: #64748b;
+}
+
+.customizer-page.dark-mode .swatch-option {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.customizer-page.dark-mode input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(255, 255, 255, 0.12);
+}
+.customizer-page.dark-mode input[type="range"]::-moz-range-track {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.customizer-page.dark-mode .summary-divider {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.customizer-page.dark-mode .feature-icon {
+  background: rgba(13, 201, 177, 0.15);
+  color: #0dc9b1;
+}
+.customizer-page.dark-mode .feature-icon svg {
+  stroke: #0dc9b1;
+}
+
 /* Header theme switcher */
 .theme-switch {
   display: flex;
@@ -2076,9 +2107,15 @@ code,
   border: none;
   cursor: pointer;
   padding: 0.5rem;
+  border-radius: 50%;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s;
 }
 .theme-switch:hover {
   color: #0dc9b1;
+  transform: scale(1.15) rotate(15deg);
+}
+.theme-switch:active {
+  transform: scale(0.95);
 }
 .customizer-page.dark-mode .theme-switch {
   color: #8a94a6;
@@ -2094,4 +2131,29 @@ code,
 }
 .customizer-page.dark-mode .header-divider {
   background: rgba(255,255,255,0.1);
+}
+
+/* ---------- Fun Curtain Sweep Transition Overlay ---------- */
+.theme-curtain-overlay {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1), height 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
+  will-change: width, height, opacity;
+  box-shadow: 0 0 80px rgba(13, 201, 177, 0.25);
+}
+
+.theme-curtain-overlay.dark-curtain {
+  background:
+    radial-gradient(40% 50% at 80% 10%, rgba(13, 201, 177, 0.2), transparent 70%),
+    radial-gradient(50% 60% at 20% 90%, rgba(6, 165, 142, 0.15), transparent 70%),
+    #0f1218;
+}
+
+.theme-curtain-overlay.light-curtain {
+  background:
+    radial-gradient(44% 48% at 50% 48%, rgba(220, 250, 244, 0.4), transparent 70%),
+    #fcfdff;
 }

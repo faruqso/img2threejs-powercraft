@@ -763,6 +763,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const defaultCameraTarget = viewer.controls.target.clone();
   const targetCameraPosition = defaultCameraPosition.clone();
   const targetCameraTarget = defaultCameraTarget.clone();
+  const defaultCameraZoom = viewer.camera.zoom;
+  let targetCameraZoom = defaultCameraZoom;
   viewer.controls.minDistance = 2.2;
   viewer.controls.maxDistance = 10;
 
@@ -848,6 +850,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     model.position.y = suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
     viewer.camera.position.lerp(targetCameraPosition, 1 - Math.exp(-dt * 5.8));
     viewer.controls.target.lerp(targetCameraTarget, 1 - Math.exp(-dt * 5.8));
+    viewer.camera.zoom = THREE.MathUtils.lerp(viewer.camera.zoom, targetCameraZoom, 1 - Math.exp(-dt * 5.8));
+    viewer.camera.updateProjectionMatrix();
     viewer.controls.update();
   };
 
@@ -922,12 +926,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const setInscriptionFocus = (focused: boolean): void => {
     inscriptionFocus = focused;
     if (inscriptionFocus) {
-      targetCameraPosition.set(0.54, 1.54, 2.45);
       targetCameraTarget.set(0.3, 1.46, 0.22);
+      targetCameraPosition.copy(defaultCameraPosition);
+      targetCameraZoom = 1.75;
       return;
     }
     targetCameraPosition.copy(defaultCameraPosition);
     targetCameraTarget.copy(defaultCameraTarget);
+    targetCameraZoom = defaultCameraZoom;
   };
 
   listen(brandControl, 'focus', () => setInscriptionFocus(true));
@@ -1020,6 +1026,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     viewer.controls.target.copy(defaultCameraTarget);
     targetCameraPosition.copy(defaultCameraPosition);
     targetCameraTarget.copy(defaultCameraTarget);
+    targetCameraZoom = defaultCameraZoom;
+    viewer.camera.zoom = defaultCameraZoom;
+    viewer.camera.updateProjectionMatrix();
     viewer.controls.update();
   });
 
@@ -1032,24 +1041,61 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const customizerPage = mount.querySelector('.customizer-page');
 
   if (themeToggle && customizerPage) {
-    listen(themeToggle, 'click', () => {
-      const isDark = customizerPage.classList.toggle('dark-mode');
-      
-      const plateauBase = revealPlateau.getObjectByName('reveal-plateau-base') as THREE.Mesh;
-      const plateauRim = revealPlateau.getObjectByName('reveal-plateau-rim') as THREE.Mesh;
-      if (plateauBase && plateauBase.material instanceof THREE.MeshStandardMaterial) {
-        plateauBase.material.color.setHex(isDark ? 0x181c2b : 0xffffff);
-      }
-      if (plateauRim && plateauRim.material instanceof THREE.MeshStandardMaterial) {
-        plateauRim.material.color.setHex(isDark ? 0x181c2b : 0xffffff);
-      }
+    listen(themeToggle, 'click', (e: Event) => {
+      const mouseEv = e as MouseEvent;
+      const rect = themeToggle.getBoundingClientRect();
+      const clickX = mouseEv.clientX || rect.left + rect.width / 2;
+      const clickY = mouseEv.clientY || rect.top + rect.height / 2;
 
-      // Toggle icon
-      if (isDark) {
-        themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-      } else {
-        themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-      }
+      const isDark = customizerPage.classList.contains('dark-mode');
+      const nextIsDark = !isDark;
+
+      // Create curtain overlay
+      const curtain = document.createElement('div');
+      curtain.className = `theme-curtain-overlay ${nextIsDark ? 'dark-curtain' : 'light-curtain'}`;
+      curtain.style.left = `${clickX}px`;
+      curtain.style.top = `${clickY}px`;
+      curtain.style.width = '0px';
+      curtain.style.height = '0px';
+      document.body.appendChild(curtain);
+
+      // Max diameter to cover entire screen
+      const maxDim = Math.hypot(
+        Math.max(clickX, window.innerWidth - clickX),
+        Math.max(clickY, window.innerHeight - clickY)
+      ) * 2.2;
+
+      requestAnimationFrame(() => {
+        curtain.style.width = `${maxDim}px`;
+        curtain.style.height = `${maxDim}px`;
+      });
+
+      // Halfway through sweep, apply actual theme state to DOM & 3D scene
+      setTimeout(() => {
+        customizerPage.classList.toggle('dark-mode', nextIsDark);
+
+        const plateauBase = revealPlateau.getObjectByName('reveal-plateau-base') as THREE.Mesh;
+        const plateauRim = revealPlateau.getObjectByName('reveal-plateau-rim') as THREE.Mesh;
+        if (plateauBase && plateauBase.material instanceof THREE.MeshStandardMaterial) {
+          plateauBase.material.color.setHex(nextIsDark ? 0x181c2b : 0xffffff);
+        }
+        if (plateauRim && plateauRim.material instanceof THREE.MeshStandardMaterial) {
+          plateauRim.material.color.setHex(nextIsDark ? 0x181c2b : 0xffffff);
+        }
+
+        // Toggle icon
+        if (nextIsDark) {
+          themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+        } else {
+          themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+        }
+      }, 250);
+
+      // Fade out curtain overlay after sweep finishes
+      setTimeout(() => {
+        curtain.style.opacity = '0';
+        setTimeout(() => curtain.remove(), 300);
+      }, 580);
     });
   }
   
