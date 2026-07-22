@@ -282,18 +282,65 @@ function makeSidePowerButton(
 function makeBatteryPercentageDisplay(): THREE.Mesh {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
-  canvas.height = 160;
-  const context = canvas.getContext('2d');
-  if (!context) {
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
     throw new Error('Unable to create the battery percentage display texture.');
   }
 
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = '#00ffcc';
-  context.font = '700 118px "SFMono-Regular", Consolas, sans-serif';
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.fillText('86%', canvas.width / 2, canvas.height / 2);
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // 1. Battery Ring Gauge Arc (86% progress)
+  const radius = 195;
+  const startAngle = Math.PI * 0.75; // 135deg
+  const totalAngle = Math.PI * 1.5;   // 270deg sweep
+  const endAngle = startAngle + totalAngle * 0.86;
+
+  // Outer inactive track
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, startAngle, startAngle + totalAngle);
+  ctx.strokeStyle = 'rgba(0, 220, 180, 0.16)';
+  ctx.lineWidth = 14;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Active progress arc
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, startAngle, endAngle);
+  ctx.strokeStyle = '#00ffcc';
+  ctx.lineWidth = 16;
+  ctx.lineCap = 'round';
+  ctx.shadowColor = '#00ffcc';
+  ctx.shadowBlur = 18;
+  ctx.stroke();
+  ctx.shadowBlur = 0; // reset shadow
+
+  // 2. Top Charging Badge (⚡ 30W FAST)
+  ctx.fillStyle = '#7fffe9';
+  ctx.font = '600 24px "SFProText-Semibold", -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('⚡ 30W FAST', cx, cy - 85);
+
+  // 3. Center Main Percentage Readout (86%)
+  ctx.shadowColor = '#00ffcc';
+  ctx.shadowBlur = 24;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '700 128px "SFMono-Regular", Consolas, sans-serif';
+  ctx.fillText('86', cx - 18, cy + 6);
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#00ffcc';
+  ctx.font = '700 52px "SFMono-Regular", Consolas, sans-serif';
+  ctx.fillText('%', cx + 115, cy - 20);
+
+  // 4. Bottom Sub-label (1h 45m REMAINING)
+  ctx.fillStyle = '#8a9fb0';
+  ctx.font = '600 22px "SFProText-Semibold", -apple-system, sans-serif';
+  ctx.fillText('1h 45m REMAINING', cx, cy + 90);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -301,7 +348,7 @@ function makeBatteryPercentageDisplay(): THREE.Mesh {
   texture.magFilter = THREE.LinearFilter;
 
   const display = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.22, 0.11),
+    new THREE.PlaneGeometry(0.33, 0.33),
     new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
@@ -343,13 +390,13 @@ export function createRingRimGeometry(shapeKey: RingShapeKey): THREE.BufferGeome
 
 export function createRingFaceGeometry(shapeKey: RingShapeKey): THREE.BufferGeometry {
   if (shapeKey === 'circle') {
-    return new THREE.CircleGeometry(0.176, 64);
+    return new THREE.CircleGeometry(0.192, 64);
   } else if (shapeKey === 'hexagon') {
-    return new THREE.CircleGeometry(0.182, 6);
+    return new THREE.CircleGeometry(0.198, 6);
   } else {
-    // Squircle face
+    // Squircle face matching squircle rim dimensions
     const shape = new THREE.Shape();
-    const w = 0.34, h = 0.34, r = 0.075;
+    const w = 0.36, h = 0.36, r = 0.08;
     shape.moveTo(-w / 2 + r, -h / 2);
     shape.lineTo(w / 2 - r, -h / 2);
     shape.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);

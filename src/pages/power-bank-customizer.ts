@@ -234,16 +234,16 @@ function makeCapacityTexture(label: string, wattage: string): THREE.CanvasTextur
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.fillStyle = copper;
   context.textBaseline = 'middle';
-  context.font = '700 54px Arial, sans-serif';
-  context.fillText(wattage, 30, 106);
+  context.font = '700 50px Arial, sans-serif';
+  context.fillText(wattage, 10, 114);
 
   const wattageWidth = context.measureText(wattage).width;
   context.font = '700 104px Arial, sans-serif';
-  context.fillText(amount, 52 + wattageWidth, 102);
+  context.fillText(amount, 28 + wattageWidth, 102);
 
   const amountWidth = context.measureText(amount).width;
   context.font = '600 47px Arial, sans-serif';
-  context.fillText(unit, 70 + wattageWidth + amountWidth, 116);
+  context.fillText(unit, 44 + wattageWidth + amountWidth, 114);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -550,8 +550,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
       <div class="customizer-columns">
         <div class="customizer-column customizer-column-left">
-          <h1 class="page-title">Custom power<br>banks.<br>Built for <span class="text-teal">your<br>brand.</span></h1>
-          <p class="page-subtitle">Design, personalise and order premium power<br>banks tailored to your brand and customers.</p>
+          <h1 class="page-title">Custom power banks.<br>Built for <span class="text-teal">your brand.</span></h1>
+          <p class="page-subtitle">Design, personalise and order premium power banks tailored to your brand and customers.</p>
 
           <div class="customizer-card top-card">
             <div class="top-card-header">
@@ -651,6 +651,47 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
 
           <div class="customizer-card">
+            <h3 class="card-title">Charging features</h3>
+            
+            <label class="toggle-row">
+              <span class="info-label">Add MagSafe <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+              <input id="magsafe-toggle" class="apple-switch" type="checkbox" checked />
+            </label>
+            
+            <div class="control-row">
+              <span class="row-label info-label">Battery indicator <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+              <div class="segmented-control">
+                <label>
+                  <input type="radio" name="indicator-type" value="leds" checked />
+                  <span class="segmented-pill">LED dots</span>
+                </label>
+                <label>
+                  <input type="radio" name="indicator-type" value="screen" />
+                  <span class="segmented-pill">Info screen</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="control-row no-margin">
+              <span class="row-label info-label">Display ring shape <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+              <div class="segmented-control">
+                <label>
+                  <input type="radio" name="ring-shape" value="circle" checked />
+                  <span class="segmented-pill">Circle</span>
+                </label>
+                <label>
+                  <input type="radio" name="ring-shape" value="squircle" />
+                  <span class="segmented-pill">Squircle</span>
+                </label>
+                <label>
+                  <input type="radio" name="ring-shape" value="hexagon" />
+                  <span class="segmented-pill">Hexagon</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="customizer-card">
             <div class="card-header-with-badge">
               <h3 class="card-title" style="margin: 0;">Port configuration</h3>
               <span class="port-status-badge" id="port-status-badge">No Ports (Wireless Only)</span>
@@ -736,47 +777,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                     `,
                   )
                   .join('')}
-              </div>
-            </div>
-          </div>
-
-          <div class="customizer-card">
-            <h3 class="card-title">Charging features</h3>
-            
-            <label class="toggle-row">
-              <span class="info-label">Add MagSafe <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
-              <input id="magsafe-toggle" class="apple-switch" type="checkbox" checked />
-            </label>
-            
-            <div class="control-row">
-              <span class="row-label info-label">Battery indicator <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
-              <div class="segmented-control">
-                <label>
-                  <input type="radio" name="indicator-type" value="leds" checked />
-                  <span class="segmented-pill">LED dots</span>
-                </label>
-                <label>
-                  <input type="radio" name="indicator-type" value="screen" />
-                  <span class="segmented-pill">Info screen</span>
-                </label>
-              </div>
-            </div>
-
-            <div class="control-row no-margin">
-              <span class="row-label info-label">Display ring shape <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
-              <div class="segmented-control">
-                <label>
-                  <input type="radio" name="ring-shape" value="circle" checked />
-                  <span class="segmented-pill">Circle</span>
-                </label>
-                <label>
-                  <input type="radio" name="ring-shape" value="squircle" />
-                  <span class="segmented-pill">Squircle</span>
-                </label>
-                <label>
-                  <input type="radio" name="ring-shape" value="hexagon" />
-                  <span class="segmented-pill">Hexagon</span>
-                </label>
               </div>
             </div>
           </div>
@@ -933,7 +933,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     '#d4a27c',
   );
   capacityEngraving.rotation.y = 0;
-  capacityEngraving.position.set(-0.23, 0.29, 0.322);
+  capacityEngraving.position.set(-0.31, 0.29, 0.322);
   model.add(capacityEngraving);
 
   const brandEngraving = makeBrandPlane('power-bank-brand-engraving', 'ANKER');
@@ -1041,7 +1041,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     listeners.push(() => element.removeEventListener(type, listener));
   };
 
+  let selectedFinish: FinishKey = 'graphite';
+
   const applyFinish = (key: FinishKey): void => {
+    selectedFinish = key;
     const finish = FINISHES[key];
     setMaterialColor(model, ['glossy-rear-shell', 'matte-charging-face'], finish.body);
     setMaterialColor(model, ['front-polished-gasket', 'magsafe-alignment-ring'], finish.edge);
@@ -1309,13 +1312,31 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     });
   }
 
+  const oledFaceMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0x061118,
+    roughness: 0.12,
+    metalness: 0.25,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.08,
+  });
+
   const syncLeds = (): void => {
     const isLeds = selectedIndicator === 'leds';
     setLedPower(model, isLeds, 2.4);
-    
+
     const percentageDisplay = model.getObjectByName('battery-percentage-display');
     if (percentageDisplay) {
       percentageDisplay.visible = !isLeds;
+    }
+
+    const faceMesh = model.getObjectByName('status-face') as THREE.Mesh | null;
+    if (faceMesh) {
+      if (!isLeds) {
+        faceMesh.material = oledFaceMaterial;
+      } else {
+        const finish = FINISHES[selectedFinish];
+        setMaterialColor(model, ['status-face'], finish.panel);
+      }
     }
   };
 
