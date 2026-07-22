@@ -2035,15 +2035,35 @@ code,
 }
 
 .customizer-page.dark-mode .segmented-control {
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
 }
 
-.customizer-page.dark-mode .segmented-control span {
+.customizer-page.dark-mode .capacity-segmented .segmented-box,
+.customizer-page.dark-mode .customizer-column-right .segmented-control:not(.capacity-segmented) .segmented-pill,
+.customizer-page.dark-mode .segmented-control .segmented-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #8a94a6;
+  box-shadow: none;
+}
+
+.customizer-page.dark-mode .capacity-segmented strong,
+.customizer-page.dark-mode .capacity-segmented small {
   color: #8a94a6;
 }
-.customizer-page.dark-mode .segmented-control input:checked + span {
-  background: #2a303c;
-  color: #fcfdfe;
+
+.customizer-page.dark-mode .capacity-segmented input:checked + .segmented-box,
+.customizer-page.dark-mode .customizer-column-right .segmented-control:not(.capacity-segmented) input:checked + .segmented-pill,
+.customizer-page.dark-mode .segmented-control input:checked + .segmented-pill {
+  background: rgba(13, 201, 177, 0.16);
+  border-color: #0dc9b1;
+  color: #0dc9b1;
+  box-shadow: none;
+}
+
+.customizer-page.dark-mode .capacity-segmented input:checked + .segmented-box strong,
+.customizer-page.dark-mode .capacity-segmented input:checked + .segmented-box small {
+  color: #ffffff;
 }
 
 .customizer-page.dark-mode .apple-switch {

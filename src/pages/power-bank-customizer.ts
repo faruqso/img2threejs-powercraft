@@ -641,6 +641,24 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
 
           <div class="customizer-card">
+            <h3 class="card-title">Port configuration</h3>
+            <div class="segmented-control">
+              <label>
+                <input type="radio" name="port-config" value="type-c" checked />
+                <span class="segmented-pill">USB-C Only</span>
+              </label>
+              <label>
+                <input type="radio" name="port-config" value="type-a" />
+                <span class="segmented-pill">+ USB-A</span>
+              </label>
+              <label>
+                <input type="radio" name="port-config" value="lightning" />
+                <span class="segmented-pill">+ Lightning</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="customizer-card">
             <h3 class="card-title">Stage controls</h3>
             
             <label class="toggle-row">
@@ -856,10 +874,12 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       model.rotation.y += dt * 0.16;
     }
     model.position.y = suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
-    viewer.camera.position.lerp(targetCameraPosition, 1 - Math.exp(-dt * 5.8));
-    viewer.controls.target.lerp(targetCameraTarget, 1 - Math.exp(-dt * 5.8));
-    viewer.camera.zoom = THREE.MathUtils.lerp(viewer.camera.zoom, targetCameraZoom, 1 - Math.exp(-dt * 5.8));
-    viewer.camera.updateProjectionMatrix();
+    if (inscriptionFocus) {
+      viewer.camera.position.lerp(targetCameraPosition, 1 - Math.exp(-dt * 5.8));
+      viewer.controls.target.lerp(targetCameraTarget, 1 - Math.exp(-dt * 5.8));
+      viewer.camera.zoom = THREE.MathUtils.lerp(viewer.camera.zoom, targetCameraZoom, 1 - Math.exp(-dt * 5.8));
+      viewer.camera.updateProjectionMatrix();
+    }
     viewer.controls.update();
   };
 
@@ -925,6 +945,23 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         | null;
       if (material?.emissive) material.emissive.setHex(color.value);
     });
+  }
+
+  const usbCPort = model.getObjectByName('usb-c-port');
+  const usbAPort = model.getObjectByName('usb-a-port');
+  const lightningPort = model.getObjectByName('lightning-port');
+
+  const applyPortConfig = (config: string): void => {
+    if (usbCPort) usbCPort.visible = true;
+    if (usbAPort) usbAPort.visible = config === 'type-a';
+    if (lightningPort) lightningPort.visible = config === 'lightning';
+  };
+
+  // Set default port configuration
+  applyPortConfig('type-c');
+
+  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="port-config"]')) {
+    listen(input, 'change', () => applyPortConfig(input.value));
   }
 
   listen(brandControl, 'input', () => {
