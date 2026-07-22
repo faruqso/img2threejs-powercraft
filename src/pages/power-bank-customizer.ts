@@ -929,11 +929,16 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       targetCameraTarget.set(0.3, 1.46, 0.22);
       targetCameraPosition.copy(defaultCameraPosition);
       targetCameraZoom = 1.75;
-      return;
+    } else {
+      targetCameraPosition.copy(defaultCameraPosition);
+      targetCameraTarget.copy(defaultCameraTarget);
+      targetCameraZoom = defaultCameraZoom;
     }
-    targetCameraPosition.copy(defaultCameraPosition);
-    targetCameraTarget.copy(defaultCameraTarget);
-    targetCameraZoom = defaultCameraZoom;
+    viewer.camera.position.copy(targetCameraPosition);
+    viewer.controls.target.copy(targetCameraTarget);
+    viewer.camera.zoom = targetCameraZoom;
+    viewer.camera.updateProjectionMatrix();
+    viewer.controls.update();
   };
 
   listen(brandControl, 'focus', () => setInscriptionFocus(true));
