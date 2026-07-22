@@ -2095,6 +2095,32 @@ code,
   margin-top: 0.1rem;
 }
 
+.customizer-page .sub-customization-section {
+  margin-top: 0.85rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed #e2e8f0;
+  animation: cardSubFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardSubFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.customizer-page .sub-section-title {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
 .customizer-page .port-checkbox-icon {
   position: absolute;
   top: 5px;

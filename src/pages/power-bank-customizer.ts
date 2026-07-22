@@ -594,23 +594,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             </div>
 
             <div class="customizer-card">
-              <h3 class="card-title">USB tongue colour</h3>
-              <div class="usb-swatch-grid">
-                ${Object.entries(USB_COLORS)
-                  .map(
-                    ([key, color]) => `
-                      <label class="swatch-option label-swatch ${key === 'cyan' ? 'active' : ''}" title="${color.label}">
-                        <input type="radio" name="usb-color" value="${key}" ${key === 'cyan' ? 'checked' : ''} />
-                        <span class="swatch" style="--swatch-color:#${color.value.toString(16).padStart(6, '0')}"></span>
-                        <span class="swatch-label">${color.label}</span>
-                      </label>
-                    `,
-                  )
-                  .join('')}
-              </div>
-            </div>
-
-            <div class="customizer-card">
               <h3 class="card-title">Personalisation</h3>
               <label class="text-control">
                 <span class="input-label">Inscription</span>
@@ -736,6 +719,24 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   </div>
                 </div>
               </label>
+            </div>
+
+            <!-- Sub-customization: USB tongue colour (shown when at least 1 port is enabled) -->
+            <div class="sub-customization-section" id="usb-tongue-section" style="display: none;">
+              <h4 class="sub-section-title">USB tongue colour</h4>
+              <div class="usb-swatch-grid">
+                ${Object.entries(USB_COLORS)
+                  .map(
+                    ([key, color]) => `
+                      <label class="swatch-option label-swatch ${key === 'cyan' ? 'active' : ''}" title="${color.label}">
+                        <input type="radio" name="usb-color" value="${key}" ${key === 'cyan' ? 'checked' : ''} />
+                        <span class="swatch" style="--swatch-color:#${color.value.toString(16).padStart(6, '0')}"></span>
+                        <span class="swatch-label">${color.label}</span>
+                      </label>
+                    `,
+                  )
+                  .join('')}
+              </div>
             </div>
           </div>
 
@@ -1172,6 +1173,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (hasLegacyUsb) activePorts.push('Legacy USB');
     if (hasTypeC) activePorts.push('USB-C');
     if (hasLightning) activePorts.push('Lightning');
+
+    const usbTongueSection = mount.querySelector<HTMLElement>('#usb-tongue-section');
+    if (usbTongueSection) {
+      usbTongueSection.style.display = activePorts.length > 0 ? 'block' : 'none';
+    }
 
     if (portStatusBadge) {
       if (activePorts.length === 0) {
