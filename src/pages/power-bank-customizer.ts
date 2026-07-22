@@ -934,9 +934,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   model.add(screenDisplay);
 
   const brandEngraving = makeBrandPlane('power-bank-brand-engraving', 'ANKER');
-  // The wordmark is deliberately oversized, rotated vertically, and anchored to the right edge.
+  // The wordmark is rotated vertically, moved slightly left to 0.53, and anchored to the top-right corner.
   brandEngraving.rotation.z = -Math.PI / 2;
-  brandEngraving.position.set(0.65, 1.46, 0.323);
+  brandEngraving.position.set(0.53, 1.46, 0.323);
   model.add(brandEngraving);
   viewer.scene.add(model);
 
@@ -959,6 +959,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const invScaleY = 1 / model.scale.y;
     const invScaleZ = 1 / model.scale.z;
 
+    // Keep ANKER text anchored at top-right corner at 1:1 scale without font scaling
+    brandEngraving.position.y = 1.46 + (model.scale.y - 1.0) * 0.72;
+
     const bodyMeshNames = new Set([
       'glossy-rear-shell',
       'front-polished-gasket',
@@ -966,7 +969,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     ]);
 
     const uniformScaledNames = new Set([
-      'power-bank-brand-engraving',
       'power-bank-capacity-engraving',
       'power-bank-spec-engraving',
       'battery-status-display',
@@ -1100,7 +1102,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
     if (portStatusBadge) {
       if (activePorts.length === 0) {
-        portStatusBadge.textContent = 'No Ports (Wireless Only)';
+        portStatusBadge.textContent = 'Wireless Only';
+      } else if (activePorts.length === 4) {
+        portStatusBadge.textContent = 'All 4 Ports';
       } else {
         portStatusBadge.textContent = activePorts.join(' + ');
       }

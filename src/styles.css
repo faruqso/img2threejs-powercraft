@@ -2008,6 +2008,7 @@ code,
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
   margin-bottom: 0.25rem;
 }
 
@@ -2020,6 +2021,9 @@ code,
   border-radius: 20px;
   border: 1px solid rgba(13, 201, 177, 0.25);
   white-space: nowrap;
+  max-width: 155px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .customizer-page .port-choice-grid {
@@ -2047,8 +2051,10 @@ code,
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 0.75rem 0.35rem 0.65rem;
+  padding: 0.65rem 0.2rem 0.55rem;
+  min-height: 86px;
   border: 1.5px solid #dce3e9;
   border-radius: 12px;
   background: #ffffff;
@@ -2058,16 +2064,17 @@ code,
 
 .customizer-page .port-icon-wrapper {
   color: #718096;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.3rem;
   transition: color 0.2s ease;
 }
 
 .customizer-page .port-choice-info strong {
   display: block;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: #1a202c;
   font-weight: 600;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .customizer-page .port-choice-info small {
