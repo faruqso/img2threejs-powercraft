@@ -229,7 +229,9 @@ function makeEngravedPlane(
   const material = new THREE.MeshBasicMaterial({
     map: makeTextTexture(lines, color, align, accent),
     transparent: true,
-    opacity: 0.76,
+    opacity: 0.98,
+    side: THREE.DoubleSide,
+    toneMapped: false,
     depthWrite: false,
     polygonOffset: true,
     polygonOffsetFactor: -2,
@@ -668,23 +670,32 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const capacityEngraving = makeEngravedPlane(
     'power-bank-capacity-engraving',
-    0.6,
-    0.16,
+    0.76,
+    0.2,
     ['5000 mAh'],
-    '#d5c8b5',
+    '#ecf4f2',
   );
   capacityEngraving.rotation.y = 0;
-  capacityEngraving.position.set(0, 1.05, 0.305);
+  capacityEngraving.position.set(0, 1.04, 0.322);
   model.add(capacityEngraving);
+
+  const screenInset = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.36, 0.22),
+    new THREE.MeshBasicMaterial({ color: 0x061c22, side: THREE.DoubleSide, toneMapped: false }),
+  );
+  screenInset.name = 'power-bank-screen-inset';
+  screenInset.position.set(0, 0.62, 0.318);
+  screenInset.visible = false;
+  model.add(screenInset);
 
   const screenDisplay = makeEngravedPlane(
     'power-bank-screen-display',
-    0.28,
-    0.16,
-    ['100'],
-    '#ffffff',
+    0.32,
+    0.18,
+    ['82%'],
+    '#7fffe9',
   );
-  screenDisplay.position.set(0, 0.62, 0.305);
+  screenDisplay.position.set(0, 0.62, 0.321);
   screenDisplay.visible = false;
   model.add(screenDisplay);
 
@@ -693,11 +704,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     0.76,
     0.16,
     ['ANKER'],
-    '#d79a68',
+    '#ffd4a4',
   );
   // The rotated wordmark follows the long axis of the front face, as on the reference device.
   brandEngraving.rotation.z = -Math.PI / 2;
-  brandEngraving.position.set(0.22, 1.55, 0.305);
+  brandEngraving.position.set(0.22, 1.55, 0.322);
   model.add(brandEngraving);
   viewer.scene.add(model);
 
@@ -753,7 +764,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const capacity = CAPACITIES[selectedCapacity];
     targetScale.fromArray(capacity.scale);
     capacityReadout.textContent = capacity.label;
-    updateTextPlane(capacityEngraving, [capacity.label], '#d5c8b5');
+    updateTextPlane(capacityEngraving, [capacity.label], '#ecf4f2');
     updateProductSpecification();
   };
 
@@ -793,7 +804,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   listen(brandControl, 'input', () => {
     const brandName = brandControl.value.trim().toUpperCase();
     brandEngraving.visible = brandName.length > 0;
-    if (brandName) updateTextPlane(brandEngraving, [brandName], '#d79a68');
+    if (brandName) updateTextPlane(brandEngraving, [brandName], '#ffd4a4');
   });
 
   const glossControl = mount.querySelector<HTMLInputElement>('#gloss-control')!;
@@ -817,9 +828,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     
     if (screenDisplay) {
       screenDisplay.visible = !isLeds;
+      screenInset.visible = !isLeds;
       const material = screenDisplay.material as THREE.MeshBasicMaterial;
       material.opacity = 0.9;
-      material.color.setHex(0x9fc7ff);
+      material.color.setHex(0x7fffe9);
     }
   };
 
@@ -874,7 +886,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     lightValue.textContent = '70%';
     brandControl.value = 'ANKER';
     brandEngraving.visible = true;
-    updateTextPlane(brandEngraving, ['ANKER'], '#d79a68');
+    updateTextPlane(brandEngraving, ['ANKER'], '#ffd4a4');
     applyDimensions();
     syncLeds();
     viewer.camera.position.copy(defaultCameraPosition);
