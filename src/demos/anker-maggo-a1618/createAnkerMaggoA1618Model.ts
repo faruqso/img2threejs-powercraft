@@ -478,11 +478,11 @@ export function createAnkerMaggoA1618Model(
   root.add(usbPort);
 
   const usbAPort = makeUsbAPort(shadows, edgeMaterial, blueMaterial);
-  usbAPort.position.y = 1.20;
+  usbAPort.position.y = 0.78;
   root.add(usbAPort);
 
   const lightningPort = makeLightningPort(shadows, edgeMaterial);
-  lightningPort.position.y = 0.14;
+  lightningPort.position.y = 0.48;
   root.add(lightningPort);
 
   const powerButton = makeSidePowerButton(shadows, edgeMaterial, bodyGraphite);
