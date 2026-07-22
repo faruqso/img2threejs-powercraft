@@ -1099,6 +1099,20 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     });
   }
 
+  const setPortFocus = (): void => {
+    isCameraTransitioning = true;
+    targetCameraPosition.set(-5.2, 0.15, 2.6);
+    targetCameraTarget.set(-0.55, 0.12, 0.0);
+    targetCameraZoom = 1.38;
+  };
+
+  const resetCameraFocus = (): void => {
+    isCameraTransitioning = true;
+    targetCameraPosition.copy(defaultCameraPosition);
+    targetCameraTarget.copy(defaultCameraTarget);
+    targetCameraZoom = defaultCameraZoom;
+  };
+
   const usbAPort = model.getObjectByName('usb-a-port');
   const legacyUsbPort = model.getObjectByName('legacy-usb-port');
   const usbCPort = model.getObjectByName('usb-c-port');
@@ -1138,9 +1152,28 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   // Set initial state (No ports selected by default)
   syncPorts();
 
-  for (const input of portInputs) {
-    listen(input, 'change', syncPorts);
+  const portCard = Array.from(mount.querySelectorAll<HTMLElement>('.customizer-card')).find(c => c.querySelector('input[name="port-option"]'));
+  if (portCard) {
+    listen(portCard, 'click', (e: Event) => {
+      e.stopPropagation();
+      setPortFocus();
+    });
   }
+
+  for (const input of portInputs) {
+    listen(input, 'change', () => {
+      setPortFocus();
+      syncPorts();
+    });
+  }
+
+  listen(document, 'click', (e: Event) => {
+    const target = e.target as HTMLElement | null;
+    if (target && portCard && !portCard.contains(target)) {
+      // If clicking outside port configuration card and not in inscription mode, reset view
+      resetCameraFocus();
+    }
+  });
 
   // Enable accordion collapse/expand on all customizer cards with chevron icons
   for (const card of mount.querySelectorAll<HTMLElement>('.customizer-card')) {
