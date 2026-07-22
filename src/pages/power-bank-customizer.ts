@@ -332,6 +332,48 @@ function updateRegulatoryPlane(mesh: THREE.Mesh, capacity: string): void {
   previous?.dispose();
 }
 
+function makeBrandTexture(value: string): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1120;
+  canvas.height = 200;
+  const context = canvas.getContext('2d')!;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  context.font = '600 128px Arial, Helvetica, sans-serif';
+  context.fillStyle = 'rgba(13, 15, 18, 0.72)';
+  context.fillText(value, canvas.width / 2, canvas.height / 2 + 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  return texture;
+}
+
+function makeBrandPlane(name: string, value: string): THREE.Mesh {
+  const material = new THREE.MeshBasicMaterial({
+    map: makeBrandTexture(value),
+    transparent: true,
+    opacity: 0.68,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+  });
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(3.36, 0.6), material);
+  mesh.name = name;
+  return mesh;
+}
+
+function updateBrandPlane(mesh: THREE.Mesh, value: string): void {
+  const material = mesh.material as THREE.MeshBasicMaterial;
+  const previous = material.map;
+  material.map = makeBrandTexture(value);
+  material.needsUpdate = true;
+  previous?.dispose();
+}
+
 function makeEngravedPlane(
   name: string,
   width: number,
@@ -428,10 +470,10 @@ function makePowerBankContactShadow(): THREE.Mesh {
     depthWrite: false,
     opacity: 0.72,
   });
-  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.46), material);
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.45, 0.68), material);
   shadow.name = 'power-bank-contact-shadow';
   shadow.rotation.x = -Math.PI / 2;
-  shadow.position.y = 0.219;
+  shadow.position.y = 0.006;
   shadow.renderOrder = 1;
   return shadow;
 }
@@ -698,28 +740,66 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
 
           <div class="customizer-card summary-card">
-            <h3 class="card-title">Build summary</h3>
+            <h3 class="card-title">Order summary & booking</h3>
             
+            <div class="order-spec-grid">
+              <div class="order-spec-item">
+                <span class="spec-label">MOQ (Min. Order)</span>
+                <strong class="spec-val">50 units</strong>
+              </div>
+              <div class="order-spec-item">
+                <span class="spec-label">Unit Price</span>
+                <strong class="spec-val" id="unit-price-val">£14.50 / unit</strong>
+              </div>
+              <div class="order-spec-item">
+                <span class="spec-label">Lead Time</span>
+                <strong class="spec-val">5 - 7 Days</strong>
+              </div>
+              <div class="order-spec-item">
+                <span class="spec-label">Branding Setup</span>
+                <strong class="spec-val text-teal">Included (Free)</strong>
+              </div>
+            </div>
+
+            <div class="quantity-picker-row">
+              <span class="row-label info-label" style="margin: 0;">Order Quantity</span>
+              <div class="qty-control">
+                <button type="button" class="qty-btn" id="qty-minus">-</button>
+                <input type="number" id="order-qty" value="50" min="50" step="50" readonly />
+                <button type="button" class="qty-btn" id="qty-plus">+</button>
+              </div>
+            </div>
+
             <div class="summary-rows" aria-live="polite">
               <div class="summary-row">
-                <span id="capacity-readout">Power bank</span>
-                <strong>£40.00</strong>
+                <span id="capacity-readout">Base Power Bank (50x)</span>
+                <strong id="subtotal-val">£725.00</strong>
               </div>
               <div class="summary-row">
-                <span>Custom inscription</span>
-                <strong>£5.00</strong>
+                <span>Laser Engraving / Branding</span>
+                <strong class="text-teal">Included</strong>
               </div>
             </div>
 
             <div class="summary-total">
               <span>Total Price:</span>
-              <strong>£45.00</strong>
+              <strong id="order-total-price">£725.00</strong>
             </div>
 
-            <button class="btn-primary customizer-reset" id="reset-customizer" type="button">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-              Reset to code default
+            <button class="btn-primary place-order-btn" id="place-order-btn" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              Place Order
             </button>
+
+            <div class="order-secondary-actions">
+              <button class="btn-secondary-link" id="reset-customizer" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                Reset to default
+              </button>
+              <button class="btn-secondary-link" id="request-sample-btn" type="button">
+                Request sample (£25)
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1044,63 +1124,87 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   
   const themeToggle = mount.querySelector<HTMLButtonElement>('#theme-toggle');
   const customizerPage = mount.querySelector('.customizer-page');
+  const orderQtyInput = mount.querySelector<HTMLInputElement>('#order-qty');
+  const qtyMinus = mount.querySelector<HTMLButtonElement>('#qty-minus');
+  const qtyPlus = mount.querySelector<HTMLButtonElement>('#qty-plus');
+  const orderTotalPrice = mount.querySelector<HTMLElement>('#order-total-price');
+  const subtotalVal = mount.querySelector<HTMLElement>('#subtotal-val');
+  const unitPriceVal = mount.querySelector<HTMLElement>('#unit-price-val');
+  const summaryCapacityReadout = mount.querySelector<HTMLElement>('#capacity-readout');
 
+  function updateOrderSummary() {
+    if (!orderQtyInput) return;
+    const qty = parseInt(orderQtyInput.value, 10) || 50;
+    
+    let unitPrice = 14.50;
+    if (selectedCapacity === '10k') unitPrice += 6.00;
+    if (selectedCapacity === '20k') unitPrice += 12.00;
+
+    if (qty >= 500) unitPrice *= 0.82;
+    else if (qty >= 200) unitPrice *= 0.90;
+
+    const total = qty * unitPrice;
+
+    if (unitPriceVal) unitPriceVal.textContent = `£${unitPrice.toFixed(2)} / unit`;
+    if (subtotalVal) subtotalVal.textContent = `£${total.toFixed(2)}`;
+    if (orderTotalPrice) orderTotalPrice.textContent = `£${total.toFixed(2)}`;
+    if (summaryCapacityReadout) summaryCapacityReadout.textContent = `Base Power Bank (${qty}x)`;
+  }
+
+  if (qtyMinus && orderQtyInput) {
+    listen(qtyMinus, 'click', () => {
+      let current = parseInt(orderQtyInput.value, 10) || 50;
+      if (current > 50) {
+        current -= 50;
+        orderQtyInput.value = String(current);
+        updateOrderSummary();
+      }
+    });
+  }
+
+  if (qtyPlus && orderQtyInput) {
+    listen(qtyPlus, 'click', () => {
+      let current = parseInt(orderQtyInput.value, 10) || 50;
+      current += 50;
+      orderQtyInput.value = String(current);
+      updateOrderSummary();
+    });
+  }
+
+  const placeOrderBtn = mount.querySelector<HTMLButtonElement>('#place-order-btn');
+  if (placeOrderBtn) {
+    listen(placeOrderBtn, 'click', () => {
+      alert(`🎉 Order Placed Successfully!\n\nQuantity: ${orderQtyInput?.value || 50} units\nTotal: ${orderTotalPrice?.textContent || '£725.00'}\nLead time: 5 - 7 business days.`);
+    });
+  }
+
+  const requestSampleBtn = mount.querySelector<HTMLButtonElement>('#request-sample-btn');
+  if (requestSampleBtn) {
+    listen(requestSampleBtn, 'click', () => {
+      alert('Sample Request Initiated!\n\nA customized sample unit (£25) will be prepared and shipped to your address.');
+    });
+  }
+
+  // Theme toggle with fast, native in-place component transitions
   if (themeToggle && customizerPage) {
-    listen(themeToggle, 'click', (e: Event) => {
-      const mouseEv = e as MouseEvent;
-      const rect = themeToggle.getBoundingClientRect();
-      const clickX = mouseEv.clientX || rect.left + rect.width / 2;
-      const clickY = mouseEv.clientY || rect.top + rect.height / 2;
+    listen(themeToggle, 'click', () => {
+      const isDark = customizerPage.classList.toggle('dark-mode');
+      
+      const plateauBase = revealPlateau.getObjectByName('reveal-plateau-base') as THREE.Mesh;
+      const plateauRim = revealPlateau.getObjectByName('reveal-plateau-rim') as THREE.Mesh;
+      if (plateauBase && plateauBase.material instanceof THREE.MeshStandardMaterial) {
+        plateauBase.material.color.setHex(isDark ? 0x181c2b : 0xffffff);
+      }
+      if (plateauRim && plateauRim.material instanceof THREE.MeshStandardMaterial) {
+        plateauRim.material.color.setHex(isDark ? 0x181c2b : 0xffffff);
+      }
 
-      const isDark = customizerPage.classList.contains('dark-mode');
-      const nextIsDark = !isDark;
-
-      // Create curtain overlay
-      const curtain = document.createElement('div');
-      curtain.className = `theme-curtain-overlay ${nextIsDark ? 'dark-curtain' : 'light-curtain'}`;
-      curtain.style.left = `${clickX}px`;
-      curtain.style.top = `${clickY}px`;
-      curtain.style.width = '0px';
-      curtain.style.height = '0px';
-      document.body.appendChild(curtain);
-
-      // Max diameter to cover entire screen
-      const maxDim = Math.hypot(
-        Math.max(clickX, window.innerWidth - clickX),
-        Math.max(clickY, window.innerHeight - clickY)
-      ) * 2.2;
-
-      requestAnimationFrame(() => {
-        curtain.style.width = `${maxDim}px`;
-        curtain.style.height = `${maxDim}px`;
-      });
-
-      // Halfway through sweep, apply actual theme state to DOM & 3D scene
-      setTimeout(() => {
-        customizerPage.classList.toggle('dark-mode', nextIsDark);
-
-        const plateauBase = revealPlateau.getObjectByName('reveal-plateau-base') as THREE.Mesh;
-        const plateauRim = revealPlateau.getObjectByName('reveal-plateau-rim') as THREE.Mesh;
-        if (plateauBase && plateauBase.material instanceof THREE.MeshStandardMaterial) {
-          plateauBase.material.color.setHex(nextIsDark ? 0x181c2b : 0xffffff);
-        }
-        if (plateauRim && plateauRim.material instanceof THREE.MeshStandardMaterial) {
-          plateauRim.material.color.setHex(nextIsDark ? 0x181c2b : 0xffffff);
-        }
-
-        // Toggle icon
-        if (nextIsDark) {
-          themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-        } else {
-          themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-        }
-      }, 250);
-
-      // Fade out curtain overlay after sweep finishes
-      setTimeout(() => {
-        curtain.style.opacity = '0';
-        setTimeout(() => curtain.remove(), 300);
-      }, 580);
+      // Toggle icon
+      if (isDark) {
+        themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+      } else {
+        themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="12" y1="4" x2="12" y2="2"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+      }
     });
   }
   
