@@ -186,9 +186,11 @@ function makeMagneticBack(
   center.receiveShadow = shadows;
   back.add(center);
 
-  const alignmentBar = makePanel('magsafe-alignment-bar', 0.052, 0.22, 0.008, 0.025, ringMaterial, false, 0.003);
+  // Keep the alignment bar engraved with the ring, rather than letting it
+  // become a raised strap when the model is seen exactly from the side.
+  const alignmentBar = makePanel('magsafe-alignment-bar', 0.052, 0.22, 0.001, 0.025, ringMaterial, false, 0.001);
   alignmentBar.rotation.y = Math.PI;
-  alignmentBar.position.set(0, -0.76, 0.004);
+  alignmentBar.position.set(0, -0.76, -0.0225);
   back.add(alignmentBar);
 
   return back;
