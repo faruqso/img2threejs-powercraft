@@ -314,6 +314,59 @@ function makeBatteryPercentageDisplay(): THREE.Mesh {
   return display;
 }
 
+export type RingShapeKey = 'circle' | 'squircle' | 'square' | 'hexagon';
+
+export function createRingRimGeometry(shapeKey: RingShapeKey): THREE.BufferGeometry {
+  if (shapeKey === 'circle') {
+    return new THREE.TorusGeometry(0.192, 0.015, 16, 64);
+  } else if (shapeKey === 'hexagon') {
+    return new THREE.TorusGeometry(0.198, 0.015, 16, 6);
+  } else if (shapeKey === 'square') {
+    return new THREE.TorusGeometry(0.208, 0.015, 16, 4);
+  } else {
+    // Squircle (Rounded Square)
+    const shape = new THREE.Shape();
+    const w = 0.36, h = 0.36, r = 0.08;
+    shape.moveTo(-w / 2 + r, -h / 2);
+    shape.lineTo(w / 2 - r, -h / 2);
+    shape.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+    shape.lineTo(w / 2, h / 2 - r);
+    shape.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+    shape.lineTo(-w / 2 + r, h / 2);
+    shape.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+    shape.lineTo(-w / 2, -h / 2 + r);
+    shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+
+    const points = shape.getPoints(32);
+    const path3D = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(p.x, p.y, 0)), true);
+    return new THREE.TubeGeometry(path3D, 64, 0.015, 12, true);
+  }
+}
+
+export function createRingFaceGeometry(shapeKey: RingShapeKey): THREE.BufferGeometry {
+  if (shapeKey === 'circle') {
+    return new THREE.CircleGeometry(0.176, 64);
+  } else if (shapeKey === 'hexagon') {
+    return new THREE.CircleGeometry(0.182, 6);
+  } else if (shapeKey === 'square') {
+    return new THREE.PlaneGeometry(0.35, 0.35);
+  } else {
+    // Squircle face
+    const shape = new THREE.Shape();
+    const w = 0.34, h = 0.34, r = 0.075;
+    shape.moveTo(-w / 2 + r, -h / 2);
+    shape.lineTo(w / 2 - r, -h / 2);
+    shape.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+    shape.lineTo(w / 2, h / 2 - r);
+    shape.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+    shape.lineTo(-w / 2 + r, h / 2);
+    shape.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+    shape.lineTo(-w / 2, -h / 2 + r);
+    shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+    return new THREE.ShapeGeometry(shape);
+  }
+}
+
 function makeStatusDisplay(
   shadows: boolean,
   ringMaterial: THREE.Material,
@@ -324,12 +377,22 @@ function makeStatusDisplay(
   display.name = 'battery-status-display';
   display.position.set(0, 0.62, BODY_DEPTH / 2 + 0.044);
 
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.192, 0.012, 14, 64), ringMaterial);
+  // High clearcoat specular metallic rim for crisp non-fading emboss relief
+  const embossedRingMat = ringMaterial instanceof THREE.MeshPhysicalMaterial ? ringMaterial.clone() : ringMaterial;
+  if (embossedRingMat instanceof THREE.MeshPhysicalMaterial) {
+    embossedRingMat.clearcoat = 1.0;
+    embossedRingMat.clearcoatRoughness = 0.08;
+    embossedRingMat.roughness = 0.22;
+    embossedRingMat.metalness = 0.85;
+  }
+
+  const rim = new THREE.Mesh(createRingRimGeometry('circle'), embossedRingMat);
   rim.name = 'status-ring';
+  rim.position.z = 0.008;
   rim.castShadow = shadows;
   display.add(rim);
 
-  const face = new THREE.Mesh(new THREE.CircleGeometry(0.171, 64), displayMaterial);
+  const face = new THREE.Mesh(createRingFaceGeometry('circle'), displayMaterial);
   face.name = 'status-face';
   face.position.z = 0.001;
   display.add(face);

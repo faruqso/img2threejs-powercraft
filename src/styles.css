@@ -2028,8 +2028,8 @@ code,
 
 .customizer-page .port-choice-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.45rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
   margin-top: 0.6rem;
 }
 
@@ -2049,28 +2049,39 @@ code,
 
 .customizer-page .port-choice-inner {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0.65rem 0.2rem 0.55rem;
-  min-height: 86px;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 0.75rem 0.85rem;
+  min-height: 56px;
   border: 1.5px solid #dce3e9;
   border-radius: 12px;
   background: #ffffff;
   transition: all 0.2s ease;
   position: relative;
+  gap: 0.65rem;
 }
 
 .customizer-page .port-icon-wrapper {
   color: #718096;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color 0.2s ease;
+}
+
+.customizer-page .port-choice-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .customizer-page .port-choice-info strong {
   display: block;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: #1a202c;
   font-weight: 600;
   line-height: 1.2;
@@ -2079,9 +2090,9 @@ code,
 
 .customizer-page .port-choice-info small {
   display: block;
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   color: #8a94a6;
-  margin-top: 0.15rem;
+  margin-top: 0.1rem;
 }
 
 .customizer-page .port-checkbox-icon {

@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import {
   createAnkerMaggoA1618LookDevLights,
   createAnkerMaggoA1618Model,
+  createRingRimGeometry,
+  createRingFaceGeometry,
+  RingShapeKey,
 } from '../demos/anker-maggo-a1618/createAnkerMaggoA1618Model';
 import { Viewer } from '../scene';
 
@@ -744,7 +747,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               <input id="magsafe-toggle" class="apple-switch" type="checkbox" checked />
             </label>
             
-            <div class="control-row no-margin">
+            <div class="control-row">
               <span class="row-label info-label">Battery indicator <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
               <div class="segmented-control">
                 <label>
@@ -754,6 +757,28 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                 <label>
                   <input type="radio" name="indicator-type" value="screen" />
                   <span class="segmented-pill">Info screen</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="control-row no-margin">
+              <span class="row-label info-label">Display ring shape <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
+              <div class="segmented-control">
+                <label>
+                  <input type="radio" name="ring-shape" value="circle" checked />
+                  <span class="segmented-pill">Circle</span>
+                </label>
+                <label>
+                  <input type="radio" name="ring-shape" value="squircle" />
+                  <span class="segmented-pill">Squircle</span>
+                </label>
+                <label>
+                  <input type="radio" name="ring-shape" value="square" />
+                  <span class="segmented-pill">Square</span>
+                </label>
+                <label>
+                  <input type="radio" name="ring-shape" value="hexagon" />
+                  <span class="segmented-pill">Hexagon</span>
                 </label>
               </div>
             </div>
@@ -867,8 +892,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const canvasMount = mount.querySelector<HTMLDivElement>('#power-bank-canvas')!;
   const viewer = new Viewer(canvasMount, {
-    cameraPosition: [-5.2, 2.7, 8.2],
-    cameraTarget: [0, 0.88, 0],
+    cameraPosition: [-5.5, 1.5, 8.8],
+    cameraTarget: [0, 0.20, 0],
     cameraFov: 36,
     installLights: (scene) => scene.add(createAnkerMaggoA1618LookDevLights()),
   });
@@ -882,6 +907,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   viewer.controls.maxDistance = 10;
 
   const contactShadow = makePowerBankContactShadow();
+  contactShadow.position.y = -0.38;
   viewer.scene.add(contactShadow);
 
   // The generic viewer floor produces a long directional shadow outside the product stage.
@@ -895,7 +921,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const mesh = object as THREE.Mesh;
     if (mesh.isMesh) mesh.castShadow = false;
   });
-  model.position.y = 0.35;
+  model.position.y = -0.38;
   const productSpecEngraving = makeRegulatoryPlane('power-bank-product-spec-engraving', '5,000 mAh', '30W');
   productSpecEngraving.rotation.y = Math.PI;
   // Match the lower clearance to the left-side clearance for a balanced regulatory block.
@@ -1188,6 +1214,22 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     listen(input, 'change', () => {
       selectedIndicator = input.value as 'leds' | 'screen';
       syncLeds();
+    });
+  }
+
+  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="ring-shape"]')) {
+    listen(input, 'change', () => {
+      const shapeKey = input.value as RingShapeKey;
+      const rimMesh = model.getObjectByName('status-ring') as THREE.Mesh | null;
+      const faceMesh = model.getObjectByName('status-face') as THREE.Mesh | null;
+      if (rimMesh) {
+        rimMesh.geometry.dispose();
+        rimMesh.geometry = createRingRimGeometry(shapeKey);
+      }
+      if (faceMesh) {
+        faceMesh.geometry.dispose();
+        faceMesh.geometry = createRingFaceGeometry(shapeKey);
+      }
     });
   }
 
