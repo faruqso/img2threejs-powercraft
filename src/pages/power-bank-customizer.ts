@@ -514,18 +514,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   mount.innerHTML = `
     <div class="customizer-page light-mesh-bg">
       <div class="customizer-canvas-mount" id="power-bank-canvas"></div>
-      
-      <div class="floating-actions">
-        <button class="fab" id="fab-orbit" title="Drag to orbit">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/><path d="M6 11V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/></svg>
-        </button>
-        <button class="fab" id="fab-center" title="Center view">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="20" y2="12"/></svg>
-        </button>
-        <button class="fab" id="fab-zoom" title="Zoom to fit">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-        </button>
-      </div>
 
       <header class="global-header">
         <div class="header-brand">
@@ -683,14 +671,30 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             </div>
             <div class="port-choice-grid">
               <label class="port-choice-card">
-                <input type="checkbox" name="port-option" value="type-c" />
+                <input type="checkbox" name="port-option" value="type-c-1" />
                 <div class="port-choice-inner">
                   <div class="port-icon-wrapper">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
                   </div>
                   <div class="port-choice-info">
-                    <strong>USB-C</strong>
-                    <small>Fast charge</small>
+                    <strong>USB-C 1</strong>
+                    <small>Primary PD</small>
+                  </div>
+                  <div class="port-checkbox-icon">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+              </label>
+
+              <label class="port-choice-card">
+                <input type="checkbox" name="port-option" value="type-c-2" />
+                <div class="port-choice-inner">
+                  <div class="port-icon-wrapper">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
+                  </div>
+                  <div class="port-choice-info">
+                    <strong>USB-C 2</strong>
+                    <small>Secondary C</small>
                   </div>
                   <div class="port-checkbox-icon">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
@@ -702,27 +706,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                 <input type="checkbox" name="port-option" value="type-a" />
                 <div class="port-choice-inner">
                   <div class="port-icon-wrapper">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
-                  </div>
-                  <div class="port-choice-info">
-                    <strong>USB-A</strong>
-                    <small>High-speed</small>
-                  </div>
-                  <div class="port-checkbox-icon">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
-                  </div>
-                </div>
-              </label>
-
-              <label class="port-choice-card">
-                <input type="checkbox" name="port-option" value="legacy-usb" />
-                <div class="port-choice-inner">
-                  <div class="port-icon-wrapper">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"/><line x1="6" y1="10" x2="18" y2="10"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
                   </div>
                   <div class="port-choice-info">
-                    <strong>Legacy USB</strong>
-                    <small>Metal bezel</small>
+                    <strong>USB-A</strong>
+                    <small>Legacy port</small>
                   </div>
                   <div class="port-checkbox-icon">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
@@ -836,6 +824,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         </div>
       </div>
 
+      <div class="customizer-hint">Drag to orbit &middot; Scroll to zoom</div>
+
       <div class="stage-control-bar">
         <div class="stage-control-group">
           <span class="stage-control-title">
@@ -872,8 +862,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </button>
         </div>
       </div>
-
-      <div class="customizer-hint">Drag to orbit &middot; Scroll to zoom</div>
     </div>
   `;
 
@@ -1094,20 +1082,20 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const portStatusBadge = mount.querySelector<HTMLElement>('#port-status-badge');
 
   const syncPorts = (): void => {
-    const hasTypeC = portInputs.some(i => i.value === 'type-c' && i.checked);
+    const hasTypeC1 = portInputs.some(i => i.value === 'type-c-1' && i.checked);
+    const hasTypeC2 = portInputs.some(i => i.value === 'type-c-2' && i.checked);
     const hasTypeA = portInputs.some(i => i.value === 'type-a' && i.checked);
-    const hasLegacyUsb = portInputs.some(i => i.value === 'legacy-usb' && i.checked);
     const hasLightning = portInputs.some(i => i.value === 'lightning' && i.checked);
 
-    if (usbCPort) usbCPort.visible = hasTypeC;
-    if (usbAPort) usbAPort.visible = hasTypeA;
-    if (standardUsbPort) standardUsbPort.visible = hasLegacyUsb;
+    if (usbCPort) usbCPort.visible = hasTypeC1;
+    if (usbAPort) usbAPort.visible = hasTypeC2;
+    if (standardUsbPort) standardUsbPort.visible = hasTypeA;
     if (lightningPort) lightningPort.visible = hasLightning;
 
     const activePorts: string[] = [];
-    if (hasTypeC) activePorts.push('USB-C');
+    if (hasTypeC1) activePorts.push('USB-C 1');
+    if (hasTypeC2) activePorts.push('USB-C 2');
     if (hasTypeA) activePorts.push('USB-A');
-    if (hasLegacyUsb) activePorts.push('Legacy USB');
     if (hasLightning) activePorts.push('Lightning');
 
     if (portStatusBadge) {
