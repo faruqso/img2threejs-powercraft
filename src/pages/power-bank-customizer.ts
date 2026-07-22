@@ -1088,22 +1088,45 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     listen(input, 'change', () => applyFinish(input.value as FinishKey));
   }
 
-  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="usb-color"]')) {
-    listen(input, 'change', () => {
-      const color = USB_COLORS[input.value as keyof typeof USB_COLORS];
-      setMaterialColor(model, ['usb-c-blue-tongue'], color.value);
-      const material = materialOf(model.getObjectByName('usb-c-blue-tongue') ?? new THREE.Object3D()) as
-        | THREE.MeshStandardMaterial
-        | null;
-      if (material?.emissive) material.emissive.setHex(color.value);
-    });
-  }
-
   const setPortFocus = (): void => {
     isCameraTransitioning = true;
     targetCameraPosition.set(-5.2, 0.15, 2.6);
     targetCameraTarget.set(-0.55, 0.12, 0.0);
     targetCameraZoom = 1.38;
+  };
+
+  const setUsbTongueFocus = (): void => {
+    isCameraTransitioning = true;
+    targetCameraPosition.set(-4.5, 0.18, 1.9);
+    targetCameraTarget.set(-0.60, 0.22, 0.0);
+    targetCameraZoom = 1.52;
+  };
+
+  const setMagSafeFocus = (): void => {
+    isCameraTransitioning = true;
+    targetCameraPosition.set(3.8, 0.35, -5.2);
+    targetCameraTarget.set(0, 0.20, 0);
+    targetCameraZoom = 1.35;
+  };
+
+  const setFrontDisplayFocus = (): void => {
+    isCameraTransitioning = true;
+    targetCameraPosition.set(-0.4, 0.25, 6.2);
+    targetCameraTarget.set(0, 0.18, 0);
+    targetCameraZoom = 1.40;
+  };
+
+  const setInscriptionFocus = (focused: boolean): void => {
+    if (focused) {
+      targetCameraTarget.set(0.35, 0.45, 0.1);
+      targetCameraPosition.set(-1.8, 0.45, 6.0);
+      targetCameraZoom = 1.45;
+    } else {
+      targetCameraPosition.copy(defaultCameraPosition);
+      targetCameraTarget.copy(defaultCameraTarget);
+      targetCameraZoom = defaultCameraZoom;
+    }
+    isCameraTransitioning = true;
   };
 
   const resetCameraFocus = (): void => {
@@ -1112,6 +1135,18 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     targetCameraTarget.copy(defaultCameraTarget);
     targetCameraZoom = defaultCameraZoom;
   };
+
+  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="usb-color"]')) {
+    listen(input, 'change', () => {
+      setUsbTongueFocus();
+      const color = USB_COLORS[input.value as keyof typeof USB_COLORS];
+      setMaterialColor(model, ['usb-c-blue-tongue'], color.value);
+      const material = materialOf(model.getObjectByName('usb-c-blue-tongue') ?? new THREE.Object3D()) as
+        | THREE.MeshStandardMaterial
+        | null;
+      if (material?.emissive) material.emissive.setHex(color.value);
+    });
+  }
 
   const usbAPort = model.getObjectByName('usb-a-port');
   const legacyUsbPort = model.getObjectByName('legacy-usb-port');
@@ -1152,11 +1187,45 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   // Set initial state (No ports selected by default)
   syncPorts();
 
-  const portCard = Array.from(mount.querySelectorAll<HTMLElement>('.customizer-card')).find(c => c.querySelector('input[name="port-option"]'));
+  // Customizer Card Focus Interactivity
+  const allCards = Array.from(mount.querySelectorAll<HTMLElement>('.customizer-card'));
+  const portCard = allCards.find(c => c.querySelector('input[name="port-option"]'));
+  const tongueCard = allCards.find(c => c.querySelector('input[name="usb-color"]'));
+  const chargingFeaturesCard = allCards.find(c => c.querySelector('#magsafe-toggle'));
+  const inscriptionCard = allCards.find(c => c.querySelector('#brand-control'));
+
   if (portCard) {
     listen(portCard, 'click', (e: Event) => {
       e.stopPropagation();
       setPortFocus();
+    });
+  }
+
+  if (tongueCard) {
+    listen(tongueCard, 'click', (e: Event) => {
+      e.stopPropagation();
+      setUsbTongueFocus();
+    });
+  }
+
+  if (chargingFeaturesCard) {
+    listen(chargingFeaturesCard, 'click', (e: Event) => {
+      e.stopPropagation();
+      const target = e.target as HTMLElement;
+      if (target.closest('#magsafe-toggle')) {
+        const checked = (target as HTMLInputElement).checked;
+        if (checked) setMagSafeFocus();
+        else setFrontDisplayFocus();
+      } else {
+        setFrontDisplayFocus();
+      }
+    });
+  }
+
+  if (inscriptionCard) {
+    listen(inscriptionCard, 'click', (e: Event) => {
+      e.stopPropagation();
+      setInscriptionFocus(true);
     });
   }
 
@@ -1169,14 +1238,16 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   listen(document, 'click', (e: Event) => {
     const target = e.target as HTMLElement | null;
-    if (target && portCard && !portCard.contains(target)) {
-      // If clicking outside port configuration card and not in inscription mode, reset view
+    if (!target) return;
+    const clickedInsideCard = allCards.some(card => card.contains(target));
+    const clickedCanvas = target.closest('#power-bank-canvas');
+    if (!clickedInsideCard || clickedCanvas) {
       resetCameraFocus();
     }
   });
 
   // Enable accordion collapse/expand on all customizer cards with chevron icons
-  for (const card of mount.querySelectorAll<HTMLElement>('.customizer-card')) {
+  for (const card of allCards) {
     const titleEl = card.querySelector<HTMLElement>('.card-title');
     if (!titleEl) continue;
 
@@ -1211,21 +1282,12 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     inscriptionDone.hidden = brandName === committedBrandName;
   });
 
-  const setInscriptionFocus = (focused: boolean): void => {
-    if (focused) {
-      targetCameraTarget.set(0.65, 1.46, 0.35);
-      targetCameraPosition.set(-2.8, 2.4, 5.2);
-      targetCameraZoom = 1.68;
-    } else {
-      targetCameraPosition.copy(defaultCameraPosition);
-      targetCameraTarget.copy(defaultCameraTarget);
-      targetCameraZoom = defaultCameraZoom;
-    }
-    isCameraTransitioning = true;
-  };
-
   listen(brandControl, 'focus', () => setInscriptionFocus(true));
-  listen(brandControl, 'blur', () => setInscriptionFocus(false));
+  listen(brandControl, 'blur', () => {
+    if (brandControl.value.trim().toUpperCase() === committedBrandName) {
+      setInscriptionFocus(false);
+    }
+  });
   listen(inscriptionDone, 'click', () => {
     committedBrandName = brandControl.value.trim().toUpperCase();
     inscriptionDone.hidden = true;
@@ -1243,6 +1305,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="indicator-type"]')) {
     listen(input, 'change', () => {
+      setFrontDisplayFocus();
       selectedIndicator = input.value as 'leds' | 'screen';
       syncLeds();
     });
@@ -1250,6 +1313,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="ring-shape"]')) {
     listen(input, 'change', () => {
+      setFrontDisplayFocus();
       const shapeKey = input.value as RingShapeKey;
       const rimMesh = model.getObjectByName('status-ring') as THREE.Mesh | null;
       const faceMesh = model.getObjectByName('status-face') as THREE.Mesh | null;
