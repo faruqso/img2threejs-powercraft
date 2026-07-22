@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import {
   createAnkerMaggoA1618LookDevLights,
   createAnkerMaggoA1618Model,
@@ -341,6 +342,27 @@ function makePowerBankContactShadow(): THREE.Mesh {
   return shadow;
 }
 
+function makeCatalogGadget(kind: number): THREE.Group {
+  const group = new THREE.Group();
+  const body = new THREE.MeshPhysicalMaterial({ color: 0x25272c, roughness: 0.42, metalness: 0.12, clearcoat: 0.42 });
+  const accent = new THREE.MeshStandardMaterial({ color: 0x9fc7ff, emissive: 0x123a54, emissiveIntensity: 0.3 });
+  const addBox = (width: number, height: number, depth: number, y = 0.9): THREE.Mesh => {
+    const mesh = new THREE.Mesh(new RoundedBoxGeometry(width, height, depth, 6, Math.min(width, height, depth) * 0.13), body);
+    mesh.position.y = y;
+    group.add(mesh);
+    return mesh;
+  };
+  if (kind === 1) addBox(1.38, 2.1, 0.34, 1.15);
+  if (kind === 2) { addBox(1.55, 0.32, 1.05, 0.42); const ring = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.035, 12, 64), accent); ring.rotation.x = Math.PI / 2; ring.position.y = 0.6; group.add(ring); }
+  if (kind === 3) { addBox(0.88, 1.18, 0.64, 0.82); const port = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.1, 0.02), accent); port.position.set(0, 0.5, 0.34); group.add(port); }
+  if (kind === 4) { const cable = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.07, 12, 96), body); cable.rotation.x = Math.PI / 2; cable.position.y = 0.42; group.add(cable); }
+  if (kind === 5) { addBox(1.55, 0.72, 0.86, 0.48); for (const x of [-0.38, 0.38]) { const bud = new THREE.Mesh(new THREE.SphereGeometry(0.27, 32, 20), body); bud.position.set(x, 1.05, 0); group.add(bud); } }
+  if (kind === 6) { addBox(1.45, 0.48, 0.84, 0.48); for (const x of [-0.42, -0.14, 0.14, 0.42]) { const port = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.025), accent); port.position.set(x, 0.5, 0.44); group.add(port); } }
+  if (kind === 7) { const speaker = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1.35, 48), body); speaker.rotation.z = Math.PI / 2; speaker.position.y = 0.72; group.add(speaker); }
+  group.visible = false;
+  return group;
+}
+
 function captureDefaults(root: THREE.Object3D, lights: THREE.Light[]): DefaultsSnapshot {
   const materials: MaterialSnapshot[] = [];
   const seenMaterials = new Set<THREE.Material>();
@@ -551,12 +573,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         </fieldset>
         <label class="toggle-row">
           <span>Auto rotation</span>
-          <input id="spin-toggle" type="checkbox" checked />
+          <input id="spin-toggle" type="checkbox" />
         </label>
-
-        <button class="customizer-inspect" id="fullscreen-inspect" type="button">
-          Full-screen inspection
-        </button>
 
         <label class="range-control">
           <span>
@@ -579,9 +597,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         </button>
       </aside>
 
-      <button class="customizer-exit-inspect" id="exit-fullscreen-inspect" type="button" aria-label="Exit full-screen inspection">
-        Exit inspection
-      </button>
+      <nav class="catalog-nav" aria-label="Product carousel"><button id="catalog-prev" type="button" aria-label="Previous product">&larr;</button><span id="catalog-name">MagGo power bank</span><button id="catalog-next" type="button" aria-label="Next product">&rarr;</button></nav>
       <div class="customizer-hint">drag to orbit &middot; pinch or scroll to zoom</div>
     </div>
   `;
@@ -665,29 +681,33 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   brandEngraving.rotation.z = -Math.PI / 2;
   brandEngraving.position.set(0.22, 1.55, 0.247);
   model.add(brandEngraving);
-  viewer.scene.add(model);
+  const catalog = new THREE.Group();
+  const catalogItems = [model, ...Array.from({ length: 7 }, (_, index) => makeCatalogGadget(index + 1))];
+  catalogItems.forEach((item) => catalog.add(item));
+  viewer.scene.add(catalog);
 
   let selectedIndicator: 'leds' | 'screen' = 'leds';
   let selectedCapacity: CapacityKey = '5k';
   let selectedWattage: WattageKey = '15w';
   let widthPercent = 100;
-  let autoSpin = true;
-  let inspectionMode = false;
+  let autoSpin = false;
+  let activeCatalogIndex = 0;
+  let carouselDirection = 0;
   const targetScale = new THREE.Vector3(1, 1, 1);
   const suspendedBaseY = model.position.y;
   model.userData.tick = (dt: number, elapsed: number): void => {
     model.scale.lerp(targetScale, 1 - Math.exp(-dt * 5.6));
     contactShadow.scale.set(model.scale.x, model.scale.z, 1);
     if (autoSpin) {
-      if (inspectionMode) {
-        model.rotation.x += dt * 0.34;
-        model.rotation.y += dt * 0.22;
-        model.rotation.z += dt * 0.12;
-      } else {
-        model.rotation.y += dt * 0.16;
-      }
+      model.rotation.y += dt * 0.16;
     }
-    model.position.y = inspectionMode ? suspendedBaseY : suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
+    model.position.y = suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
+    for (const [index, item] of catalogItems.entries()) {
+      if (!item.visible) continue;
+      const targetX = index === activeCatalogIndex ? 0 : carouselDirection * -5;
+      item.position.x = THREE.MathUtils.damp(item.position.x, targetX, 7, dt);
+      if (Math.abs(item.position.x - targetX) < 0.02 && index !== activeCatalogIndex) item.visible = false;
+    }
   };
 
   const ambientLights: Array<{ light: THREE.Light; baseIntensity: number }> = [];
@@ -864,32 +884,21 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     autoSpin = spinToggle.checked;
   });
 
-  const page = mount.querySelector<HTMLElement>('.customizer-page')!;
-  const inspectButton = mount.querySelector<HTMLButtonElement>('#fullscreen-inspect')!;
-  const exitInspectButton = mount.querySelector<HTMLButtonElement>('#exit-fullscreen-inspect')!;
-  const standardCameraPosition = new THREE.Vector3(-3.1, 2.45, 4.2);
-  const inspectionCameraPosition = new THREE.Vector3(2.45, 1.75, 4.4);
-
-  const setInspectionMode = (active: boolean): void => {
-    inspectionMode = active;
-    revealPlateau.visible = !active;
-    page.classList.toggle('is-inspection-mode', active);
-    viewer.camera.position.copy(active ? inspectionCameraPosition : standardCameraPosition);
-    viewer.controls.target.set(0, active ? 1.62 : 1.55, 0);
-    viewer.controls.update();
+  const catalogNames = ['MagGo power bank', 'Slim power bank', 'Charging dock', 'GaN charger', 'Braided USB-C cable', 'Wireless earbuds', 'USB-C hub', 'Mini speaker'];
+  const catalogName = mount.querySelector<HTMLElement>('#catalog-name')!;
+  const moveCatalog = (direction: number): void => {
+    const nextIndex = (activeCatalogIndex + direction + catalogItems.length) % catalogItems.length;
+    const outgoing = catalogItems[activeCatalogIndex];
+    const incoming = catalogItems[nextIndex];
+    carouselDirection = direction;
+    incoming.visible = true;
+    incoming.position.x = direction * 5;
+    activeCatalogIndex = nextIndex;
+    catalogName.textContent = catalogNames[nextIndex];
+    outgoing.position.x = 0;
   };
-
-  const syncFullscreenState = (): void => {
-    setInspectionMode(document.fullscreenElement === page);
-  };
-
-  listen(inspectButton, 'click', () => {
-    if (page.requestFullscreen) void page.requestFullscreen();
-  });
-  listen(exitInspectButton, 'click', () => {
-    if (document.fullscreenElement) void document.exitFullscreen();
-  });
-  listen(document, 'fullscreenchange', syncFullscreenState);
+  listen(mount.querySelector<HTMLButtonElement>('#catalog-prev')!, 'click', () => moveCatalog(-1));
+  listen(mount.querySelector<HTMLButtonElement>('#catalog-next')!, 'click', () => moveCatalog(1));
 
   const lightControl = mount.querySelector<HTMLInputElement>('#light-control')!;
   const lightValue = mount.querySelector<HTMLElement>('#light-value')!;
@@ -907,7 +916,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     selectedCapacity = '5k';
     selectedWattage = '15w';
     widthPercent = 100;
-    autoSpin = true;
+    autoSpin = false;
 
     const finishInput = mount.querySelector<HTMLInputElement>('input[name="finish"][value="graphite"]');
     const usbInput = mount.querySelector<HTMLInputElement>('input[name="usb-color"][value="cyan"]');
@@ -925,7 +934,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (indicatorInput) indicatorInput.checked = true;
     ledControl.value = '80';
     magsafeToggle.checked = true;
-    spinToggle.checked = true;
+    spinToggle.checked = false;
     lightControl.value = '70';
     lightValue.textContent = '70%';
     brandControl.value = 'ANKER';
