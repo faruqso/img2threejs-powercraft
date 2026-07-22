@@ -279,7 +279,7 @@ function makeSidePowerButton(
   return buttonGroup;
 }
 
-function makeBatteryPercentageDisplay(): THREE.Mesh {
+export function makeBatteryPercentageDisplay(shapeKey: RingShapeKey = 'circle'): THREE.Mesh {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 512;
@@ -293,39 +293,110 @@ function makeBatteryPercentageDisplay(): THREE.Mesh {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // 1. Battery Ring Gauge Arc (86% progress)
-  const radius = 195;
-  const startAngle = Math.PI * 0.75; // 135deg
-  const totalAngle = Math.PI * 1.5;   // 270deg sweep
-  const endAngle = startAngle + totalAngle * 0.86;
+  // 1. Deep OLED dark glass backdrop fitting shape
+  const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, 240);
+  bgGrad.addColorStop(0, 'rgba(8, 22, 30, 0.98)');
+  bgGrad.addColorStop(0.7, 'rgba(5, 14, 20, 0.99)');
+  bgGrad.addColorStop(1, 'rgba(2, 6, 10, 1.0)');
+  ctx.fillStyle = bgGrad;
 
-  // Outer inactive track
   ctx.beginPath();
-  ctx.arc(cx, cy, radius, startAngle, startAngle + totalAngle);
-  ctx.strokeStyle = 'rgba(0, 220, 180, 0.16)';
-  ctx.lineWidth = 14;
-  ctx.lineCap = 'round';
-  ctx.stroke();
+  if (shapeKey === 'circle') {
+    ctx.arc(cx, cy, 235, 0, Math.PI * 2);
+  } else if (shapeKey === 'hexagon') {
+    for (let i = 0; i < 6; i++) {
+      const a = (i * Math.PI) / 3 - Math.PI / 2;
+      const x = cx + 235 * Math.cos(a);
+      const y = cy + 235 * Math.sin(a);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+  } else {
+    // Squircle
+    const w = 450, h = 450, r = 90;
+    ctx.roundRect(cx - w / 2, cy - h / 2, w, h, r);
+  }
+  ctx.fill();
 
-  // Active progress arc
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, startAngle, endAngle);
-  ctx.strokeStyle = '#00ffcc';
-  ctx.lineWidth = 16;
-  ctx.lineCap = 'round';
+  // 2. Shape-following Progress Bar Gauge (86% fill)
   ctx.shadowColor = '#00ffcc';
-  ctx.shadowBlur = 18;
-  ctx.stroke();
-  ctx.shadowBlur = 0; // reset shadow
+  ctx.shadowBlur = 16;
+  ctx.strokeStyle = '#00ffcc';
+  ctx.lineWidth = 15;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
 
-  // 2. Top Charging Badge (⚡ 30W FAST)
+  if (shapeKey === 'circle') {
+    const radius = 195;
+    const startAngle = Math.PI * 0.75;
+    const totalAngle = Math.PI * 1.5;
+    const endAngle = startAngle + totalAngle * 0.86;
+
+    // Track
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, startAngle, startAngle + totalAngle);
+    ctx.strokeStyle = 'rgba(0, 220, 180, 0.16)';
+    ctx.shadowBlur = 0;
+    ctx.stroke();
+
+    // Active
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, startAngle, endAngle);
+    ctx.strokeStyle = '#00ffcc';
+    ctx.shadowColor = '#00ffcc';
+    ctx.shadowBlur = 18;
+    ctx.stroke();
+  } else if (shapeKey === 'hexagon') {
+    const hexRadius = 195;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = (i * Math.PI) / 3 - Math.PI / 2;
+      const x = cx + hexRadius * Math.cos(a);
+      const y = cy + hexRadius * Math.sin(a);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(0, 220, 180, 0.16)';
+    ctx.shadowBlur = 0;
+    ctx.stroke();
+
+    // Active stroke dash
+    ctx.setLineDash([1150 * 0.86, 1150 * 0.14]);
+    ctx.strokeStyle = '#00ffcc';
+    ctx.shadowColor = '#00ffcc';
+    ctx.shadowBlur = 18;
+    ctx.stroke();
+    ctx.setLineDash([]);
+  } else {
+    // Squircle path gauge
+    const w = 380, h = 380, r = 75;
+    ctx.beginPath();
+    ctx.roundRect(cx - w / 2, cy - h / 2, w, h, r);
+    ctx.strokeStyle = 'rgba(0, 220, 180, 0.16)';
+    ctx.shadowBlur = 0;
+    ctx.stroke();
+
+    // Active stroke dash
+    ctx.setLineDash([1320 * 0.86, 1320 * 0.14]);
+    ctx.strokeStyle = '#00ffcc';
+    ctx.shadowColor = '#00ffcc';
+    ctx.shadowBlur = 18;
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.shadowBlur = 0;
+
+  // 3. Top Charging Badge (⚡ 30W FAST)
   ctx.fillStyle = '#7fffe9';
   ctx.font = '600 24px "SFProText-Semibold", -apple-system, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('⚡ 30W FAST', cx, cy - 85);
 
-  // 3. Center Main Percentage Readout (86%)
+  // 4. Center Main Percentage Readout (86%)
   ctx.shadowColor = '#00ffcc';
   ctx.shadowBlur = 24;
   ctx.fillStyle = '#ffffff';
@@ -337,7 +408,7 @@ function makeBatteryPercentageDisplay(): THREE.Mesh {
   ctx.font = '700 52px "SFMono-Regular", Consolas, sans-serif';
   ctx.fillText('%', cx + 115, cy - 20);
 
-  // 4. Bottom Sub-label (1h 45m REMAINING)
+  // 5. Bottom Sub-label (1h 45m REMAINING)
   ctx.fillStyle = '#8a9fb0';
   ctx.font = '600 22px "SFProText-Semibold", -apple-system, sans-serif';
   ctx.fillText('1h 45m REMAINING', cx, cy + 90);
@@ -431,17 +502,17 @@ function makeStatusDisplay(
   face.position.z = 0.001;
   display.add(face);
 
-  const ledRadius = 0.116;
-  const ledAngles = [150, 112, 73, 34];
+  const ledRadius = 0.125;
+  const ledAngles = [160, 134, 108, 82, 56, 30];
   for (const [index, angleDegrees] of ledAngles.entries()) {
     const angle = THREE.MathUtils.degToRad(angleDegrees);
-    const led = new THREE.Mesh(new THREE.CircleGeometry(0.018, 20), ledMaterial);
+    const led = new THREE.Mesh(new THREE.CircleGeometry(0.015, 20), ledMaterial);
     led.name = `status-led-${index + 1}`;
     led.position.set(Math.cos(angle) * ledRadius, Math.sin(angle) * ledRadius, 0.012);
     display.add(led);
   }
 
-  const percentage = makeBatteryPercentageDisplay();
+  const percentage = makeBatteryPercentageDisplay('circle');
   percentage.position.set(0, 0, 0.014);
   percentage.visible = false; // LED dots mode by default has ONLY dots
   display.add(percentage);

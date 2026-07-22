@@ -4,6 +4,7 @@ import {
   createAnkerMaggoA1618Model,
   createRingRimGeometry,
   createRingFaceGeometry,
+  makeBatteryPercentageDisplay,
   RingShapeKey,
 } from '../demos/anker-maggo-a1618/createAnkerMaggoA1618Model';
 import { Viewer } from '../scene';
@@ -130,7 +131,7 @@ function setVisibility(root: THREE.Object3D, names: string[], visible: boolean):
 }
 
 function setLedPower(root: THREE.Object3D, enabled: boolean, intensity: number): void {
-  for (let index = 1; index <= 4; index += 1) {
+  for (let index = 1; index <= 6; index += 1) {
     const led = root.getObjectByName(`status-led-${index}`);
     if (!led) continue;
     led.visible = enabled;
@@ -1221,9 +1222,15 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     });
   }
 
+  const magsafeToggle = mount.querySelector<HTMLInputElement>('#magsafe-toggle')!;
+
   for (const input of portInputs) {
     listen(input, 'change', () => {
       setPortFocus();
+      const checkedPorts = portInputs.filter(i => i.checked);
+      if (!magsafeToggle.checked && checkedPorts.length === 0) {
+        input.checked = true;
+      }
       syncPorts();
     });
   }
@@ -1309,6 +1316,18 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         faceMesh.geometry.dispose();
         faceMesh.geometry = createRingFaceGeometry(shapeKey);
       }
+
+      const displayGroup = model.getObjectByName('battery-status-display') as THREE.Group | null;
+      const oldPercentage = model.getObjectByName('battery-percentage-display') as THREE.Mesh | null;
+      if (displayGroup && oldPercentage) {
+        const isVisible = oldPercentage.visible;
+        displayGroup.remove(oldPercentage);
+        if (oldPercentage.geometry) oldPercentage.geometry.dispose();
+        const newPercentage = makeBatteryPercentageDisplay(shapeKey);
+        newPercentage.position.set(0, 0, 0.014);
+        newPercentage.visible = isVisible;
+        displayGroup.add(newPercentage);
+      }
     });
   }
 
@@ -1357,9 +1376,20 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   }
 
 
-  const magsafeToggle = mount.querySelector<HTMLInputElement>('#magsafe-toggle')!;
+  const ensureValidChargingMechanism = (): void => {
+    const checkedPorts = portInputs.filter(i => i.checked);
+    if (!magsafeToggle.checked && checkedPorts.length === 0) {
+      const usbCInput = portInputs.find(i => i.value === 'type-c');
+      if (usbCInput) {
+        usbCInput.checked = true;
+      }
+    }
+  };
+
   listen(magsafeToggle, 'change', () => {
     setVisibility(model, ['magsafe-alignment-ring', 'magsafe-center-pad', 'magsafe-alignment-bar'], magsafeToggle.checked);
+    ensureValidChargingMechanism();
+    syncPorts();
   });
 
   const spinToggle = mount.querySelector<HTMLInputElement>('#spin-toggle')!;
