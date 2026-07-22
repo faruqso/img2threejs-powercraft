@@ -922,9 +922,24 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       'matte-charging-face',
     ]);
 
+    const uniformScaledNames = new Set([
+      'power-bank-brand-engraving',
+      'power-bank-capacity-engraving',
+      'power-bank-spec-engraving',
+      'battery-status-display',
+      'battery-percentage-display',
+      'status-display',
+      'screenInset',
+      'screenDisplay',
+    ]);
+
     for (const child of model.children) {
       if (!bodyMeshNames.has(child.name)) {
-        child.scale.set(1.0, invScaleY, invScaleZ);
+        if (uniformScaledNames.has(child.name)) {
+          child.scale.set(model.scale.y, 1.0, invScaleZ);
+        } else {
+          child.scale.set(1.0, invScaleY, invScaleZ);
+        }
       }
     }
 
