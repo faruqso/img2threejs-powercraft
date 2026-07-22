@@ -14,9 +14,10 @@ const BODY_WIDTH = BODY_HEIGHT * (69.5 / 107.3);
 const BODY_DEPTH = BODY_HEIGHT * (20.5 / 107.3);
 const BODY_CENTER_Y = BODY_HEIGHT / 2 + 0.08;
 
-const SHELL_BLACK = 0x090a0c;
-const EDGE_BLACK = 0x111215;
-const STAND_BLACK = 0x17181a;
+// Match the satin-graphite black material used by the Sony WF-1000XM3 earbuds.
+const SONY_BUD_BLACK = 0x212124;
+const SONY_BODY_BLACK = 0x1b1b1e;
+const SONY_INNER_BLACK = 0x141416;
 const USB_BLUE = 0x009fff;
 
 function roundedRectShape(width: number, height: number, radius: number): THREE.Shape {
@@ -232,35 +233,26 @@ export function createAnkerMaggoA1618Model(
   const root = new THREE.Group();
   root.name = 'anker-maggo-a1618';
 
-  const glossyShell = new THREE.MeshPhysicalMaterial({
-    color: SHELL_BLACK,
-    roughness: 0.19,
-    metalness: 0.08,
-    clearcoat: 0.95,
-    clearcoatRoughness: 0.16,
-    envMapIntensity: 1.15,
+  const satinGraphite = new THREE.MeshPhysicalMaterial({
+    color: SONY_BUD_BLACK,
+    roughness: 0.52,
+    metalness: 0.05,
+    clearcoat: 0.45,
+    clearcoatRoughness: 0.42,
+    envMapIntensity: 0.55,
   });
   const edgeMaterial = new THREE.MeshPhysicalMaterial({
-    color: EDGE_BLACK,
-    roughness: 0.25,
+    color: SONY_INNER_BLACK,
+    roughness: 0.7,
+    metalness: 0.05,
+  });
+  const bodyGraphite = new THREE.MeshPhysicalMaterial({
+    color: SONY_BODY_BLACK,
+    roughness: 0.62,
     metalness: 0.04,
-    clearcoat: 0.72,
-    clearcoatRoughness: 0.24,
-  });
-  const faceMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x17181a,
-    roughness: 0.34,
-    metalness: 0.02,
-    clearcoat: 0.32,
-    clearcoatRoughness: 0.34,
-    envMapIntensity: 0.84,
-  });
-  const standMaterial = new THREE.MeshPhysicalMaterial({
-    color: STAND_BLACK,
-    roughness: 0.30,
-    metalness: 0.03,
-    clearcoat: 0.50,
-    clearcoatRoughness: 0.28,
+    clearcoat: 0.14,
+    clearcoatRoughness: 0.6,
+    envMapIntensity: 0.4,
   });
   const ringMaterial = new THREE.MeshPhysicalMaterial({
     color: 0x303237,
@@ -293,7 +285,7 @@ export function createAnkerMaggoA1618Model(
 
   const shell = new THREE.Mesh(
     new RoundedBoxGeometry(BODY_WIDTH, BODY_HEIGHT, BODY_DEPTH, 8, 0.105),
-    glossyShell,
+    satinGraphite,
   );
   shell.name = 'glossy-rear-shell';
   shell.position.y = BODY_CENTER_Y;
@@ -321,7 +313,7 @@ export function createAnkerMaggoA1618Model(
     BODY_HEIGHT * 0.935,
     0.036,
     0.17,
-    faceMaterial,
+    satinGraphite,
     shadows,
     0.009,
   );
@@ -331,7 +323,7 @@ export function createAnkerMaggoA1618Model(
   const statusDisplay = makeStatusDisplay(shadows, ringMaterial, displayMaterial, ledMaterial);
   root.add(statusDisplay);
 
-  const kickstand = makeKickstand(shadows, glossyShell, standMaterial);
+  const kickstand = makeKickstand(shadows, satinGraphite, bodyGraphite);
   kickstand.position.set(0, BODY_CENTER_Y - 0.03, -BODY_DEPTH / 2 - 0.032);
   root.add(kickstand);
 
@@ -340,7 +332,7 @@ export function createAnkerMaggoA1618Model(
   wordmark.rotation.y = Math.PI;
   root.add(wordmark);
 
-  const usbPort = makeSidePort(shadows, glossyShell, blueMaterial);
+  const usbPort = makeSidePort(shadows, satinGraphite, blueMaterial);
   usbPort.position.y = 0.63;
   root.add(usbPort);
 
