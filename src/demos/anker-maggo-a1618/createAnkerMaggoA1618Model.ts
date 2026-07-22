@@ -18,7 +18,8 @@ const BODY_CENTER_Y = BODY_HEIGHT / 2 + 0.08;
 const SONY_BUD_BLACK = 0x212124;
 const SONY_BODY_BLACK = 0x1b1b1e;
 const SONY_INNER_BLACK = 0x141416;
-const USB_BLUE = 0x009fff;
+// Extracted from the USB-C close-up with the img2threejs PBR-evidence pass.
+const USB_BLUE = 0x54a2d8;
 
 function roundedRectShape(width: number, height: number, radius: number): THREE.Shape {
   const x = -width / 2;
@@ -89,15 +90,15 @@ function makeLowerControlEdge(
   controls.rotation.x = Math.PI / 2;
   controls.position.y = 0.078;
 
-  // A real USB-C opening has a dark outer bezel, a recessed cavity, and a
-  // slim central tongue. The blue is deliberately limited to that tongue.
+  // Reference-derived USB-C stack: polished black bezel, deep cavity, blue
+  // reversible tongue, and the four visible gold contact pads below it.
   const recess = makePanel('usb-c-bezel', 0.20, 0.092, 0.010, 0.040, recessMaterial, shadows, 0.004);
   recess.position.set(-0.31, 0, 0.002);
   controls.add(recess);
 
   const cavityMaterial = new THREE.MeshStandardMaterial({
-    color: 0x05070a,
-    roughness: 0.5,
+    color: 0x010101,
+    roughness: 0.42,
     metalness: 0.05,
   });
   const cavity = makePanel('usb-c-cavity', 0.152, 0.046, 0.004, 0.020, cavityMaterial, false, 0.002);
@@ -107,6 +108,18 @@ function makeLowerControlEdge(
   const tongue = makePanel('usb-c-blue-tongue', 0.102, 0.011, 0.004, 0.005, blueMaterial, false, 0.002);
   tongue.position.set(-0.31, 0, 0.006);
   controls.add(tongue);
+
+  const contactMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xa5773d,
+    roughness: 0.30,
+    metalness: 0.88,
+    clearcoat: 0.18,
+  });
+  for (const [index, offset] of [-0.039, -0.013, 0.013, 0.039].entries()) {
+    const contact = makePanel('usb-c-contact-' + (index + 1), 0.016, 0.009, 0.003, 0.002, contactMaterial, false, 0.001);
+    contact.position.set(-0.31 + offset, -0.020, 0.008);
+    controls.add(contact);
+  }
 
   const buttonBezel = makePanel('power-button-bezel', 0.23, 0.12, 0.008, 0.052, recessMaterial, shadows, 0.004);
   buttonBezel.position.set(0.33, 0, 0.002);
