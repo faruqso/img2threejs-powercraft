@@ -29,7 +29,7 @@ export class Viewer {
   constructor(mount: HTMLElement, options: ViewerOptions = {}) {
     this.mount = mount;
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.0;
@@ -39,7 +39,9 @@ export class Viewer {
     mount.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(options.background ?? 0x1b1d24);
+    if (options.background !== undefined) {
+      this.scene.background = new THREE.Color(options.background);
+    }
 
     const pmrem = new THREE.PMREMGenerator(this.renderer);
     this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;

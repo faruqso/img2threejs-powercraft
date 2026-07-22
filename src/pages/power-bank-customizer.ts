@@ -757,12 +757,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     cameraPosition: [-4.9, 3.45, 7.15],
     cameraTarget: [0, 1.42, 0],
     cameraFov: 38,
-    background: 0xfdfdff,
     installLights: (scene) => scene.add(createAnkerMaggoA1618LookDevLights()),
   });
   const defaultCameraPosition = viewer.camera.position.clone();
   const defaultCameraTarget = viewer.controls.target.clone();
-  viewer.controls.minDistance = 4.2;
+  const targetCameraPosition = defaultCameraPosition.clone();
+  const targetCameraTarget = defaultCameraTarget.clone();
+  viewer.controls.minDistance = 2.2;
   viewer.controls.maxDistance = 10;
 
   const revealPlateau = makeRevealPlateau();
@@ -821,20 +822,21 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const brandEngraving = makeEngravedPlane(
     'power-bank-brand-engraving',
-    1.12,
-    0.2,
+    3.36,
+    0.6,
     ['ANKER'],
     '#101216',
   );
   // The wordmark is deliberately oversized and follows the long face axis.
   brandEngraving.rotation.z = -Math.PI / 2;
-  brandEngraving.position.set(0.31, 1.46, 0.323);
+  brandEngraving.position.set(0.3, 1.46, 0.323);
   model.add(brandEngraving);
   viewer.scene.add(model);
 
   let selectedIndicator: 'leds' | 'screen' = 'leds';
   let selectedCapacity: CapacityKey = '5k';
   let autoSpin = false;
+  let inscriptionFocus = false;
   const targetScale = new THREE.Vector3(1, 1, 1);
   const suspendedBaseY = model.position.y;
   model.userData.tick = (dt: number, elapsed: number): void => {
@@ -844,6 +846,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       model.rotation.y += dt * 0.16;
     }
     model.position.y = suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
+    viewer.camera.position.lerp(targetCameraPosition, 1 - Math.exp(-dt * 5.8));
+    viewer.controls.target.lerp(targetCameraTarget, 1 - Math.exp(-dt * 5.8));
+    viewer.controls.update();
   };
 
   const ambientLights: Array<{ light: THREE.Light; baseIntensity: number }> = [];
@@ -914,6 +919,20 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (brandName) updateTextPlane(brandEngraving, [brandName], '#101216');
   });
 
+  const setInscriptionFocus = (focused: boolean): void => {
+    inscriptionFocus = focused;
+    if (inscriptionFocus) {
+      targetCameraPosition.set(0.54, 1.54, 2.45);
+      targetCameraTarget.set(0.3, 1.46, 0.22);
+      return;
+    }
+    targetCameraPosition.copy(defaultCameraPosition);
+    targetCameraTarget.copy(defaultCameraTarget);
+  };
+
+  listen(brandControl, 'focus', () => setInscriptionFocus(true));
+  listen(brandControl, 'blur', () => setInscriptionFocus(false));
+
   const glossControl = mount.querySelector<HTMLInputElement>('#gloss-control')!;
   const glossValue = mount.querySelector<HTMLElement>('#gloss-value')!;
   listen(glossControl, 'input', () => {
@@ -975,6 +994,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     restoreDefaults(model, defaults);
     selectedCapacity = '5k';
     autoSpin = false;
+    inscriptionFocus = false;
 
     const finishInput = mount.querySelector<HTMLInputElement>('input[name="finish"][value="graphite"]');
     const usbInput = mount.querySelector<HTMLInputElement>('input[name="usb-color"][value="cyan"]');
@@ -998,6 +1018,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     syncLeds();
     viewer.camera.position.copy(defaultCameraPosition);
     viewer.controls.target.copy(defaultCameraTarget);
+    targetCameraPosition.copy(defaultCameraPosition);
+    targetCameraTarget.copy(defaultCameraTarget);
     viewer.controls.update();
   });
 
@@ -1013,6 +1035,15 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     listen(themeToggle, 'click', () => {
       const isDark = customizerPage.classList.toggle('dark-mode');
       
+      const plateauBase = revealPlateau.getObjectByName('reveal-plateau-base') as THREE.Mesh;
+      const plateauRim = revealPlateau.getObjectByName('reveal-plateau-rim') as THREE.Mesh;
+      if (plateauBase && plateauBase.material instanceof THREE.MeshStandardMaterial) {
+        plateauBase.material.color.setHex(isDark ? 0x181c2b : 0xffffff);
+      }
+      if (plateauRim && plateauRim.material instanceof THREE.MeshStandardMaterial) {
+        plateauRim.material.color.setHex(isDark ? 0x181c2b : 0xffffff);
+      }
+
       // Toggle icon
       if (isDark) {
         themeToggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
