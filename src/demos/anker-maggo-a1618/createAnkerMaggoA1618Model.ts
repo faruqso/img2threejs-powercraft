@@ -133,6 +133,89 @@ function makeUsbCPort(
   return port;
 }
 
+function addOpenSideBezel(
+  port: THREE.Group,
+  prefix: string,
+  width: number,
+  height: number,
+  recessMaterial: THREE.Material,
+  shadows: boolean,
+): void {
+  const railThickness = 0.012;
+  const rails = [
+    [`${prefix}-bezel-top`, width, railThickness, 0, height / 2 - railThickness / 2],
+    [`${prefix}-bezel-bottom`, width, railThickness, 0, -height / 2 + railThickness / 2],
+    [`${prefix}-bezel-left`, railThickness, height - railThickness * 2, -width / 2 + railThickness / 2, 0],
+    [`${prefix}-bezel-right`, railThickness, height - railThickness * 2, width / 2 - railThickness / 2, 0],
+  ] as const;
+  for (const [name, railWidth, railHeight, z, y] of rails) {
+    const rail = makePanel(name, railWidth, railHeight, 0.010, 0.004, recessMaterial, shadows, 0.003);
+    rail.rotation.y = -Math.PI / 2;
+    rail.position.set(-BODY_WIDTH / 2 + 0.001, y, z);
+    port.add(rail);
+  }
+}
+
+function makeUsbAPort(
+  shadows: boolean,
+  recessMaterial: THREE.Material,
+  blueMaterial: THREE.Material,
+): THREE.Group {
+  const port = new THREE.Group();
+  port.name = 'usb-a-port';
+
+  const cavityMaterial = new THREE.MeshStandardMaterial({ color: 0x010101, roughness: 0.40, metalness: 0.06 });
+  const cavity = makePanel('usb-a-cavity', 0.218, 0.096, 0.005, 0.018, cavityMaterial, false, 0.002);
+  cavity.rotation.y = -Math.PI / 2;
+  cavity.position.x = -BODY_WIDTH / 2 + 0.006;
+  port.add(cavity);
+
+  addOpenSideBezel(port, 'usb-a', 0.246, 0.124, recessMaterial, shadows);
+
+  const blueTongue = makePanel('usb-a-blue-tongue', 0.176, 0.028, 0.004, 0.004, blueMaterial, false, 0.002);
+  blueTongue.rotation.y = -Math.PI / 2;
+  blueTongue.position.set(-BODY_WIDTH / 2 + 0.002, 0.018, 0);
+  port.add(blueTongue);
+
+  const contactMaterial = new THREE.MeshPhysicalMaterial({ color: 0xa5773d, roughness: 0.3, metalness: 0.88 });
+  for (const [index, offset] of [-0.066, -0.022, 0.022, 0.066].entries()) {
+    for (const y of [-0.031, 0.047]) {
+      const contact = makePanel(`usb-a-contact-${index + 1}-${y > 0 ? 'top' : 'bottom'}`, 0.018, 0.010, 0.003, 0.001, contactMaterial, false, 0.001);
+      contact.rotation.y = -Math.PI / 2;
+      contact.position.set(-BODY_WIDTH / 2 + 0.002, y, offset);
+      port.add(contact);
+    }
+  }
+
+  return port;
+}
+
+function makeLightningPort(
+  shadows: boolean,
+  recessMaterial: THREE.Material,
+): THREE.Group {
+  const port = new THREE.Group();
+  port.name = 'lightning-port';
+
+  const cavityMaterial = new THREE.MeshStandardMaterial({ color: 0x010101, roughness: 0.38, metalness: 0.08 });
+  addOpenSideBezel(port, 'lightning', 0.174, 0.072, recessMaterial, shadows);
+
+  const cavity = makePanel('lightning-cavity', 0.144, 0.042, 0.004, 0.018, cavityMaterial, false, 0.002);
+  cavity.rotation.y = -Math.PI / 2;
+  cavity.position.x = -BODY_WIDTH / 2 + 0.006;
+  port.add(cavity);
+
+  const contactMaterial = new THREE.MeshPhysicalMaterial({ color: 0xd19a43, roughness: 0.28, metalness: 0.9 });
+  for (const [index, offset] of [-0.049, -0.035, -0.021, -0.007, 0.007, 0.021, 0.035, 0.049].entries()) {
+    const contact = makePanel(`lightning-contact-${index + 1}`, 0.008, 0.018, 0.003, 0.001, contactMaterial, false, 0.001);
+    contact.rotation.y = -Math.PI / 2;
+    contact.position.set(-BODY_WIDTH / 2 + 0.002, 0, offset);
+    port.add(contact);
+  }
+
+  return port;
+}
+
 function makeSidePowerButton(
   shadows: boolean,
   bezelMaterial: THREE.Material,
@@ -393,6 +476,14 @@ export function createAnkerMaggoA1618Model(
   const usbPort = makeUsbCPort(shadows, edgeMaterial, blueMaterial);
   usbPort.position.y = 0.63;
   root.add(usbPort);
+
+  const usbAPort = makeUsbAPort(shadows, edgeMaterial, blueMaterial);
+  usbAPort.position.y = 1.20;
+  root.add(usbAPort);
+
+  const lightningPort = makeLightningPort(shadows, edgeMaterial);
+  lightningPort.position.y = 0.14;
+  root.add(lightningPort);
 
   const powerButton = makeSidePowerButton(shadows, edgeMaterial, bodyGraphite);
   powerButton.position.y = 0.63;
