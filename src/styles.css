@@ -30,10 +30,8 @@
 
 .light-mesh-bg {
   background:
-    radial-gradient(40% 50% at 80% 10%, rgba(200, 245, 235, 0.4), transparent 70%),
-    radial-gradient(50% 60% at 20% 90%, rgba(180, 235, 240, 0.35), transparent 70%),
-    radial-gradient(35% 35% at 50% 50%, rgba(220, 250, 240, 0.25), transparent 70%),
-    #f2f9f8;
+    radial-gradient(44% 48% at 50% 48%, rgba(220, 250, 244, 0.3), transparent 70%),
+    #fcfdff;
 }
 
 .customizer-canvas-mount {
@@ -77,12 +75,7 @@
 .header-nav {
   display: flex;
   gap: 2.5rem;
-  background: rgba(255, 255, 255, 0.6);
   padding: 0.5rem 2rem;
-  border-radius: 999px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .header-nav a {
@@ -102,14 +95,12 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1.25rem;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 999px;
+  background: transparent;
+  border-radius: 0;
   color: #333944;
   font-weight: 500;
   font-size: 0.95rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  box-shadow: none;
   transition: transform 0.2s;
 }
 .profile-btn:hover {
@@ -174,10 +165,10 @@
 
 /* ---------- Cards ---------- */
 .customizer-card {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid #f0f2f5;
   border-radius: 20px;
   padding: 1.5rem;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.04);
@@ -1513,4 +1504,29 @@ code,
     max-width: calc(100vw - 1.5rem);
     text-align: center;
   }
+}
+
+/* Reference-matched customizer hierarchy. Kept at the end to override gallery card styles. */
+.customizer-page .card-title {
+  min-height: 0;
+  margin: 0 0 1rem;
+  color: #1a1f2b;
+  font-size: 0.9rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.customizer-page .card-desc,
+.customizer-page .row-label,
+.customizer-page .toggle-row span,
+.customizer-page .summary-row span {
+  color: #596171;
+}
+
+.customizer-page .summary-total span,
+.customizer-page .summary-total strong,
+.customizer-page .summary-row strong,
+.customizer-page .model-name strong {
+  color: #1a1f2b;
 }
