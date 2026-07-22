@@ -43,6 +43,14 @@ type WattagePreset = {
   accent: number;
 };
 
+type CameraViewKey = 'front' | 'hero' | 'side';
+
+type CameraView = {
+  label: string;
+  position: THREE.Vector3Tuple;
+  target: THREE.Vector3Tuple;
+};
+
 interface FinishPreset {
   label: string;
   body: number;
@@ -101,6 +109,12 @@ const WATTAGES: Record<WattageKey, WattagePreset> = {
   '65w': { label: '65W', outputLabel: 'Laptop-class output', ledBoost: 1.48, accent: 0xffbd4a },
 };
 
+const CAMERA_VIEWS: Record<CameraViewKey, CameraView> = {
+  front: { label: 'Front', position: [0, 2.2, 5.2], target: [0, 1.45, 0] },
+  hero: { label: 'Hero', position: [-3.1, 2.45, 4.2], target: [0, 1.55, 0] },
+  side: { label: 'Side', position: [4.6, 2, 1.25], target: [0, 1.35, 0] },
+};
+
 function materialOf(object: THREE.Object3D): THREE.Material | null {
   const mesh = object as THREE.Mesh;
   const material = mesh.material;
@@ -147,6 +161,76 @@ function setSurfaceGloss(root: THREE.Object3D, gloss: number): void {
     material.clearcoat = THREE.MathUtils.lerp(0.08, 0.9, gloss);
     material.clearcoatRoughness = THREE.MathUtils.lerp(0.62, 0.14, gloss);
   }
+}
+
+function makeTextTexture(lines: string[], color = '#11141a', align: CanvasTextAlign = 'center'): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 256;
+  const context = canvas.getContext('2d')!;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = color;
+  context.textAlign = align;
+  context.textBaseline = 'middle';
+  context.font = '600 32px ui-monospace, SFMono-Regular, Menlo, monospace';
+
+  const x = align === 'left' ? 34 : canvas.width / 2;
+  const lineHeight = 42;
+  const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
+  lines.forEach((line, index) => {
+    context.fillText(line, x, startY + index * lineHeight);
+  });
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  return texture;
+}
+
+function makeContactShadowTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const context = canvas.getContext('2d')!;
+  const gradient = context.createRadialGradient(256, 256, 16, 256, 256, 236);
+  gradient.addColorStop(0, 'rgba(10, 14, 22, 0.34)');
+  gradient.addColorStop(0.38, 'rgba(10, 14, 22, 0.18)');
+  gradient.addColorStop(1, 'rgba(10, 14, 22, 0)');
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function updateTextPlane(mesh: THREE.Mesh, lines: string[], color = '#11141a', align: CanvasTextAlign = 'center'): void {
+  const material = mesh.material as THREE.MeshBasicMaterial;
+  const previous = material.map;
+  material.map = makeTextTexture(lines, color, align);
+  material.needsUpdate = true;
+  previous?.dispose();
+}
+
+function makeEngravedPlane(
+  name: string,
+  width: number,
+  height: number,
+  lines: string[],
+  color = '#11141a',
+  align: CanvasTextAlign = 'center',
+): THREE.Mesh {
+  const material = new THREE.MeshBasicMaterial({
+    map: makeTextTexture(lines, color, align),
+    transparent: true,
+    opacity: 0.58,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+  });
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
+  mesh.name = name;
+  return mesh;
 }
 
 function makeRevealPlateau(): THREE.Group {
@@ -199,6 +283,25 @@ function makeRevealPlateau(): THREE.Group {
   halo.rotation.x = -Math.PI / 2;
   halo.position.y = 0.212;
   stage.add(halo);
+
+  const contactShadow = new THREE.Mesh(
+    new THREE.CircleGeometry(1.05, 96),
+    new THREE.MeshBasicMaterial({
+      map: makeContactShadowTexture(),
+      transparent: true,
+      opacity: 0.72,
+      depthWrite: false,
+    }),
+  );
+  contactShadow.name = 'power-bank-contact-shadow';
+  contactShadow.rotation.x = -Math.PI / 2;
+  contactShadow.position.y = 0.226;
+  stage.add(contactShadow);
+
+  const wattageEngraving = makeEngravedPlane('plateau-wattage-engraving', 1.25, 0.26, ['15W OUTPUT']);
+  wattageEngraving.rotation.x = -Math.PI / 2;
+  wattageEngraving.position.set(0, 0.232, -0.88);
+  stage.add(wattageEngraving);
 
   const column = new THREE.PointLight(0x9fc7ff, 0.75, 4.2, 1.7);
   column.name = 'reveal-plateau-lift-light';
@@ -423,6 +526,22 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <input id="light-control" type="range" min="20" max="120" value="70" />
         </label>
 
+        <fieldset class="control-group">
+          <legend>Camera angle</legend>
+          <div class="segmented-control segmented-control-three">
+            ${Object.entries(CAMERA_VIEWS)
+              .map(
+                ([key, view]) => `
+                  <label>
+                    <input type="radio" name="camera-view" value="${key}" ${key === 'hero' ? 'checked' : ''} />
+                    <span>${view.label}</span>
+                  </label>
+                `,
+              )
+              .join('')}
+          </div>
+        </fieldset>
+
         <button class="customizer-reset" id="reset-customizer" type="button">
           Reset to code default
         </button>
@@ -446,16 +565,50 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const model = createAnkerMaggoA1618Model({ shadows: true, rotationSpeed: 0 });
   model.position.y = 0.62;
+  const productSpecEngraving = makeEngravedPlane(
+    'power-bank-product-spec-engraving',
+    0.42,
+    0.82,
+    ['MAGGO A1618', 'USB-C PD', 'WIRELESS'],
+    '#07090d',
+  );
+  productSpecEngraving.rotation.y = Math.PI / 2;
+  productSpecEngraving.position.set(0.9, 1.42, 0);
+  model.add(productSpecEngraving);
+
+  const capacityEngraving = makeEngravedPlane(
+    'power-bank-capacity-engraving',
+    0.38,
+    0.28,
+    ['5000 mAh'],
+    '#07090d',
+  );
+  capacityEngraving.rotation.y = Math.PI / 2;
+  capacityEngraving.position.set(0.905, 2.12, 0);
+  model.add(capacityEngraving);
   viewer.scene.add(model);
 
   let selectedCapacity: CapacityKey = '5k';
   let selectedWattage: WattageKey = '15w';
   let widthPercent = 100;
   let autoSpin = true;
+  const targetScale = new THREE.Vector3(1, 1, 1);
+  const targetShadowScale = new THREE.Vector3(1, 1, 1);
+  const targetCameraPosition = viewer.camera.position.clone();
+  const targetCameraTarget = viewer.controls.target.clone();
+  const contactShadow = revealPlateau.getObjectByName('power-bank-contact-shadow');
   const suspendedBaseY = model.position.y;
   model.userData.tick = (dt: number, elapsed: number): void => {
-    if (autoSpin) model.rotation.y += dt * 0.16;
+    model.scale.lerp(targetScale, 1 - Math.exp(-dt * 5.6));
+    contactShadow?.scale.lerp(targetShadowScale, 1 - Math.exp(-dt * 5.6));
+    if (autoSpin) {
+      model.rotation.x = Math.sin(elapsed * 0.58) * 0.055;
+      model.rotation.y += dt * 0.18;
+      model.rotation.z = Math.sin(elapsed * 0.42) * 0.035;
+    }
     model.position.y = suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
+    viewer.camera.position.lerp(targetCameraPosition, 1 - Math.exp(-dt * 4.2));
+    viewer.controls.target.lerp(targetCameraTarget, 1 - Math.exp(-dt * 4.2));
   };
 
   const ambientLights: Array<{ light: THREE.Light; baseIntensity: number }> = [];
@@ -496,13 +649,20 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const applyDimensions = (): void => {
     const capacity = CAPACITIES[selectedCapacity];
-    model.scale.set(
+    targetScale.set(
       capacity.scale[0] * (widthPercent / 100),
       capacity.scale[1],
       capacity.scale[2],
     );
+    const shadowWidth = THREE.MathUtils.lerp(0.88, 1.16, targetScale.x - 1);
+    targetShadowScale.set(
+      Math.max(0.82, shadowWidth * (widthPercent / 100)),
+      Math.max(0.78, capacity.scale[2] * 0.86),
+      1,
+    );
     widthValue.textContent = `${widthPercent}%`;
     capacityReadout.textContent = capacity.sizeLabel;
+    updateTextPlane(capacityEngraving, [`${capacity.label.replace('K', ',000')} mAh`], '#07090d');
   };
 
   const applyWattage = (): void => {
@@ -522,6 +682,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       liftLight.color.setHex(wattage.accent);
       liftLight.intensity = 0.75 * wattage.ledBoost;
     }
+    updateTextPlane(
+      revealPlateau.getObjectByName('plateau-wattage-engraving') as THREE.Mesh,
+      [`${wattage.label} OUTPUT`],
+      `#${wattage.accent.toString(16).padStart(6, '0')}`,
+    );
     wattageReadout.textContent = wattage.outputLabel;
     syncLeds();
   };
@@ -600,6 +765,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     }
   });
 
+  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="camera-view"]')) {
+    listen(input, 'change', () => {
+      const view = CAMERA_VIEWS[input.value as CameraViewKey];
+      targetCameraPosition.fromArray(view.position);
+      targetCameraTarget.fromArray(view.target);
+    });
+  }
+
   const resetButton = mount.querySelector<HTMLButtonElement>('#reset-customizer')!;
   listen(resetButton, 'click', () => {
     restoreDefaults(model, defaults);
@@ -612,10 +785,12 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const usbInput = mount.querySelector<HTMLInputElement>('input[name="usb-color"][value="cyan"]');
     const capacityInput = mount.querySelector<HTMLInputElement>('input[name="capacity"][value="5k"]');
     const wattageInput = mount.querySelector<HTMLInputElement>('input[name="wattage"][value="15w"]');
+    const cameraInput = mount.querySelector<HTMLInputElement>('input[name="camera-view"][value="hero"]');
     if (finishInput) finishInput.checked = true;
     if (usbInput) usbInput.checked = true;
     if (capacityInput) capacityInput.checked = true;
     if (wattageInput) wattageInput.checked = true;
+    if (cameraInput) cameraInput.checked = true;
     glossControl.value = '45';
     glossValue.textContent = '45%';
     widthControl.value = '100';
@@ -627,6 +802,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     lightValue.textContent = '70%';
     applyDimensions();
     applyWattage();
+    const defaultView = CAMERA_VIEWS.hero;
+    targetCameraPosition.fromArray(defaultView.position);
+    targetCameraTarget.fromArray(defaultView.target);
   });
 
   applyDimensions();
