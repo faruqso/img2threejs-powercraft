@@ -2024,8 +2024,8 @@ code,
 
 .customizer-page .port-choice-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.65rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.45rem;
   margin-top: 0.6rem;
 }
 
