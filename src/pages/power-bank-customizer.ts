@@ -640,7 +640,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     '#d5c8b5',
   );
   capacityEngraving.rotation.y = 0;
-  capacityEngraving.position.set(0, 1.05, 0.248);
+  capacityEngraving.position.set(0, 1.05, 0.305);
   model.add(capacityEngraving);
 
   const screenDisplay = makeEngravedPlane(
@@ -650,7 +650,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     ['100'],
     '#ffffff',
   );
-  screenDisplay.position.set(0, 0.62, 0.303);
+  screenDisplay.position.set(0, 0.62, 0.305);
   screenDisplay.visible = false;
   model.add(screenDisplay);
 
