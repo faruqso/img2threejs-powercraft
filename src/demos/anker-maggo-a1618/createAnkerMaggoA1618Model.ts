@@ -165,26 +165,24 @@ function makeUsbAPort(
   port.name = 'usb-a-port';
 
   const cavityMaterial = new THREE.MeshStandardMaterial({ color: 0x010101, roughness: 0.40, metalness: 0.06 });
-  const cavity = makePanel('usb-a-cavity', 0.218, 0.096, 0.005, 0.018, cavityMaterial, false, 0.002);
+  const cavity = makePanel('usb-a-cavity', 0.142, 0.048, 0.005, 0.018, cavityMaterial, false, 0.002);
   cavity.rotation.y = -Math.PI / 2;
   cavity.position.x = -BODY_WIDTH / 2 + 0.006;
   port.add(cavity);
 
-  addOpenSideBezel(port, 'usb-a', 0.246, 0.124, recessMaterial, shadows);
+  addOpenSideBezel(port, 'usb-a', 0.158, 0.068, recessMaterial, shadows);
 
-  const blueTongue = makePanel('usb-a-blue-tongue', 0.176, 0.028, 0.004, 0.004, blueMaterial, false, 0.002);
+  const blueTongue = makePanel('usb-a-blue-tongue', 0.112, 0.014, 0.004, 0.004, blueMaterial, false, 0.002);
   blueTongue.rotation.y = -Math.PI / 2;
-  blueTongue.position.set(-BODY_WIDTH / 2 + 0.002, 0.018, 0);
+  blueTongue.position.set(-BODY_WIDTH / 2 + 0.002, 0.008, 0);
   port.add(blueTongue);
 
   const contactMaterial = new THREE.MeshPhysicalMaterial({ color: 0xa5773d, roughness: 0.3, metalness: 0.88 });
-  for (const [index, offset] of [-0.066, -0.022, 0.022, 0.066].entries()) {
-    for (const y of [-0.031, 0.047]) {
-      const contact = makePanel(`usb-a-contact-${index + 1}-${y > 0 ? 'top' : 'bottom'}`, 0.018, 0.010, 0.003, 0.001, contactMaterial, false, 0.001);
-      contact.rotation.y = -Math.PI / 2;
-      contact.position.set(-BODY_WIDTH / 2 + 0.002, y, offset);
-      port.add(contact);
-    }
+  for (const [index, offset] of [-0.038, -0.013, 0.013, 0.038].entries()) {
+    const contact = makePanel(`usb-a-contact-${index + 1}`, 0.014, 0.008, 0.003, 0.001, contactMaterial, false, 0.001);
+    contact.rotation.y = -Math.PI / 2;
+    contact.position.set(-BODY_WIDTH / 2 + 0.002, -0.012, offset);
+    port.add(contact);
   }
 
   return port;

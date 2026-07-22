@@ -1767,8 +1767,70 @@ code,
   gap: 1.25rem;
 }
 
-.customizer-page .customizer-column-right .customizer-card {
-  padding: 1.45rem;
+/* Collapsible Accordion Cards */
+.customizer-page .card-header-accordion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 0.85rem;
+}
+
+.customizer-page .card-header-accordion .card-title {
+  margin-bottom: 0 !important;
+}
+
+.customizer-page .card-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid rgba(220, 227, 233, 0.7);
+  background: transparent;
+  color: #718096;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.customizer-page .card-chevron:hover {
+  border-color: #0dc9b1;
+  color: #0dc9b1;
+  background: rgba(13, 201, 177, 0.06);
+}
+
+.customizer-page.dark-mode .card-chevron {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #8a94a6;
+}
+
+.customizer-page.dark-mode .card-chevron:hover {
+  border-color: #0dc9b1;
+  color: #0dc9b1;
+  background: rgba(13, 201, 177, 0.15);
+}
+
+.customizer-page .card-chevron svg {
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.customizer-page .customizer-card.collapsed {
+  padding-bottom: 1.1rem !important;
+}
+
+.customizer-page .customizer-card.collapsed .card-header-accordion,
+.customizer-page .customizer-card.collapsed .card-header-with-badge {
+  margin-bottom: 0 !important;
+}
+
+.customizer-page .customizer-card.collapsed .card-chevron svg {
+  transform: rotate(-180deg);
+}
+
+.customizer-page .customizer-card.collapsed > *:not(.card-header-accordion):not(.card-header-with-badge) {
+  display: none !important;
 }
 
 .customizer-page .capacity-segmented {
@@ -1941,22 +2003,228 @@ code,
   font-size: 0.68rem;
 }
 
-.customizer-page .feature-strip {
-  right: 2rem;
-  left: 2rem;
-  bottom: 1.1rem;
-  transform: none;
-  justify-content: space-around;
-  gap: 0;
-  padding: 1.15rem 2.5rem;
-  border: 1px solid #eff2f4;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 10px 28px rgba(30, 43, 55, 0.04);
+/* Multi-Choice Port Grid */
+.customizer-page .card-header-with-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
 }
 
-.customizer-page .feature-item {
-  min-width: 190px;
+.customizer-page .port-status-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #0dc9b1;
+  background: rgba(13, 201, 177, 0.1);
+  padding: 0.22rem 0.6rem;
+  border-radius: 20px;
+  border: 1px solid rgba(13, 201, 177, 0.25);
+  white-space: nowrap;
+}
+
+.customizer-page .port-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+  margin-top: 0.6rem;
+}
+
+.customizer-page .port-choice-card {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.customizer-page .port-choice-card input[type='checkbox'] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.customizer-page .port-choice-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.75rem 0.35rem 0.65rem;
+  border: 1.5px solid #dce3e9;
+  border-radius: 12px;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.customizer-page .port-icon-wrapper {
+  color: #718096;
+  margin-bottom: 0.35rem;
+  transition: color 0.2s ease;
+}
+
+.customizer-page .port-choice-info strong {
+  display: block;
+  font-size: 0.82rem;
+  color: #1a202c;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.customizer-page .port-choice-info small {
+  display: block;
+  font-size: 0.65rem;
+  color: #8a94a6;
+  margin-top: 0.15rem;
+}
+
+.customizer-page .port-checkbox-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #cbd5e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+
+.customizer-page .port-choice-card input[type='checkbox']:checked + .port-choice-inner {
+  border-color: #0dc9b1;
+  background: rgba(13, 201, 177, 0.05);
+  box-shadow: 0 4px 12px rgba(13, 201, 177, 0.08);
+}
+
+.customizer-page .port-choice-card input[type='checkbox']:checked + .port-choice-inner .port-icon-wrapper {
+  color: #0dc9b1;
+}
+
+.customizer-page .port-choice-card input[type='checkbox']:checked + .port-choice-inner .port-checkbox-icon {
+  background: #0dc9b1;
+  border-color: #0dc9b1;
+  color: #ffffff;
+}
+
+/* Dark mode port choice card */
+.customizer-page.dark-mode .port-choice-inner {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.customizer-page.dark-mode .port-choice-info strong {
+  color: #fcfdfe;
+}
+
+.customizer-page.dark-mode .port-choice-info small {
+  color: #8a94a6;
+}
+
+.customizer-page.dark-mode .port-icon-wrapper {
+  color: #8a94a6;
+}
+
+.customizer-page.dark-mode .port-choice-card input[type='checkbox']:checked + .port-choice-inner {
+  border-color: #0dc9b1;
+  background: rgba(13, 201, 177, 0.14);
+}
+
+/* Bottom Stage Controls Toolbar */
+.customizer-page .stage-control-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 1.1rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(220, 227, 233, 0.85);
+  border-radius: 20px;
+  padding: 0.65rem 1.4rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.22s ease;
+}
+
+.customizer-page.dark-mode .stage-control-bar {
+  background: rgba(30, 35, 45, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.customizer-page .stage-control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.customizer-page .stage-control-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #596171;
+  white-space: nowrap;
+}
+
+.customizer-page.dark-mode .stage-control-title {
+  color: #8a94a6;
+}
+
+.customizer-page .stage-control-divider {
+  width: 1px;
+  height: 22px;
+  background: #dce3e9;
+}
+
+.customizer-page.dark-mode .stage-control-divider {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.customizer-page .stage-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.customizer-page .stage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #dce3e9;
+  background: #ffffff;
+  color: #4a5568;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.customizer-page .stage-btn:hover {
+  border-color: #0dc9b1;
+  color: #0dc9b1;
+  background: rgba(13, 201, 177, 0.05);
+}
+
+.customizer-page.dark-mode .stage-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #fcfdfe;
+}
+
+.customizer-page.dark-mode .stage-btn:hover {
+  border-color: #0dc9b1;
+  color: #0dc9b1;
+  background: rgba(13, 201, 177, 0.15);
 }
 
 .customizer-page .feature-icon {

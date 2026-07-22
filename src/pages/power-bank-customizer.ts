@@ -677,32 +677,70 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
 
           <div class="customizer-card">
-            <h3 class="card-title">Port configuration</h3>
-            <div class="segmented-control multiselect-ports">
-              <label>
-                <input type="checkbox" name="port-option" value="type-c" checked />
-                <span class="segmented-pill">USB-C</span>
+            <div class="card-header-with-badge">
+              <h3 class="card-title" style="margin: 0;">Port configuration</h3>
+              <span class="port-status-badge" id="port-status-badge">No Ports (Wireless Only)</span>
+            </div>
+            <div class="port-choice-grid">
+              <label class="port-choice-card">
+                <input type="checkbox" name="port-option" value="type-c" />
+                <div class="port-choice-inner">
+                  <div class="port-icon-wrapper">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
+                  </div>
+                  <div class="port-choice-info">
+                    <strong>USB-C</strong>
+                    <small>Fast charge</small>
+                  </div>
+                  <div class="port-checkbox-icon">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
               </label>
-              <label>
+
+              <label class="port-choice-card">
                 <input type="checkbox" name="port-option" value="type-a" />
-                <span class="segmented-pill">USB-A</span>
+                <div class="port-choice-inner">
+                  <div class="port-icon-wrapper">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"/><line x1="6" y1="10" x2="18" y2="10"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
+                  </div>
+                  <div class="port-choice-info">
+                    <strong>USB-A</strong>
+                    <small>Legacy port</small>
+                  </div>
+                  <div class="port-checkbox-icon">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
               </label>
-              <label>
+
+              <label class="port-choice-card">
                 <input type="checkbox" name="port-option" value="lightning" />
-                <span class="segmented-pill">Lightning</span>
+                <div class="port-choice-inner">
+                  <div class="port-icon-wrapper">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="8" rx="2"/><path d="M12 2v6"/><path d="M12 16v6"/></svg>
+                  </div>
+                  <div class="port-choice-info">
+                    <strong>Lightning</strong>
+                    <small>iOS port</small>
+                  </div>
+                  <div class="port-checkbox-icon">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
               </label>
             </div>
           </div>
 
           <div class="customizer-card">
-            <h3 class="card-title">Stage controls</h3>
+            <h3 class="card-title">Charging features</h3>
             
             <label class="toggle-row">
               <span class="info-label">Add MagSafe <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
               <input id="magsafe-toggle" class="apple-switch" type="checkbox" checked />
             </label>
             
-            <div class="control-row">
+            <div class="control-row no-margin">
               <span class="row-label info-label">Battery indicator <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
               <div class="segmented-control">
                 <label>
@@ -714,18 +752,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   <span class="segmented-pill">Info screen</span>
                 </label>
               </div>
-            </div>
-            
-            <label class="toggle-row">
-              <span class="info-label">Auto rotation <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
-              <input id="spin-toggle" class="apple-switch" type="checkbox" />
-            </label>
-            
-            <div class="control-row">
-              <span class="row-label info-label">Stage light <strong id="light-value" style="float: right;">70%</strong></span>
-              <label class="range-control no-margin">
-                <input id="light-control" type="range" min="20" max="120" value="70" />
-              </label>
             </div>
           </div>
 
@@ -794,27 +820,40 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         </div>
       </div>
 
-      <div class="feature-strip">
-        <div class="feature-item">
-          <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0dc9b1" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg></div>
-          <div class="feature-text">
-            <strong>5,000 mAh</strong>
-            <span>Reliable power on the go</span>
-          </div>
+      <div class="stage-control-bar">
+        <div class="stage-control-group">
+          <span class="stage-control-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            Stage light <strong id="light-value">70%</strong>
+          </span>
+          <label class="range-control no-margin" style="width: 100px;">
+            <input id="light-control" type="range" min="20" max="120" value="70" />
+          </label>
         </div>
-        <div class="feature-item">
-          <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0dc9b1" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          <div class="feature-text">
-            <strong>MagSafe Ready</strong>
-            <span>Seamless wireless charging</span>
-          </div>
+
+        <div class="stage-control-divider"></div>
+
+        <div class="stage-control-group">
+          <label class="toggle-row no-margin" style="margin: 0; gap: 0.6rem;">
+            <span class="stage-control-title" style="margin: 0;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              Auto rotation
+            </span>
+            <input id="spin-toggle" class="apple-switch" type="checkbox" />
+          </label>
         </div>
-        <div class="feature-item">
-          <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0dc9b1" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-          <div class="feature-text">
-            <strong>Smart Protection</strong>
-            <span>Advanced safety features</span>
-          </div>
+
+        <div class="stage-control-divider"></div>
+
+        <div class="stage-action-buttons">
+          <button class="stage-btn" id="fab-center" type="button" title="Recenter View">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Center</span>
+          </button>
+          <button class="stage-btn" id="fab-zoom" type="button" title="Zoom Product">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            <span>Zoom</span>
+          </button>
         </div>
       </div>
 
@@ -824,9 +863,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const canvasMount = mount.querySelector<HTMLDivElement>('#power-bank-canvas')!;
   const viewer = new Viewer(canvasMount, {
-    cameraPosition: [-4.9, 3.45, 7.15],
-    cameraTarget: [0, 1.42, 0],
-    cameraFov: 38,
+    cameraPosition: [-5.2, 2.7, 8.2],
+    cameraTarget: [0, 0.88, 0],
+    cameraFov: 36,
     installLights: (scene) => scene.add(createAnkerMaggoA1618LookDevLights()),
   });
   const defaultCameraPosition = viewer.camera.position.clone();
@@ -852,7 +891,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const mesh = object as THREE.Mesh;
     if (mesh.isMesh) mesh.castShadow = false;
   });
-  model.position.y = 0.62;
+  model.position.y = 0.35;
   const productSpecEngraving = makeRegulatoryPlane('power-bank-product-spec-engraving', '5,000 mAh', '30W');
   productSpecEngraving.rotation.y = Math.PI;
   // Match the lower clearance to the left-side clearance for a balanced regulatory block.
@@ -891,9 +930,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   model.add(screenDisplay);
 
   const brandEngraving = makeBrandPlane('power-bank-brand-engraving', 'ANKER');
-  // The wordmark is deliberately oversized and follows the long face axis.
+  // The wordmark is deliberately oversized, rotated vertically, and anchored to the right edge.
   brandEngraving.rotation.z = -Math.PI / 2;
-  brandEngraving.position.set(0.3, 1.46, 0.323);
+  brandEngraving.position.set(0.65, 1.46, 0.323);
   model.add(brandEngraving);
   viewer.scene.add(model);
 
@@ -1035,19 +1074,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const lightningPort = model.getObjectByName('lightning-port');
 
   const portInputs = Array.from(mount.querySelectorAll<HTMLInputElement>('input[name="port-option"]'));
+  const portStatusBadge = mount.querySelector<HTMLElement>('#port-status-badge');
 
   const syncPorts = (): void => {
-    let checkedInputs = portInputs.filter(input => input.checked);
-
-    // Enforce at least 1 port remains checked at all times
-    if (checkedInputs.length === 0) {
-      const typeCInput = portInputs.find(i => i.value === 'type-c') || portInputs[0];
-      if (typeCInput) {
-        typeCInput.checked = true;
-        checkedInputs = [typeCInput];
-      }
-    }
-
     const hasTypeC = portInputs.some(i => i.value === 'type-c' && i.checked);
     const hasTypeA = portInputs.some(i => i.value === 'type-a' && i.checked);
     const hasLightning = portInputs.some(i => i.value === 'lightning' && i.checked);
@@ -1055,13 +1084,55 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (usbCPort) usbCPort.visible = hasTypeC;
     if (usbAPort) usbAPort.visible = hasTypeA;
     if (lightningPort) lightningPort.visible = hasLightning;
+
+    const activePorts: string[] = [];
+    if (hasTypeC) activePorts.push('USB-C');
+    if (hasTypeA) activePorts.push('USB-A');
+    if (hasLightning) activePorts.push('Lightning');
+
+    if (portStatusBadge) {
+      if (activePorts.length === 0) {
+        portStatusBadge.textContent = 'No Ports (Wireless Only)';
+      } else {
+        portStatusBadge.textContent = activePorts.join(' + ');
+      }
+    }
   };
 
-  // Set initial state
+  // Set initial state (No ports selected by default)
   syncPorts();
 
   for (const input of portInputs) {
     listen(input, 'change', syncPorts);
+  }
+
+  // Enable accordion collapse/expand on all customizer cards with chevron icons
+  for (const card of mount.querySelectorAll<HTMLElement>('.customizer-card')) {
+    const titleEl = card.querySelector<HTMLElement>('.card-title');
+    if (!titleEl) continue;
+
+    let headerEl = card.querySelector<HTMLElement>('.card-header-with-badge, .card-header-accordion');
+    if (!headerEl) {
+      headerEl = document.createElement('div');
+      headerEl.className = 'card-header-accordion';
+      titleEl.parentNode?.insertBefore(headerEl, titleEl);
+      headerEl.appendChild(titleEl);
+    }
+
+    if (!headerEl.querySelector('.card-chevron')) {
+      const chevron = document.createElement('button');
+      chevron.className = 'card-chevron';
+      chevron.type = 'button';
+      chevron.setAttribute('aria-label', 'Toggle card collapse');
+      chevron.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+      headerEl.appendChild(chevron);
+    }
+
+    listen(headerEl, 'click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'A' || target.closest('input')) return;
+      card.classList.toggle('collapsed');
+    });
   }
 
   listen(brandControl, 'input', () => {
@@ -1073,8 +1144,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const setInscriptionFocus = (focused: boolean): void => {
     if (focused) {
-      targetCameraTarget.set(-0.2, 1.46, 0.35);
-      targetCameraPosition.set(-3.6, 2.6, 5.6);
+      targetCameraTarget.set(0.65, 1.46, 0.35);
+      targetCameraPosition.set(-2.8, 2.4, 5.2);
       targetCameraZoom = 1.68;
     } else {
       targetCameraPosition.copy(defaultCameraPosition);
