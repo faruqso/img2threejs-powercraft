@@ -561,7 +561,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         model.rotation.y += dt * 0.22;
         model.rotation.z += dt * 0.12;
       } else {
-        model.rotation.x += dt * 0.16;
+        model.rotation.y += dt * 0.16;
       }
     }
     model.position.y = inspectionMode ? suspendedBaseY : suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
