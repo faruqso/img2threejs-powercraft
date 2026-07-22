@@ -377,16 +377,7 @@ function makeStatusDisplay(
   display.name = 'battery-status-display';
   display.position.set(0, 0.62, BODY_DEPTH / 2 + 0.044);
 
-  // High clearcoat specular metallic rim for crisp non-fading emboss relief
-  const embossedRingMat = ringMaterial instanceof THREE.MeshPhysicalMaterial ? ringMaterial.clone() : ringMaterial;
-  if (embossedRingMat instanceof THREE.MeshPhysicalMaterial) {
-    embossedRingMat.clearcoat = 1.0;
-    embossedRingMat.clearcoatRoughness = 0.08;
-    embossedRingMat.roughness = 0.22;
-    embossedRingMat.metalness = 0.85;
-  }
-
-  const rim = new THREE.Mesh(createRingRimGeometry('circle'), embossedRingMat);
+  const rim = new THREE.Mesh(createRingRimGeometry('circle'), ringMaterial);
   rim.name = 'status-ring';
   rim.position.z = 0.008;
   rim.castShadow = shadows;
