@@ -195,24 +195,49 @@ function makeMagneticBack(
   const back = new THREE.Group();
   back.name = 'magsafe-charging-surface';
 
-  const ring = new THREE.Mesh(new THREE.RingGeometry(0.352, 0.408, 96), ringMaterial);
+  // The reference's charging target fills more of the rear surface than the
+  // earlier version. Its broad, finely ribbed outer band is modeled here as
+  // an inset ring with radial grooves rather than a smooth decorative torus.
+  const innerRadius = 0.462;
+  const outerRadius = 0.536;
+  const ring = new THREE.Mesh(new THREE.RingGeometry(innerRadius, outerRadius, 128), ringMaterial);
   ring.name = 'magsafe-alignment-ring';
   ring.rotation.y = Math.PI;
   ring.castShadow = shadows;
   back.add(ring);
 
-  const center = new THREE.Mesh(new THREE.CircleGeometry(0.352, 72), centerMaterial);
+  const center = new THREE.Mesh(new THREE.CircleGeometry(innerRadius, 96), centerMaterial);
   center.name = 'magsafe-center-pad';
   center.rotation.y = Math.PI;
   center.position.z = 0.004;
   center.receiveShadow = shadows;
   back.add(center);
 
+  const grooveMaterial = new THREE.MeshStandardMaterial({
+    color: 0x151619,
+    roughness: 0.42,
+    metalness: 0.14,
+  });
+  const grooveGeometry = new THREE.BoxGeometry(outerRadius - innerRadius - 0.009, 0.0032, 0.002);
+  const grooveRadius = (innerRadius + outerRadius) / 2;
+  for (let index = 0; index < 112; index += 1) {
+    const angle = (index / 112) * Math.PI * 2;
+    const groove = new THREE.Mesh(grooveGeometry, grooveMaterial);
+    groove.name = `magsafe-ring-groove-${index + 1}`;
+    groove.position.set(
+      Math.cos(angle) * grooveRadius,
+      Math.sin(angle) * grooveRadius,
+      -0.003,
+    );
+    groove.rotation.set(0, Math.PI, angle);
+    back.add(groove);
+  }
+
   // Keep the alignment bar engraved with the ring, rather than letting it
   // become a raised strap when the model is seen exactly from the side.
   const alignmentBar = makePanel('magsafe-alignment-bar', 0.052, 0.22, 0.001, 0.025, ringMaterial, false, 0.001);
   alignmentBar.rotation.y = Math.PI;
-  alignmentBar.position.set(0, -0.76, -0.0225);
+  alignmentBar.position.set(0, -0.70, -0.0225);
   back.add(alignmentBar);
 
   return back;
