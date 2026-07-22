@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import {
   createAnkerMaggoA1618LookDevLights,
   createAnkerMaggoA1618Model,
@@ -29,19 +28,10 @@ type DefaultsSnapshot = {
 };
 
 type CapacityKey = '5k' | '10k' | '20k';
-type WattageKey = '15w' | '30w' | '65w';
-
 type CapacityPreset = {
   label: string;
   sizeLabel: string;
   scale: THREE.Vector3Tuple;
-};
-
-type WattagePreset = {
-  label: string;
-  outputLabel: string;
-  ledBoost: number;
-  accent: number;
 };
 
 interface FinishPreset {
@@ -91,15 +81,9 @@ const USB_COLORS = {
 };
 
 const CAPACITIES: Record<CapacityKey, CapacityPreset> = {
-  '5k': { label: '5K', sizeLabel: '5,000 mAh pocket', scale: [1, 1, 1] },
-  '10k': { label: '10K', sizeLabel: '10,000 mAh daily', scale: [1.06, 1.08, 1.24] },
-  '20k': { label: '20K', sizeLabel: '20,000 mAh travel', scale: [1.12, 1.16, 1.52] },
-};
-
-const WATTAGES: Record<WattageKey, WattagePreset> = {
-  '15w': { label: '15W', outputLabel: 'Qi2 wireless output', ledBoost: 1, accent: 0x00aaff },
-  '30w': { label: '30W', outputLabel: 'Fast USB-C output', ledBoost: 1.24, accent: 0x7dff8f },
-  '65w': { label: '65W', outputLabel: 'Laptop-class output', ledBoost: 1.48, accent: 0xffbd4a },
+  '5k': { label: '5,000 mAh', sizeLabel: '5,000 mAh', scale: [1, 1, 1] },
+  '10k': { label: '10,000 mAh', sizeLabel: '10,000 mAh', scale: [1.06, 1.08, 1.22] },
+  '20k': { label: '20,000 mAh', sizeLabel: '20,000 mAh', scale: [1.12, 1.15, 1.42] },
 };
 
 function materialOf(object: THREE.Object3D): THREE.Material | null {
@@ -342,27 +326,6 @@ function makePowerBankContactShadow(): THREE.Mesh {
   return shadow;
 }
 
-function makeCatalogGadget(kind: number): THREE.Group {
-  const group = new THREE.Group();
-  const body = new THREE.MeshPhysicalMaterial({ color: 0x25272c, roughness: 0.42, metalness: 0.12, clearcoat: 0.42 });
-  const accent = new THREE.MeshStandardMaterial({ color: 0x9fc7ff, emissive: 0x123a54, emissiveIntensity: 0.3 });
-  const addBox = (width: number, height: number, depth: number, y = 0.9): THREE.Mesh => {
-    const mesh = new THREE.Mesh(new RoundedBoxGeometry(width, height, depth, 6, Math.min(width, height, depth) * 0.13), body);
-    mesh.position.y = y;
-    group.add(mesh);
-    return mesh;
-  };
-  if (kind === 1) addBox(1.38, 2.1, 0.34, 1.15);
-  if (kind === 2) { addBox(1.55, 0.32, 1.05, 0.42); const ring = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.035, 12, 64), accent); ring.rotation.x = Math.PI / 2; ring.position.y = 0.6; group.add(ring); }
-  if (kind === 3) { addBox(0.88, 1.18, 0.64, 0.82); const port = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.1, 0.02), accent); port.position.set(0, 0.5, 0.34); group.add(port); }
-  if (kind === 4) { const cable = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.07, 12, 96), body); cable.rotation.x = Math.PI / 2; cable.position.y = 0.42; group.add(cable); }
-  if (kind === 5) { addBox(1.55, 0.72, 0.86, 0.48); for (const x of [-0.38, 0.38]) { const bud = new THREE.Mesh(new THREE.SphereGeometry(0.27, 32, 20), body); bud.position.set(x, 1.05, 0); group.add(bud); } }
-  if (kind === 6) { addBox(1.45, 0.48, 0.84, 0.48); for (const x of [-0.42, -0.14, 0.14, 0.42]) { const port = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.025), accent); port.position.set(x, 0.5, 0.44); group.add(port); } }
-  if (kind === 7) { const speaker = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1.35, 48), body); speaker.rotation.z = Math.PI / 2; speaker.position.y = 0.72; group.add(speaker); }
-  group.visible = false;
-  return group;
-}
-
 function captureDefaults(root: THREE.Object3D, lights: THREE.Light[]): DefaultsSnapshot {
   const materials: MaterialSnapshot[] = [];
   const seenMaterials = new Set<THREE.Material>();
@@ -442,174 +405,195 @@ function restoreDefaults(root: THREE.Object3D, defaults: DefaultsSnapshot): void
 /** Renders a product configurator around the Anker MagGo power bank canvas. */
 export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   mount.innerHTML = `
-    <div class="customizer-page">
+    <div class="customizer-page light-mesh-bg">
       <div class="customizer-canvas-mount" id="power-bank-canvas"></div>
 
-      <header class="customizer-topbar">
-        <a class="back-link" href="#/">&larr; Gallery</a>
-        <span class="customizer-model">Anker MagGo 5K</span>
+      <header class="global-header">
+        <div class="header-brand">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L22 12L12 22L2 12L12 2Z" fill="currentColor"/>
+          </svg>
+          <strong>img2threejs</strong>
+        </div>
+        <nav class="header-nav">
+          <a href="#/">Home</a>
+          <a href="#/" class="active">Build</a>
+          <a href="#/">Gallery</a>
+          <a href="#/">About</a>
+        </nav>
+        <div class="header-actions">
+          <a href="#/" class="profile-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            My Profile
+          </a>
+        </div>
       </header>
 
-      <aside class="customizer-panel customizer-panel-left" aria-label="Power bank finish options">
-        <div class="customizer-panel-head">
-          <span class="panel-kicker">Finish</span>
-          <h1>Power bank canvas</h1>
+      <div class="customizer-columns">
+        <div class="customizer-column customizer-column-left">
+          <a class="back-link" href="#/">&larr; Back to models</a>
+          <h1 class="page-title">Build your<br>power bank</h1>
+          <p class="page-subtitle">Create your ideal power bank with <strong>img2threejs</strong></p>
+
+          <div class="customizer-card top-card">
+            <div class="top-card-header">
+              <label class="radio-label active-radio">
+                <input type="radio" checked>
+                <span>Anker MagGo 5,000 mAh</span>
+              </label>
+              <a href="#" class="change-model-link">Change model</a>
+            </div>
+          </div>
+
+          <div class="customizer-card">
+            <h3 class="card-title">Body colour</h3>
+            <div class="swatch-grid">
+              ${Object.entries(FINISHES)
+                .map(
+                  ([key, finish]) => `
+                    <label class="swatch-option" title="${finish.label}">
+                      <input type="radio" name="finish" value="${key}" ${key === 'graphite' ? 'checked' : ''} />
+                      <span class="swatch" style="--swatch-color:#${finish.body.toString(16).padStart(6, '0')}"></span>
+                      <span>${finish.label}</span>
+                    </label>
+                  `,
+                )
+                .join('')}
+            </div>
+          </div>
+
+          <div class="customizer-card row-card">
+            <div class="col-half">
+              <h3 class="card-title">Surface gloss</h3>
+              <label class="range-control">
+                <span class="range-readout"><strong id="gloss-value">45%</strong></span>
+                <input id="gloss-control" type="range" min="0" max="100" value="45" />
+              </label>
+            </div>
+          </div>
+
+          <div class="customizer-card">
+            <h3 class="card-title">USB tongue colour</h3>
+            <div class="segmented-control">
+              ${Object.entries(USB_COLORS)
+                .map(
+                  ([key, color]) => `
+                    <label>
+                      <input type="radio" name="usb-color" value="${key}" ${key === 'cyan' ? 'checked' : ''} />
+                      <span>${color.label}</span>
+                    </label>
+                  `,
+                )
+                .join('')}
+            </div>
+          </div>
         </div>
 
-        <fieldset class="control-group">
-          <legend>Body colour</legend>
-          <div class="swatch-grid">
-            ${Object.entries(FINISHES)
-              .map(
-                ([key, finish]) => `
-                  <label class="swatch-option" title="${finish.label}">
-                    <input type="radio" name="finish" value="${key}" ${key === 'graphite' ? 'checked' : ''} />
-                    <span class="swatch" style="--swatch-color:#${finish.body.toString(16).padStart(6, '0')}"></span>
-                    <span>${finish.label}</span>
-                  </label>
-                `,
-              )
-              .join('')}
+        <div class="customizer-column customizer-column-right">
+          <div class="customizer-card">
+            <h3 class="card-title">Hardware options</h3>
+
+            <div class="control-row">
+              <span class="row-label">Capacity size</span>
+              <div class="segmented-control segmented-control-three">
+                ${Object.entries(CAPACITIES)
+                  .map(
+                    ([key, capacity]) => `
+                      <label>
+                        <input type="radio" name="capacity" value="${key}" ${key === '5k' ? 'checked' : ''} />
+                        <span>${capacity.label}</span>
+                      </label>
+                    `,
+                  )
+                  .join('')}
+              </div>
+            </div>
+
           </div>
-        </fieldset>
 
-        <label class="range-control">
-          <span>
-            Surface gloss
-            <strong id="gloss-value">45%</strong>
-          </span>
-          <input id="gloss-control" type="range" min="0" max="100" value="45" />
-        </label>
-
-        <label class="range-control">
-          <span>
-            Body width
-            <strong id="width-value">100%</strong>
-          </span>
-          <input id="width-control" type="range" min="86" max="124" value="100" />
-        </label>
-
-        <fieldset class="control-group">
-          <legend>USB tongue colour</legend>
-          <div class="segmented-control">
-            ${Object.entries(USB_COLORS)
-              .map(
-                ([key, color]) => `
-                  <label>
-                    <input type="radio" name="usb-color" value="${key}" ${key === 'cyan' ? 'checked' : ''} />
-                    <span>${color.label}</span>
-                  </label>
-                `,
-              )
-              .join('')}
-          </div>
-        </fieldset>
-
-        <label class="text-control">
-          <span>Body engraving</span>
-          <input id="brand-control" type="text" value="ANKER" maxlength="18" autocomplete="off" />
-        </label>
-
-        <div class="spec-readout" aria-live="polite">
-          <span id="capacity-readout">5,000 mAh pocket</span>
-          <strong id="wattage-readout">Qi2 wireless output</strong>
-        </div>
-      </aside>
-
-      <aside class="customizer-panel customizer-panel-right" aria-label="Power bank feature options">
-        <div class="customizer-panel-head">
-          <span class="panel-kicker">Features</span>
-          <h2>Hardware details</h2>
-        </div>
-
-        <fieldset class="control-group">
-          <legend>Capacity size</legend>
-          <div class="segmented-control segmented-control-three">
-            ${Object.entries(CAPACITIES)
-              .map(
-                ([key, capacity]) => `
-                  <label>
-                    <input type="radio" name="capacity" value="${key}" ${key === '5k' ? 'checked' : ''} />
-                    <span>${capacity.label}</span>
-                  </label>
-                `,
-              )
-              .join('')}
-          </div>
-        </fieldset>
-
-        <fieldset class="control-group">
-          <legend>Wattage output</legend>
-          <div class="segmented-control segmented-control-three">
-            ${Object.entries(WATTAGES)
-              .map(
-                ([key, wattage]) => `
-                  <label>
-                    <input type="radio" name="wattage" value="${key}" ${key === '15w' ? 'checked' : ''} />
-                    <span>${wattage.label}</span>
-                  </label>
-                `,
-              )
-              .join('')}
-          </div>
-        </fieldset>
-
-        <label class="toggle-row">
-          <span>MagSafe alignment ring</span>
-          <input id="magsafe-toggle" type="checkbox" checked />
-        </label>
-        <fieldset class="control-group">
-          <legend>Battery indicator</legend>
-          <div class="segmented-control">
-            <label>
-              <input type="radio" name="indicator-type" value="leds" checked />
-              <span>LED dots</span>
-            </label>
-            <label>
-              <input type="radio" name="indicator-type" value="screen" />
-              <span>Info screen</span>
+          <div class="customizer-card">
+            <h3 class="card-title">Personalised Monogram</h3>
+            <p class="card-desc">Engrave your name or any other personalised word on your power bank</p>
+            <h4 class="card-subtitle">Inscription</h4>
+            <label class="text-control">
+              <input id="brand-control" type="text" value="ANKER" maxlength="18" autocomplete="off" placeholder="Enter words or names" />
+              <div class="check-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
             </label>
           </div>
-        </fieldset>
-        <label class="toggle-row">
-          <span>Auto rotation</span>
-          <input id="spin-toggle" type="checkbox" />
-        </label>
 
-        <label class="range-control">
-          <span>
-            LED brightness
-            <strong id="led-value">80%</strong>
-          </span>
-          <input id="led-control" type="range" min="20" max="100" value="80" />
-        </label>
+          <div class="customizer-card">
+            <h3 class="card-title">Stage controls</h3>
+            <label class="toggle-row inline-toggle">
+              <span>Add MagSafe</span>
+              <input id="magsafe-toggle" type="checkbox" checked />
+            </label>
+            <div class="control-row">
+              <span class="row-label">Battery indicator</span>
+              <div class="segmented-control">
+                <label>
+                  <input type="radio" name="indicator-type" value="leds" checked />
+                  <span>LED dots</span>
+                </label>
+                <label>
+                  <input type="radio" name="indicator-type" value="screen" />
+                  <span>Info screen</span>
+                </label>
+              </div>
+            </div>
+            <label class="toggle-row inline-toggle">
+              <span>Auto rotation</span>
+              <input id="spin-toggle" type="checkbox" />
+            </label>
 
-        <label class="range-control">
-          <span>
-            Stage light
-            <strong id="light-value">70%</strong>
-          </span>
-          <input id="light-control" type="range" min="20" max="120" value="70" />
-        </label>
+            <div class="control-row">
+              <span class="row-label">Stage light</span>
+              <label class="range-control no-margin">
+                <span class="range-readout"><strong id="light-value">70%</strong></span>
+                <input id="light-control" type="range" min="20" max="120" value="70" />
+              </label>
+            </div>
+          </div>
 
-        <button class="customizer-reset" id="reset-customizer" type="button">
-          Reset to code default
-        </button>
-      </aside>
+          <div class="customizer-card summary-card">
+            <h3 class="card-title">Build summary</h3>
 
-      <nav class="catalog-nav" aria-label="Product carousel"><button id="catalog-prev" type="button" aria-label="Previous product">&larr;</button><span id="catalog-name">MagGo power bank</span><button id="catalog-next" type="button" aria-label="Next product">&rarr;</button></nav>
+            <div class="summary-rows" aria-live="polite">
+              <div class="summary-row">
+                <span id="capacity-readout">5,000 mAh</span>
+                <strong>£40</strong>
+              </div>
+              <div class="summary-row">
+                <span>Custom monogram</span>
+                <strong>£5</strong>
+              </div>
+            </div>
+
+            <div class="summary-total">
+              <span>Total Price:</span>
+              <strong>£60</strong>
+            </div>
+
+            <button class="btn-primary customizer-reset" id="reset-customizer" type="button">
+              Reset to code default
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="customizer-hint">drag to orbit &middot; pinch or scroll to zoom</div>
     </div>
   `;
 
   const canvasMount = mount.querySelector<HTMLDivElement>('#power-bank-canvas')!;
   const viewer = new Viewer(canvasMount, {
-    cameraPosition: [-3.1, 2.45, 4.2],
-    cameraTarget: [0, 1.55, 0],
-    cameraFov: 32,
+    cameraPosition: [-3.8, 2.9, 5.4],
+    cameraTarget: [0, 1.35, 0],
+    cameraFov: 36,
     background: 0xf6f8fb,
     installLights: (scene) => scene.add(createAnkerMaggoA1618LookDevLights()),
   });
+  const defaultCameraPosition = viewer.camera.position.clone();
+  const defaultCameraTarget = viewer.controls.target.clone();
 
   const revealPlateau = makeRevealPlateau();
   const contactShadow = makePowerBankContactShadow();
@@ -633,7 +617,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     0.74,
     0.58,
     [
-      'ANKER MAGGO 5K',
+      'ANKER MAGGO 5,000 mAh',
       'MODEL A1618  |  5,000 mAh',
       'USB-C INPUT 5V 3A',
       'USB-C OUTPUT 15W MAX',
@@ -679,20 +663,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   );
   // The rotated wordmark follows the long axis of the front face, as on the reference device.
   brandEngraving.rotation.z = -Math.PI / 2;
-  brandEngraving.position.set(0.22, 1.55, 0.247);
+  brandEngraving.position.set(0.22, 1.55, 0.305);
   model.add(brandEngraving);
-  const catalog = new THREE.Group();
-  const catalogItems = [model, ...Array.from({ length: 7 }, (_, index) => makeCatalogGadget(index + 1))];
-  catalogItems.forEach((item) => catalog.add(item));
-  viewer.scene.add(catalog);
+  viewer.scene.add(model);
 
   let selectedIndicator: 'leds' | 'screen' = 'leds';
   let selectedCapacity: CapacityKey = '5k';
-  let selectedWattage: WattageKey = '15w';
-  let widthPercent = 100;
   let autoSpin = false;
-  let activeCatalogIndex = 0;
-  let carouselDirection = 0;
   const targetScale = new THREE.Vector3(1, 1, 1);
   const suspendedBaseY = model.position.y;
   model.userData.tick = (dt: number, elapsed: number): void => {
@@ -702,12 +679,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       model.rotation.y += dt * 0.16;
     }
     model.position.y = suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
-    for (const [index, item] of catalogItems.entries()) {
-      if (!item.visible) continue;
-      const targetX = index === activeCatalogIndex ? 0 : carouselDirection * -5;
-      item.position.x = THREE.MathUtils.damp(item.position.x, targetX, 7, dt);
-      if (Math.abs(item.position.x - targetX) < 0.02 && index !== activeCatalogIndex) item.visible = false;
-    }
   };
 
   const ambientLights: Array<{ light: THREE.Light; baseIntensity: number }> = [];
@@ -738,60 +709,29 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     setMaterialColor(model, ['front-polished-gasket', 'magsafe-alignment-ring'], finish.edge);
     setMaterialColor(model, ['magsafe-center-pad', 'power-button'], finish.panel);
     setMaterialColor(model, ['status-ring'], finish.ring);
-    applyWattage();
+    syncLeds();
   };
 
-  const widthControl = mount.querySelector<HTMLInputElement>('#width-control')!;
-  const widthValue = mount.querySelector<HTMLElement>('#width-value')!;
   const capacityReadout = mount.querySelector<HTMLElement>('#capacity-readout')!;
-  const wattageReadout = mount.querySelector<HTMLElement>('#wattage-readout')!;
   const brandControl = mount.querySelector<HTMLInputElement>('#brand-control')!;
 
   const applyDimensions = (): void => {
     const capacity = CAPACITIES[selectedCapacity];
-    targetScale.set(
-      capacity.scale[0] * (widthPercent / 100),
-      capacity.scale[1],
-      capacity.scale[2],
-    );
-    widthValue.textContent = `${widthPercent}%`;
-    capacityReadout.textContent = capacity.sizeLabel;
-    updateTextPlane(capacityEngraving, [`${capacity.label.replace('K', ',000')} mAh`], '#d5c8b5');
+    targetScale.fromArray(capacity.scale);
+    capacityReadout.textContent = capacity.label;
+    updateTextPlane(capacityEngraving, [capacity.label], '#d5c8b5');
     updateProductSpecification();
-  };
-
-  const applyWattage = (): void => {
-    const wattage = WATTAGES[selectedWattage];
-    setMaterialColor(model, ['status-ring'], wattage.accent);
-    const lightRing = materialOf(
-      revealPlateau.getObjectByName('reveal-plateau-light-ring') ?? new THREE.Object3D(),
-    );
-    const halo = materialOf(revealPlateau.getObjectByName('reveal-plateau-halo') ?? new THREE.Object3D());
-    for (const material of [lightRing, halo]) {
-      if (material && 'color' in material && material.color instanceof THREE.Color) {
-        material.color.setHex(wattage.accent);
-      }
-    }
-    const liftLight = revealPlateau.getObjectByName('reveal-plateau-lift-light');
-    if (liftLight instanceof THREE.PointLight) {
-      liftLight.color.setHex(wattage.accent);
-      liftLight.intensity = 0.75 * wattage.ledBoost;
-    }
-    wattageReadout.textContent = wattage.outputLabel;
-    updateProductSpecification();
-    syncLeds();
   };
 
   const updateProductSpecification = (): void => {
     const capacity = CAPACITIES[selectedCapacity];
-    const wattage = WATTAGES[selectedWattage];
     updateTextPlane(
       productSpecEngraving,
       [
         `ANKER MAGGO ${capacity.label}`,
-        `MODEL A1618  |  ${capacity.label.replace('K', ',000')} mAh`,
+        `MODEL A1618  |  ${capacity.label}`,
         'USB-C INPUT 5V 3A',
-        `USB-C OUTPUT ${wattage.label} MAX`,
+        'USB-C OUTPUT 15W MAX',
         'QI2 WIRELESS OUTPUT',
         'MADE IN CHINA',
       ],
@@ -830,11 +770,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     setSurfaceGloss(model, value / 100);
   });
 
-  listen(widthControl, 'input', () => {
-    widthPercent = Number(widthControl.value);
-    applyDimensions();
-  });
-
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="indicator-type"]')) {
     listen(input, 'change', () => {
       selectedIndicator = input.value as 'leds' | 'screen';
@@ -842,23 +777,17 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     });
   }
 
-  const ledControl = mount.querySelector<HTMLInputElement>('#led-control')!;
-  const ledValue = mount.querySelector<HTMLElement>('#led-value')!;
   const syncLeds = (): void => {
-    const value = Number(ledControl.value);
-    const wattage = WATTAGES[selectedWattage];
-    ledValue.textContent = `${value}%`;
     const isLeds = selectedIndicator === 'leds';
-    setLedPower(model, isLeds, THREE.MathUtils.lerp(0.6, 4.2, value / 100) * wattage.ledBoost);
+    setLedPower(model, isLeds, 2.4);
     
     if (screenDisplay) {
       screenDisplay.visible = !isLeds;
       const material = screenDisplay.material as THREE.MeshBasicMaterial;
-      material.opacity = THREE.MathUtils.lerp(0.3, 1.0, value / 100);
-      material.color.setHex(wattage.accent);
+      material.opacity = 0.9;
+      material.color.setHex(0x9fc7ff);
     }
   };
-  listen(ledControl, 'input', syncLeds);
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="capacity"]')) {
     listen(input, 'change', () => {
@@ -867,12 +796,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     });
   }
 
-  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="wattage"]')) {
-    listen(input, 'change', () => {
-      selectedWattage = input.value as WattageKey;
-      applyWattage();
-    });
-  }
 
   const magsafeToggle = mount.querySelector<HTMLInputElement>('#magsafe-toggle')!;
   listen(magsafeToggle, 'change', () => {
@@ -883,22 +806,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   listen(spinToggle, 'change', () => {
     autoSpin = spinToggle.checked;
   });
-
-  const catalogNames = ['MagGo power bank', 'Slim power bank', 'Charging dock', 'GaN charger', 'Braided USB-C cable', 'Wireless earbuds', 'USB-C hub', 'Mini speaker'];
-  const catalogName = mount.querySelector<HTMLElement>('#catalog-name')!;
-  const moveCatalog = (direction: number): void => {
-    const nextIndex = (activeCatalogIndex + direction + catalogItems.length) % catalogItems.length;
-    const outgoing = catalogItems[activeCatalogIndex];
-    const incoming = catalogItems[nextIndex];
-    carouselDirection = direction;
-    incoming.visible = true;
-    incoming.position.x = direction * 5;
-    activeCatalogIndex = nextIndex;
-    catalogName.textContent = catalogNames[nextIndex];
-    outgoing.position.x = 0;
-  };
-  listen(mount.querySelector<HTMLButtonElement>('#catalog-prev')!, 'click', () => moveCatalog(-1));
-  listen(mount.querySelector<HTMLButtonElement>('#catalog-next')!, 'click', () => moveCatalog(1));
 
   const lightControl = mount.querySelector<HTMLInputElement>('#light-control')!;
   const lightValue = mount.querySelector<HTMLElement>('#light-value')!;
@@ -914,25 +821,19 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   listen(resetButton, 'click', () => {
     restoreDefaults(model, defaults);
     selectedCapacity = '5k';
-    selectedWattage = '15w';
-    widthPercent = 100;
     autoSpin = false;
 
     const finishInput = mount.querySelector<HTMLInputElement>('input[name="finish"][value="graphite"]');
     const usbInput = mount.querySelector<HTMLInputElement>('input[name="usb-color"][value="cyan"]');
     const capacityInput = mount.querySelector<HTMLInputElement>('input[name="capacity"][value="5k"]');
-    const wattageInput = mount.querySelector<HTMLInputElement>('input[name="wattage"][value="15w"]');
     if (finishInput) finishInput.checked = true;
     if (usbInput) usbInput.checked = true;
     if (capacityInput) capacityInput.checked = true;
-    if (wattageInput) wattageInput.checked = true;
     glossControl.value = '45';
     glossValue.textContent = '45%';
-    widthControl.value = '100';
     selectedIndicator = 'leds';
     const indicatorInput = mount.querySelector<HTMLInputElement>('input[name="indicator-type"][value="leds"]');
     if (indicatorInput) indicatorInput.checked = true;
-    ledControl.value = '80';
     magsafeToggle.checked = true;
     spinToggle.checked = false;
     lightControl.value = '70';
@@ -941,11 +842,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     brandEngraving.visible = true;
     updateTextPlane(brandEngraving, ['ANKER'], '#d79a68');
     applyDimensions();
-    applyWattage();
+    syncLeds();
+    viewer.camera.position.copy(defaultCameraPosition);
+    viewer.controls.target.copy(defaultCameraTarget);
+    viewer.controls.update();
   });
 
   applyDimensions();
-  applyWattage();
+  syncLeds();
   viewer.start();
 
   return () => {
