@@ -1699,6 +1699,26 @@ code,
   background: #0dc9b1;
 }
 
+.customizer-page .inscription-done {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #0dc9b1;
+  color: #fff;
+  cursor: pointer;
+}
+
+.customizer-page .inscription-done[hidden] {
+  display: none;
+}
+
 .customizer-page .left-control-stack .card-desc {
   margin: 0.55rem 0 0;
   font-size: 0.7rem;

@@ -203,20 +203,6 @@ function makeTextTexture(
   return texture;
 }
 
-function updateTextPlane(
-  mesh: THREE.Mesh,
-  lines: string[],
-  color = '#ded8cc',
-  align: CanvasTextAlign = 'center',
-  accent?: string,
-): void {
-  const material = mesh.material as THREE.MeshBasicMaterial;
-  const previous = material.map;
-  material.map = makeTextTexture(lines, color, align, accent);
-  material.needsUpdate = true;
-  previous?.dispose();
-}
-
 function makeCapacityTexture(label: string): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 768;
@@ -396,58 +382,6 @@ function makeEngravedPlane(
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
   mesh.name = name;
   return mesh;
-}
-
-function makeRevealPlateau(): THREE.Group {
-  const stage = new THREE.Group();
-  stage.name = 'power-bank-reveal-plateau';
-
-  const baseMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff,
-    roughness: 0.1,
-    metalness: 0.05,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.1,
-  });
-  const glowMaterial = new THREE.MeshBasicMaterial({
-    color: 0x0dc9b1,
-    transparent: true,
-    opacity: 0.7,
-    depthWrite: false,
-  });
-
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(1.58, 1.72, 0.18, 96), baseMaterial);
-  base.name = 'reveal-plateau-base';
-  base.position.y = 0.09;
-  base.castShadow = true;
-  base.receiveShadow = true;
-  stage.add(base);
-
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.018, 16, 112), baseMaterial);
-  rim.name = 'reveal-plateau-rim';
-  rim.rotation.x = Math.PI / 2;
-  rim.position.y = 0.195;
-  rim.castShadow = true;
-  stage.add(rim);
-
-  const lightRing = new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.01, 12, 112), glowMaterial);
-  lightRing.name = 'reveal-plateau-light-ring';
-  lightRing.rotation.x = Math.PI / 2;
-  lightRing.position.y = 0.205;
-  stage.add(lightRing);
-
-  const halo = new THREE.Mesh(new THREE.RingGeometry(0.72, 1.42, 112), glowMaterial);
-  halo.name = 'reveal-plateau-halo';
-  halo.rotation.x = -Math.PI / 2;
-  halo.position.y = 0.212;
-  stage.add(halo);
-
-  const column = new THREE.PointLight(0x0dc9b1, 0.75, 4.2, 1.7);
-  column.name = 'reveal-plateau-lift-light';
-  column.position.set(0, 0.85, 0);
-  stage.add(column);
-
-  return stage;
 }
 
 function makePowerBankContactShadow(): THREE.Mesh {
@@ -670,7 +604,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                 <span class="input-label">Inscription</span>
                 <div class="input-wrapper">
                   <input id="brand-control" type="text" value="ANKER" maxlength="15" autocomplete="off" placeholder="Enter words or names" />
-                  <div class="check-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  <button class="inscription-done" id="inscription-done" type="button" hidden aria-label="Finish inscription">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </button>
                 </div>
               </label>
               <p class="card-desc">Up to 15 characters</p>
@@ -848,10 +784,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   viewer.controls.minDistance = 2.2;
   viewer.controls.maxDistance = 10;
 
-  const revealPlateau = makeRevealPlateau();
   const contactShadow = makePowerBankContactShadow();
-  revealPlateau.add(contactShadow);
-  viewer.scene.add(revealPlateau);
+  viewer.scene.add(contactShadow);
 
   // The generic viewer floor produces a long directional shadow outside the product stage.
   viewer.scene.traverse((object) => {
@@ -902,13 +836,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   screenDisplay.visible = false;
   model.add(screenDisplay);
 
-  const brandEngraving = makeEngravedPlane(
-    'power-bank-brand-engraving',
-    3.36,
-    0.6,
-    ['ANKER'],
-    '#101216',
-  );
+  const brandEngraving = makeBrandPlane('power-bank-brand-engraving', 'ANKER');
   // The wordmark is deliberately oversized and follows the long face axis.
   brandEngraving.rotation.z = -Math.PI / 2;
   brandEngraving.position.set(0.3, 1.46, 0.323);
@@ -968,6 +896,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const capacityReadout = mount.querySelector<HTMLElement>('#capacity-readout')!;
   const brandControl = mount.querySelector<HTMLInputElement>('#brand-control')!;
+  const inscriptionDone = mount.querySelector<HTMLButtonElement>('#inscription-done')!;
+  let committedBrandName = brandControl.value.trim().toUpperCase();
 
   const applyDimensions = (): void => {
     const capacity = CAPACITIES[selectedCapacity];
@@ -1000,7 +930,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   listen(brandControl, 'input', () => {
     const brandName = brandControl.value.trim().toUpperCase();
     brandEngraving.visible = brandName.length > 0;
-    if (brandName) updateTextPlane(brandEngraving, [brandName], '#101216');
+    if (brandName) updateBrandPlane(brandEngraving, brandName);
+    inscriptionDone.hidden = brandName === committedBrandName;
   });
 
   const setInscriptionFocus = (focused: boolean): void => {
@@ -1023,6 +954,12 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   listen(brandControl, 'focus', () => setInscriptionFocus(true));
   listen(brandControl, 'blur', () => setInscriptionFocus(false));
+  listen(inscriptionDone, 'click', () => {
+    committedBrandName = brandControl.value.trim().toUpperCase();
+    inscriptionDone.hidden = true;
+    setInscriptionFocus(false);
+    brandControl.blur();
+  });
 
   const glossControl = mount.querySelector<HTMLInputElement>('#gloss-control')!;
   const glossValue = mount.querySelector<HTMLElement>('#gloss-value')!;
@@ -1103,8 +1040,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     lightControl.value = '70';
     lightValue.textContent = '70%';
     brandControl.value = 'ANKER';
+    committedBrandName = 'ANKER';
+    inscriptionDone.hidden = true;
     brandEngraving.visible = true;
-    updateTextPlane(brandEngraving, ['ANKER'], '#101216');
+    updateBrandPlane(brandEngraving, 'ANKER');
     applyDimensions();
     syncLeds();
     viewer.camera.position.copy(defaultCameraPosition);
@@ -1189,15 +1128,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   if (themeToggle && customizerPage) {
     listen(themeToggle, 'click', () => {
       const isDark = customizerPage.classList.toggle('dark-mode');
-      
-      const plateauBase = revealPlateau.getObjectByName('reveal-plateau-base') as THREE.Mesh;
-      const plateauRim = revealPlateau.getObjectByName('reveal-plateau-rim') as THREE.Mesh;
-      if (plateauBase && plateauBase.material instanceof THREE.MeshStandardMaterial) {
-        plateauBase.material.color.setHex(isDark ? 0x181c2b : 0xffffff);
-      }
-      if (plateauRim && plateauRim.material instanceof THREE.MeshStandardMaterial) {
-        plateauRim.material.color.setHex(isDark ? 0x181c2b : 0xffffff);
-      }
 
       // Toggle icon
       if (isDark) {
