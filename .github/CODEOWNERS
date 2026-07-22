@@ -1,0 +1,6 @@
+# Add this repository's GitHub owner or team before enabling required
+# CODEOWNERS reviews. The imported upstream file named @hoainho, which would
+# incorrectly require the upstream author to review changes in this project.
+#
+# Example:
+# * @your-github-handle
