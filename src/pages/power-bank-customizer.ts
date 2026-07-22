@@ -313,6 +313,34 @@ function makeRevealPlateau(): THREE.Group {
   return stage;
 }
 
+function makePowerBankContactShadow(): THREE.Mesh {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const context = canvas.getContext('2d')!;
+  const gradient = context.createRadialGradient(128, 128, 12, 128, 128, 118);
+  gradient.addColorStop(0, 'rgba(20, 26, 36, 0.28)');
+  gradient.addColorStop(0.44, 'rgba(20, 26, 36, 0.15)');
+  gradient.addColorStop(1, 'rgba(20, 26, 36, 0)');
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    depthWrite: false,
+    opacity: 0.72,
+  });
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.46), material);
+  shadow.name = 'power-bank-contact-shadow';
+  shadow.rotation.x = -Math.PI / 2;
+  shadow.position.y = 0.219;
+  shadow.renderOrder = 1;
+  return shadow;
+}
+
 function captureDefaults(root: THREE.Object3D, lights: THREE.Light[]): DefaultsSnapshot {
   const materials: MaterialSnapshot[] = [];
   const seenMaterials = new Set<THREE.Material>();
@@ -508,10 +536,19 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <span>MagSafe alignment ring</span>
           <input id="magsafe-toggle" type="checkbox" checked />
         </label>
-        <label class="toggle-row">
-          <span>Battery LEDs</span>
-          <input id="led-toggle" type="checkbox" checked />
-        </label>
+        <fieldset class="control-group">
+          <legend>Battery indicator</legend>
+          <div class="segmented-control">
+            <label>
+              <input type="radio" name="indicator-type" value="leds" checked />
+              <span>LED dots</span>
+            </label>
+            <label>
+              <input type="radio" name="indicator-type" value="screen" />
+              <span>Info screen</span>
+            </label>
+          </div>
+        </fieldset>
         <label class="toggle-row">
           <span>Auto rotation</span>
           <input id="spin-toggle" type="checkbox" checked />
@@ -559,9 +596,21 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   });
 
   const revealPlateau = makeRevealPlateau();
+  const contactShadow = makePowerBankContactShadow();
+  revealPlateau.add(contactShadow);
   viewer.scene.add(revealPlateau);
 
+  // The generic viewer floor produces a long directional shadow outside the product stage.
+  viewer.scene.traverse((object) => {
+    const mesh = object as THREE.Mesh;
+    if (mesh.material instanceof THREE.ShadowMaterial) mesh.visible = false;
+  });
+
   const model = createAnkerMaggoA1618Model({ shadows: true, rotationSpeed: 0 });
+  model.traverse((object) => {
+    const mesh = object as THREE.Mesh;
+    if (mesh.isMesh) mesh.castShadow = false;
+  });
   model.position.y = 0.62;
   const productSpecEngraving = makeEngravedPlane(
     'power-bank-product-spec-engraving',
@@ -585,14 +634,25 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const capacityEngraving = makeEngravedPlane(
     'power-bank-capacity-engraving',
-    0.38,
-    0.28,
+    0.6,
+    0.16,
     ['5000 mAh'],
     '#d5c8b5',
   );
-  capacityEngraving.rotation.y = Math.PI / 2;
-  capacityEngraving.position.set(0.905, 2.12, 0);
+  capacityEngraving.rotation.y = 0;
+  capacityEngraving.position.set(0, 1.05, 0.248);
   model.add(capacityEngraving);
+
+  const screenDisplay = makeEngravedPlane(
+    'power-bank-screen-display',
+    0.28,
+    0.16,
+    ['100'],
+    '#ffffff',
+  );
+  screenDisplay.position.set(0, 0.62, 0.303);
+  screenDisplay.visible = false;
+  model.add(screenDisplay);
 
   const brandEngraving = makeEngravedPlane(
     'power-bank-brand-engraving',
@@ -607,6 +667,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   model.add(brandEngraving);
   viewer.scene.add(model);
 
+  let selectedIndicator: 'leds' | 'screen' = 'leds';
   let selectedCapacity: CapacityKey = '5k';
   let selectedWattage: WattageKey = '15w';
   let widthPercent = 100;
@@ -616,6 +677,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const suspendedBaseY = model.position.y;
   model.userData.tick = (dt: number, elapsed: number): void => {
     model.scale.lerp(targetScale, 1 - Math.exp(-dt * 5.6));
+    contactShadow.scale.set(model.scale.x, model.scale.z, 1);
     if (autoSpin) {
       if (inspectionMode) {
         model.rotation.x += dt * 0.34;
@@ -753,16 +815,29 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     applyDimensions();
   });
 
-  const ledToggle = mount.querySelector<HTMLInputElement>('#led-toggle')!;
+  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="indicator-type"]')) {
+    listen(input, 'change', () => {
+      selectedIndicator = input.value as 'leds' | 'screen';
+      syncLeds();
+    });
+  }
+
   const ledControl = mount.querySelector<HTMLInputElement>('#led-control')!;
   const ledValue = mount.querySelector<HTMLElement>('#led-value')!;
   const syncLeds = (): void => {
     const value = Number(ledControl.value);
     const wattage = WATTAGES[selectedWattage];
     ledValue.textContent = `${value}%`;
-    setLedPower(model, ledToggle.checked, THREE.MathUtils.lerp(0.6, 4.2, value / 100) * wattage.ledBoost);
+    const isLeds = selectedIndicator === 'leds';
+    setLedPower(model, isLeds, THREE.MathUtils.lerp(0.6, 4.2, value / 100) * wattage.ledBoost);
+    
+    if (screenDisplay) {
+      screenDisplay.visible = !isLeds;
+      const material = screenDisplay.material as THREE.MeshBasicMaterial;
+      material.opacity = THREE.MathUtils.lerp(0.3, 1.0, value / 100);
+      material.color.setHex(wattage.accent);
+    }
   };
-  listen(ledToggle, 'change', syncLeds);
   listen(ledControl, 'input', syncLeds);
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="capacity"]')) {
@@ -845,7 +920,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     glossControl.value = '45';
     glossValue.textContent = '45%';
     widthControl.value = '100';
-    ledToggle.checked = true;
+    const indicatorInput = mount.querySelector<HTMLInputElement>('input[name="indicator-type"][value="leds"]');
+    if (indicatorInput) indicatorInput.checked = true;
     ledControl.value = '80';
     magsafeToggle.checked = true;
     spinToggle.checked = true;
