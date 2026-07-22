@@ -901,9 +901,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   let selectedCapacity: CapacityKey = '5k';
   let selectedWattage: WattageKey = '30w';
   let autoSpin = false;
-  let inscriptionFocus = false;
+  let isCameraTransitioning = false;
   const targetScale = new THREE.Vector3(1, 1, 1);
   const suspendedBaseY = model.position.y;
+
+  viewer.controls.addEventListener('start', () => {
+    isCameraTransitioning = false;
+  });
+
   model.userData.tick = (dt: number, elapsed: number): void => {
     model.scale.lerp(targetScale, 1 - Math.exp(-dt * 5.6));
     contactShadow.scale.set(model.scale.x, model.scale.z, 1);
@@ -911,11 +916,21 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       model.rotation.y += dt * 0.16;
     }
     model.position.y = suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
-    viewer.camera.position.lerp(targetCameraPosition, 1 - Math.exp(-dt * 4.8));
-    viewer.controls.target.lerp(targetCameraTarget, 1 - Math.exp(-dt * 4.8));
-    if (Math.abs(viewer.camera.zoom - targetCameraZoom) > 0.002) {
-      viewer.camera.zoom = THREE.MathUtils.lerp(viewer.camera.zoom, targetCameraZoom, 1 - Math.exp(-dt * 4.8));
-      viewer.camera.updateProjectionMatrix();
+
+    if (isCameraTransitioning) {
+      viewer.camera.position.lerp(targetCameraPosition, 1 - Math.exp(-dt * 5.2));
+      viewer.controls.target.lerp(targetCameraTarget, 1 - Math.exp(-dt * 5.2));
+      if (Math.abs(viewer.camera.zoom - targetCameraZoom) > 0.002) {
+        viewer.camera.zoom = THREE.MathUtils.lerp(viewer.camera.zoom, targetCameraZoom, 1 - Math.exp(-dt * 5.2));
+        viewer.camera.updateProjectionMatrix();
+      }
+      if (
+        viewer.camera.position.distanceTo(targetCameraPosition) < 0.015 &&
+        viewer.controls.target.distanceTo(targetCameraTarget) < 0.015 &&
+        Math.abs(viewer.camera.zoom - targetCameraZoom) < 0.005
+      ) {
+        isCameraTransitioning = false;
+      }
     }
     viewer.controls.update();
   };
@@ -1026,8 +1041,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   });
 
   const setInscriptionFocus = (focused: boolean): void => {
-    inscriptionFocus = focused;
-    if (inscriptionFocus) {
+    if (focused) {
       targetCameraTarget.set(-0.2, 1.46, 0.35);
       targetCameraPosition.set(-3.6, 2.6, 5.6);
       targetCameraZoom = 1.68;
@@ -1036,6 +1050,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       targetCameraTarget.copy(defaultCameraTarget);
       targetCameraZoom = defaultCameraZoom;
     }
+    isCameraTransitioning = true;
   };
 
   listen(brandControl, 'focus', () => setInscriptionFocus(true));
@@ -1118,7 +1133,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     selectedCapacity = '5k';
     selectedWattage = '30w';
     autoSpin = false;
-    inscriptionFocus = false;
+    setInscriptionFocus(false);
 
     const finishInput = mount.querySelector<HTMLInputElement>('input[name="finish"][value="graphite"]');
     const usbInput = mount.querySelector<HTMLInputElement>('input[name="usb-color"][value="cyan"]');
