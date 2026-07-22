@@ -190,6 +190,50 @@ function makeUsbAPort(
   return port;
 }
 
+function makeStandardUsbPort(
+  shadows: boolean,
+  recessMaterial: THREE.Material,
+): THREE.Group {
+  const port = new THREE.Group();
+  port.name = 'standard-usb-port';
+
+  const cavityMaterial = new THREE.MeshStandardMaterial({ color: 0x010101, roughness: 0.35, metalness: 0.10 });
+  const chromeMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xb9bec5,
+    roughness: 0.20,
+    metalness: 0.88,
+    clearcoat: 0.32,
+  });
+  const tongueMaterial = new THREE.MeshStandardMaterial({ color: 0x242629, roughness: 0.30, metalness: 0.18 });
+  const contactMaterial = new THREE.MeshPhysicalMaterial({ color: 0xd19a43, roughness: 0.26, metalness: 0.92 });
+
+  const cavity = makePanel('standard-usb-cavity', 0.218, 0.096, 0.005, 0.018, cavityMaterial, false, 0.002);
+  cavity.rotation.y = -Math.PI / 2;
+  cavity.position.x = -BODY_WIDTH / 2 + 0.006;
+  port.add(cavity);
+
+  // A separate chrome liner gives this USB-A socket the conventional metal
+  // face from the reference, while the outer black rails retain the case seam.
+  addOpenSideBezel(port, 'standard-usb', 0.246, 0.124, recessMaterial, shadows);
+  addOpenSideBezel(port, 'standard-usb-chrome', 0.208, 0.090, chromeMaterial, false);
+
+  const tongue = makePanel('standard-usb-tongue', 0.166, 0.024, 0.005, 0.003, tongueMaterial, false, 0.002);
+  tongue.rotation.y = -Math.PI / 2;
+  tongue.position.set(-BODY_WIDTH / 2 + 0.001, 0, 0);
+  port.add(tongue);
+
+  for (const [index, offset] of [-0.066, -0.022, 0.022, 0.066].entries()) {
+    for (const y of [-0.034, 0.034]) {
+      const contact = makePanel(`standard-usb-contact-${index + 1}-${y > 0 ? 'top' : 'bottom'}`, 0.018, 0.008, 0.003, 0.001, contactMaterial, false, 0.001);
+      contact.rotation.y = -Math.PI / 2;
+      contact.position.set(-BODY_WIDTH / 2 + 0.001, y, offset);
+      port.add(contact);
+    }
+  }
+
+  return port;
+}
+
 function makeLightningPort(
   shadows: boolean,
   recessMaterial: THREE.Material,
@@ -480,6 +524,10 @@ export function createAnkerMaggoA1618Model(
   const usbAPort = makeUsbAPort(shadows, edgeMaterial, blueMaterial);
   usbAPort.position.y = 0.78;
   root.add(usbAPort);
+
+  const standardUsbPort = makeStandardUsbPort(shadows, edgeMaterial);
+  standardUsbPort.position.y = 0.96;
+  root.add(standardUsbPort);
 
   const lightningPort = makeLightningPort(shadows, edgeMaterial);
   lightningPort.position.y = 0.48;

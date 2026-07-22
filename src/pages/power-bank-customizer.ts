@@ -27,11 +27,18 @@ type DefaultsSnapshot = {
   scale: THREE.Vector3;
 };
 
-type CapacityKey = '5k' | '10k' | '20k';
+type CapacityKey = '5k' | '10k' | '20k' | '40k' | '60k' | '120k';
 type CapacityPreset = {
   label: string;
   sizeLabel: string;
   scale: THREE.Vector3Tuple;
+  unitPrice: number;
+};
+
+type WattageKey = '15w' | '30w' | '65w' | '100w';
+type WattagePreset = {
+  label: string;
+  priceDelta: number;
 };
 
 interface FinishPreset {
@@ -81,9 +88,19 @@ const USB_COLORS = {
 };
 
 const CAPACITIES: Record<CapacityKey, CapacityPreset> = {
-  '5k': { label: '5,000 mAh', sizeLabel: '5,000 mAh', scale: [1, 1, 1] },
-  '10k': { label: '10,000 mAh', sizeLabel: '10,000 mAh', scale: [1.06, 1.08, 1.22] },
-  '20k': { label: '20,000 mAh', sizeLabel: '20,000 mAh', scale: [1.12, 1.15, 1.42] },
+  '5k': { label: '5,000 mAh', sizeLabel: '5,000 mAh', scale: [0.72, 0.72, 0.76], unitPrice: 14.5 },
+  '10k': { label: '10,000 mAh', sizeLabel: '10,000 mAh', scale: [0.72, 1.24, 0.82], unitPrice: 20.5 },
+  '20k': { label: '20,000 mAh', sizeLabel: '20,000 mAh', scale: [1.04, 1.04, 1.04], unitPrice: 27.5 },
+  '40k': { label: '40,000 mAh', sizeLabel: '40,000 mAh', scale: [1.18, 1.4, 1.22], unitPrice: 38.5 },
+  '60k': { label: '60,000 mAh', sizeLabel: '60,000 mAh', scale: [1.34, 1.58, 1.38], unitPrice: 49.5 },
+  '120k': { label: '120,000 mAh', sizeLabel: '120,000 mAh', scale: [1.54, 1.84, 1.6], unitPrice: 74.5 },
+};
+
+const WATTAGES: Record<WattageKey, WattagePreset> = {
+  '15w': { label: '15W', priceDelta: 0 },
+  '30w': { label: '30W', priceDelta: 3 },
+  '65w': { label: '65W', priceDelta: 8 },
+  '100w': { label: '100W', priceDelta: 14 },
 };
 
 function materialOf(object: THREE.Object3D): THREE.Material | null {
@@ -203,7 +220,7 @@ function makeTextTexture(
   return texture;
 }
 
-function makeCapacityTexture(label: string): THREE.CanvasTexture {
+function makeCapacityTexture(label: string, wattage: string): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 768;
   canvas.height = 192;
@@ -214,12 +231,16 @@ function makeCapacityTexture(label: string): THREE.CanvasTexture {
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.fillStyle = copper;
   context.textBaseline = 'middle';
+  context.font = '700 54px Arial, sans-serif';
+  context.fillText(wattage, 30, 106);
+
+  const wattageWidth = context.measureText(wattage).width;
   context.font = '700 104px Arial, sans-serif';
-  context.fillText(amount, 30, 102);
+  context.fillText(amount, 52 + wattageWidth, 102);
 
   const amountWidth = context.measureText(amount).width;
   context.font = '600 47px Arial, sans-serif';
-  context.fillText(unit, 48 + amountWidth, 116);
+  context.fillText(unit, 70 + wattageWidth + amountWidth, 116);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -227,15 +248,15 @@ function makeCapacityTexture(label: string): THREE.CanvasTexture {
   return texture;
 }
 
-function updateCapacityPlane(mesh: THREE.Mesh, label: string): void {
+function updateCapacityPlane(mesh: THREE.Mesh, label: string, wattage: string): void {
   const material = mesh.material as THREE.MeshBasicMaterial;
   const previous = material.map;
-  material.map = makeCapacityTexture(label);
+  material.map = makeCapacityTexture(label, wattage);
   material.needsUpdate = true;
   previous?.dispose();
 }
 
-function makeRegulatoryTexture(capacity: string): THREE.CanvasTexture {
+function makeRegulatoryTexture(capacity: string, wattage: string): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 1024;
   canvas.height = 512;
@@ -247,7 +268,7 @@ function makeRegulatoryTexture(capacity: string): THREE.CanvasTexture {
     `Anker MagGo Power Bank (${capacityMark})`,
     `Model: A1618    Battery Capacity: ${compactCapacity} 3.85Vdc/19.25Wh`,
     'USB-C Input: 5V---3A / 9V---2.22A',
-    'USB-C Output: 5V---3A / 9V---2.22A / 12V---1.67A (20W Max)',
+    `USB-C Output: 5V---3A / 9V---2.22A / 12V---1.67A (${wattage} Max)`,
     'Wireless Output: 5W / 7.5W / 10W / 15W (Max)',
     'Total Output: 5V---3A (15W Max)',
     'Anker Innovations Limited | Made in China    S/N: AFYXXXXXXXXXX',
@@ -294,9 +315,9 @@ function makeRegulatoryTexture(capacity: string): THREE.CanvasTexture {
   return texture;
 }
 
-function makeRegulatoryPlane(name: string, capacity: string): THREE.Mesh {
+function makeRegulatoryPlane(name: string, capacity: string, wattage: string): THREE.Mesh {
   const material = new THREE.MeshBasicMaterial({
-    map: makeRegulatoryTexture(capacity),
+    map: makeRegulatoryTexture(capacity, wattage),
     transparent: true,
     opacity: 0.84,
     side: THREE.DoubleSide,
@@ -310,10 +331,10 @@ function makeRegulatoryPlane(name: string, capacity: string): THREE.Mesh {
   return mesh;
 }
 
-function updateRegulatoryPlane(mesh: THREE.Mesh, capacity: string): void {
+function updateRegulatoryPlane(mesh: THREE.Mesh, capacity: string, wattage: string): void {
   const material = mesh.material as THREE.MeshBasicMaterial;
   const previous = material.map;
-  material.map = makeRegulatoryTexture(capacity);
+  material.map = makeRegulatoryTexture(capacity, wattage);
   material.needsUpdate = true;
   previous?.dispose();
 }
@@ -621,9 +642,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         </div>
 
         <div class="customizer-column customizer-column-right">
-          <div class="customizer-card">
+          <div class="customizer-card capacity-output-card">
             <h3 class="card-title">Capacity size</h3>
-            <div class="segmented-control segmented-control-three capacity-segmented">
+            <div class="segmented-control capacity-segmented capacity-grid">
               ${Object.entries(CAPACITIES)
                 .map(
                   ([key, capacity]) => `
@@ -638,22 +659,37 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                 )
                 .join('')}
             </div>
+            <div class="wattage-control-block">
+              <h3 class="card-title">Wattage output</h3>
+              <div class="segmented-control wattage-segmented">
+                ${Object.entries(WATTAGES)
+                  .map(
+                    ([key, wattage]) => `
+                      <label>
+                        <input type="radio" name="wattage" value="${key}" ${key === '30w' ? 'checked' : ''} />
+                        <span class="segmented-pill">${wattage.label}</span>
+                      </label>
+                    `,
+                  )
+                  .join('')}
+              </div>
+            </div>
           </div>
 
           <div class="customizer-card">
             <h3 class="card-title">Port configuration</h3>
-            <div class="segmented-control">
+            <div class="segmented-control multiselect-ports">
               <label>
-                <input type="radio" name="port-config" value="type-c" checked />
-                <span class="segmented-pill">USB-C Only</span>
+                <input type="checkbox" name="port-option" value="type-c" checked />
+                <span class="segmented-pill">USB-C</span>
               </label>
               <label>
-                <input type="radio" name="port-config" value="type-a" />
-                <span class="segmented-pill">+ USB-A</span>
+                <input type="checkbox" name="port-option" value="type-a" />
+                <span class="segmented-pill">USB-A</span>
               </label>
               <label>
-                <input type="radio" name="port-config" value="lightning" />
-                <span class="segmented-pill">+ Lightning</span>
+                <input type="checkbox" name="port-option" value="lightning" />
+                <span class="segmented-pill">Lightning</span>
               </label>
             </div>
           </div>
@@ -817,7 +853,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (mesh.isMesh) mesh.castShadow = false;
   });
   model.position.y = 0.62;
-  const productSpecEngraving = makeRegulatoryPlane('power-bank-product-spec-engraving', '5,000 mAh');
+  const productSpecEngraving = makeRegulatoryPlane('power-bank-product-spec-engraving', '5,000 mAh', '30W');
   productSpecEngraving.rotation.y = Math.PI;
   // Match the lower clearance to the left-side clearance for a balanced regulatory block.
   productSpecEngraving.position.set(-0.34, 0.43, -0.294);
@@ -863,6 +899,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   let selectedIndicator: 'leds' | 'screen' = 'leds';
   let selectedCapacity: CapacityKey = '5k';
+  let selectedWattage: WattageKey = '30w';
   let autoSpin = false;
   let inscriptionFocus = false;
   const targetScale = new THREE.Vector3(1, 1, 1);
@@ -874,10 +911,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       model.rotation.y += dt * 0.16;
     }
     model.position.y = suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
-    if (inscriptionFocus) {
-      viewer.camera.position.lerp(targetCameraPosition, 1 - Math.exp(-dt * 5.8));
-      viewer.controls.target.lerp(targetCameraTarget, 1 - Math.exp(-dt * 5.8));
-      viewer.camera.zoom = THREE.MathUtils.lerp(viewer.camera.zoom, targetCameraZoom, 1 - Math.exp(-dt * 5.8));
+    viewer.camera.position.lerp(targetCameraPosition, 1 - Math.exp(-dt * 4.8));
+    viewer.controls.target.lerp(targetCameraTarget, 1 - Math.exp(-dt * 4.8));
+    if (Math.abs(viewer.camera.zoom - targetCameraZoom) > 0.002) {
+      viewer.camera.zoom = THREE.MathUtils.lerp(viewer.camera.zoom, targetCameraZoom, 1 - Math.exp(-dt * 4.8));
       viewer.camera.updateProjectionMatrix();
     }
     viewer.controls.update();
@@ -923,13 +960,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const capacity = CAPACITIES[selectedCapacity];
     targetScale.fromArray(capacity.scale);
     capacityReadout.textContent = capacity.label;
-    updateCapacityPlane(capacityEngraving, capacity.label);
+    updateCapacityPlane(capacityEngraving, capacity.label, WATTAGES[selectedWattage].label);
     updateProductSpecification();
   };
 
   const updateProductSpecification = (): void => {
     const capacity = CAPACITIES[selectedCapacity];
-    updateRegulatoryPlane(productSpecEngraving, capacity.label);
+    updateRegulatoryPlane(productSpecEngraving, capacity.label, WATTAGES[selectedWattage].label);
   };
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="finish"]')) {
@@ -951,17 +988,34 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const usbAPort = model.getObjectByName('usb-a-port');
   const lightningPort = model.getObjectByName('lightning-port');
 
-  const applyPortConfig = (config: string): void => {
-    if (usbCPort) usbCPort.visible = true;
-    if (usbAPort) usbAPort.visible = config === 'type-a';
-    if (lightningPort) lightningPort.visible = config === 'lightning';
+  const portInputs = Array.from(mount.querySelectorAll<HTMLInputElement>('input[name="port-option"]'));
+
+  const syncPorts = (): void => {
+    let checkedInputs = portInputs.filter(input => input.checked);
+
+    // Enforce at least 1 port remains checked at all times
+    if (checkedInputs.length === 0) {
+      const typeCInput = portInputs.find(i => i.value === 'type-c') || portInputs[0];
+      if (typeCInput) {
+        typeCInput.checked = true;
+        checkedInputs = [typeCInput];
+      }
+    }
+
+    const hasTypeC = portInputs.some(i => i.value === 'type-c' && i.checked);
+    const hasTypeA = portInputs.some(i => i.value === 'type-a' && i.checked);
+    const hasLightning = portInputs.some(i => i.value === 'lightning' && i.checked);
+
+    if (usbCPort) usbCPort.visible = hasTypeC;
+    if (usbAPort) usbAPort.visible = hasTypeA;
+    if (lightningPort) lightningPort.visible = hasLightning;
   };
 
-  // Set default port configuration
-  applyPortConfig('type-c');
+  // Set initial state
+  syncPorts();
 
-  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="port-config"]')) {
-    listen(input, 'change', () => applyPortConfig(input.value));
+  for (const input of portInputs) {
+    listen(input, 'change', syncPorts);
   }
 
   listen(brandControl, 'input', () => {
@@ -974,19 +1028,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const setInscriptionFocus = (focused: boolean): void => {
     inscriptionFocus = focused;
     if (inscriptionFocus) {
-      targetCameraTarget.set(0.3, 1.46, 0.22);
-      targetCameraPosition.copy(defaultCameraPosition);
-      targetCameraZoom = 1.75;
+      targetCameraTarget.set(-0.2, 1.46, 0.35);
+      targetCameraPosition.set(-3.6, 2.6, 5.6);
+      targetCameraZoom = 1.68;
     } else {
       targetCameraPosition.copy(defaultCameraPosition);
       targetCameraTarget.copy(defaultCameraTarget);
       targetCameraZoom = defaultCameraZoom;
     }
-    viewer.camera.position.copy(targetCameraPosition);
-    viewer.controls.target.copy(targetCameraTarget);
-    viewer.camera.zoom = targetCameraZoom;
-    viewer.camera.updateProjectionMatrix();
-    viewer.controls.update();
   };
 
   listen(brandControl, 'focus', () => setInscriptionFocus(true));
@@ -1030,6 +1079,15 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     listen(input, 'change', () => {
       selectedCapacity = input.value as CapacityKey;
       applyDimensions();
+      updateOrderSummary();
+    });
+  }
+
+  for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="wattage"]')) {
+    listen(input, 'change', () => {
+      selectedWattage = input.value as WattageKey;
+      applyDimensions();
+      updateOrderSummary();
     });
   }
 
@@ -1058,15 +1116,18 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   listen(resetButton, 'click', () => {
     restoreDefaults(model, defaults);
     selectedCapacity = '5k';
+    selectedWattage = '30w';
     autoSpin = false;
     inscriptionFocus = false;
 
     const finishInput = mount.querySelector<HTMLInputElement>('input[name="finish"][value="graphite"]');
     const usbInput = mount.querySelector<HTMLInputElement>('input[name="usb-color"][value="cyan"]');
     const capacityInput = mount.querySelector<HTMLInputElement>('input[name="capacity"][value="5k"]');
+    const wattageInput = mount.querySelector<HTMLInputElement>('input[name="wattage"][value="30w"]');
     if (finishInput) finishInput.checked = true;
     if (usbInput) usbInput.checked = true;
     if (capacityInput) capacityInput.checked = true;
+    if (wattageInput) wattageInput.checked = true;
     glossControl.value = '45';
     glossValue.textContent = '45%';
     selectedIndicator = 'leds';
@@ -1112,9 +1173,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (!orderQtyInput) return;
     const qty = parseInt(orderQtyInput.value, 10) || 50;
     
-    let unitPrice = 14.50;
-    if (selectedCapacity === '10k') unitPrice += 6.00;
-    if (selectedCapacity === '20k') unitPrice += 12.00;
+    let unitPrice = CAPACITIES[selectedCapacity].unitPrice + WATTAGES[selectedWattage].priceDelta;
 
     if (qty >= 500) unitPrice *= 0.82;
     else if (qty >= 200) unitPrice *= 0.90;

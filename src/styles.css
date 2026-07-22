@@ -1777,6 +1777,11 @@ code,
   background: transparent;
 }
 
+.customizer-page .capacity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .customizer-page .capacity-segmented label {
   min-width: 0;
 }
@@ -1802,6 +1807,23 @@ code,
 
 .customizer-page .capacity-segmented small {
   font-size: 0.68rem;
+}
+
+.customizer-page .wattage-control-block {
+  margin-top: 1.2rem;
+}
+
+.customizer-page .wattage-control-block .card-title {
+  margin-bottom: 0.75rem;
+}
+
+.customizer-page .wattage-segmented {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.customizer-page .wattage-segmented .segmented-pill {
+  white-space: nowrap;
 }
 
 .customizer-page .customizer-column-right .control-row,
