@@ -79,30 +79,22 @@ function makePanel(
   return mesh;
 }
 
-function makeUsbCPort(
+function makeLowerControlEdge(
   shadows: boolean,
   recessMaterial: THREE.Material,
+  buttonMaterial: THREE.Material,
   blueMaterial: THREE.Material,
 ): THREE.Group {
-  const port = new THREE.Group();
-  port.name = 'usb-c-port';
+  const controls = new THREE.Group();
+  controls.name = 'lower-control-edge';
+  controls.rotation.x = Math.PI / 2;
+  controls.position.y = 0.078;
 
   // Reference-derived USB-C stack: polished black bezel, deep cavity, blue
   // reversible tongue, and the four visible gold contact pads below it.
-  // Four rails leave the center physically open; a solid dark panel here
-  // would occlude the cavity and make the port read as a decorative pill.
-  const bezelParts = [
-    ['usb-c-bezel-top', 0.152, 0.012, 0, 0.033],
-    ['usb-c-bezel-bottom', 0.152, 0.012, 0, -0.033],
-    ['usb-c-bezel-left', 0.012, 0.064, -0.076, 0],
-    ['usb-c-bezel-right', 0.012, 0.064, 0.076, 0],
-  ] as const;
-  for (const [name, width, height, z, y] of bezelParts) {
-    const rail = makePanel(name, width, height, 0.010, 0.005, recessMaterial, shadows, 0.003);
-    rail.rotation.y = -Math.PI / 2;
-    rail.position.set(-BODY_WIDTH / 2 + 0.001, y, z);
-    port.add(rail);
-  }
+  const recess = makePanel('usb-c-bezel', 0.20, 0.092, 0.010, 0.040, recessMaterial, shadows, 0.004);
+  recess.position.set(-0.31, 0, 0.002);
+  controls.add(recess);
 
   const cavityMaterial = new THREE.MeshStandardMaterial({
     color: 0x010101,
@@ -110,14 +102,12 @@ function makeUsbCPort(
     metalness: 0.05,
   });
   const cavity = makePanel('usb-c-cavity', 0.152, 0.046, 0.004, 0.020, cavityMaterial, false, 0.002);
-  cavity.rotation.y = -Math.PI / 2;
-  cavity.position.x = -BODY_WIDTH / 2 + 0.006;
-  port.add(cavity);
+  cavity.position.set(-0.31, 0, -0.003);
+  controls.add(cavity);
 
   const tongue = makePanel('usb-c-blue-tongue', 0.102, 0.011, 0.004, 0.005, blueMaterial, false, 0.002);
-  tongue.rotation.y = -Math.PI / 2;
-  tongue.position.x = -BODY_WIDTH / 2 + 0.002;
-  port.add(tongue);
+  tongue.position.set(-0.31, 0, 0.006);
+  controls.add(tongue);
 
   const contactMaterial = new THREE.MeshPhysicalMaterial({
     color: 0xa5773d,
@@ -127,33 +117,19 @@ function makeUsbCPort(
   });
   for (const [index, offset] of [-0.039, -0.013, 0.013, 0.039].entries()) {
     const contact = makePanel('usb-c-contact-' + (index + 1), 0.016, 0.009, 0.003, 0.002, contactMaterial, false, 0.001);
-    contact.rotation.y = -Math.PI / 2;
-    contact.position.set(-BODY_WIDTH / 2 + 0.002, -0.020, offset);
-    port.add(contact);
+    contact.position.set(-0.31 + offset, -0.020, 0.008);
+    controls.add(contact);
   }
 
-  return port;
-}
-
-function makeSidePowerButton(
-  shadows: boolean,
-  bezelMaterial: THREE.Material,
-  buttonMaterial: THREE.Material,
-): THREE.Group {
-  const buttonGroup = new THREE.Group();
-  buttonGroup.name = 'side-power-button';
-
-  const bezel = makePanel('power-button-bezel', 0.23, 0.12, 0.008, 0.052, bezelMaterial, shadows, 0.004);
-  bezel.rotation.y = Math.PI / 2;
-  bezel.position.x = BODY_WIDTH / 2 - 0.001;
-  buttonGroup.add(bezel);
+  const buttonBezel = makePanel('power-button-bezel', 0.23, 0.12, 0.008, 0.052, recessMaterial, shadows, 0.004);
+  buttonBezel.position.set(0.33, 0, 0.002);
+  controls.add(buttonBezel);
 
   const button = makePanel('power-button', 0.185, 0.084, 0.005, 0.040, buttonMaterial, shadows, 0.003);
-  button.rotation.y = Math.PI / 2;
-  button.position.x = BODY_WIDTH / 2 - 0.002;
-  buttonGroup.add(button);
+  button.position.set(0.33, 0, 0.007);
+  controls.add(button);
 
-  return buttonGroup;
+  return controls;
 }
 
 function makeStatusDisplay(
@@ -328,13 +304,7 @@ export function createAnkerMaggoA1618Model(
   magsafeBack.position.set(0, BODY_CENTER_Y + 0.25, -BODY_DEPTH / 2 - 0.023);
   root.add(magsafeBack);
 
-  const usbPort = makeUsbCPort(shadows, edgeMaterial, blueMaterial);
-  usbPort.position.y = 0.63;
-  root.add(usbPort);
-
-  const powerButton = makeSidePowerButton(shadows, edgeMaterial, bodyGraphite);
-  powerButton.position.y = 0.63;
-  root.add(powerButton);
+  root.add(makeLowerControlEdge(shadows, edgeMaterial, bodyGraphite, blueMaterial));
 
   root.userData.tick = (dt: number): void => {
     root.rotation.y += dt * rotationSpeed;
