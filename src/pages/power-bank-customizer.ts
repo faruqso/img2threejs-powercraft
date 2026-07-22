@@ -403,6 +403,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
         </fieldset>
 
+        <label class="text-control">
+          <span>Body engraving</span>
+          <input id="brand-control" type="text" value="ANKER" maxlength="18" autocomplete="off" />
+        </label>
+
         <div class="spec-readout" aria-live="polite">
           <span id="capacity-readout">5,000 mAh pocket</span>
           <strong id="wattage-readout">Qi2 wireless output</strong>
@@ -460,6 +465,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <input id="spin-toggle" type="checkbox" checked />
         </label>
 
+        <button class="customizer-inspect" id="fullscreen-inspect" type="button">
+          Full-screen inspection
+        </button>
+
         <label class="range-control">
           <span>
             LED brightness
@@ -481,6 +490,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         </button>
       </aside>
 
+      <button class="customizer-exit-inspect" id="exit-fullscreen-inspect" type="button" aria-label="Exit full-screen inspection">
+        Exit inspection
+      </button>
       <div class="customizer-hint">drag to orbit &middot; pinch or scroll to zoom</div>
     </div>
   `;
@@ -520,18 +532,39 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   capacityEngraving.rotation.y = Math.PI / 2;
   capacityEngraving.position.set(0.905, 2.12, 0);
   model.add(capacityEngraving);
+
+  const brandEngraving = makeEngravedPlane(
+    'power-bank-brand-engraving',
+    0.76,
+    0.16,
+    ['ANKER'],
+    '#07090d',
+  );
+  // The rotated wordmark follows the long axis of the front face, as on the reference device.
+  brandEngraving.rotation.z = -Math.PI / 2;
+  brandEngraving.position.set(0.22, 1.55, 0.247);
+  model.add(brandEngraving);
   viewer.scene.add(model);
 
   let selectedCapacity: CapacityKey = '5k';
   let selectedWattage: WattageKey = '15w';
   let widthPercent = 100;
   let autoSpin = true;
+  let inspectionMode = false;
   const targetScale = new THREE.Vector3(1, 1, 1);
   const suspendedBaseY = model.position.y;
   model.userData.tick = (dt: number, elapsed: number): void => {
     model.scale.lerp(targetScale, 1 - Math.exp(-dt * 5.6));
-    if (autoSpin) model.rotation.y += dt * 0.16;
-    model.position.y = suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
+    if (autoSpin) {
+      if (inspectionMode) {
+        model.rotation.x += dt * 0.34;
+        model.rotation.y += dt * 0.22;
+        model.rotation.z += dt * 0.12;
+      } else {
+        model.rotation.x += dt * 0.16;
+      }
+    }
+    model.position.y = inspectionMode ? suspendedBaseY : suspendedBaseY + Math.sin(elapsed * 1.35) * 0.035;
   };
 
   const ambientLights: Array<{ light: THREE.Light; baseIntensity: number }> = [];
@@ -547,7 +580,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const listeners: Array<() => void> = [];
 
   const listen = <T extends Event>(
-    element: Element,
+    element: EventTarget,
     type: string,
     handler: (event: T) => void,
   ): void => {
@@ -569,6 +602,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const widthValue = mount.querySelector<HTMLElement>('#width-value')!;
   const capacityReadout = mount.querySelector<HTMLElement>('#capacity-readout')!;
   const wattageReadout = mount.querySelector<HTMLElement>('#wattage-readout')!;
+  const brandControl = mount.querySelector<HTMLInputElement>('#brand-control')!;
 
   const applyDimensions = (): void => {
     const capacity = CAPACITIES[selectedCapacity];
@@ -617,6 +651,12 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       if (material?.emissive) material.emissive.setHex(color.value);
     });
   }
+
+  listen(brandControl, 'input', () => {
+    const brandName = brandControl.value.trim().toUpperCase();
+    brandEngraving.visible = brandName.length > 0;
+    if (brandName) updateTextPlane(brandEngraving, [brandName], '#07090d');
+  });
 
   const glossControl = mount.querySelector<HTMLInputElement>('#gloss-control')!;
   const glossValue = mount.querySelector<HTMLElement>('#gloss-value')!;
@@ -667,6 +707,33 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     autoSpin = spinToggle.checked;
   });
 
+  const page = mount.querySelector<HTMLElement>('.customizer-page')!;
+  const inspectButton = mount.querySelector<HTMLButtonElement>('#fullscreen-inspect')!;
+  const exitInspectButton = mount.querySelector<HTMLButtonElement>('#exit-fullscreen-inspect')!;
+  const standardCameraPosition = new THREE.Vector3(-3.1, 2.45, 4.2);
+  const inspectionCameraPosition = new THREE.Vector3(2.45, 1.75, 4.4);
+
+  const setInspectionMode = (active: boolean): void => {
+    inspectionMode = active;
+    revealPlateau.visible = !active;
+    page.classList.toggle('is-inspection-mode', active);
+    viewer.camera.position.copy(active ? inspectionCameraPosition : standardCameraPosition);
+    viewer.controls.target.set(0, active ? 1.62 : 1.55, 0);
+    viewer.controls.update();
+  };
+
+  const syncFullscreenState = (): void => {
+    setInspectionMode(document.fullscreenElement === page);
+  };
+
+  listen(inspectButton, 'click', () => {
+    if (page.requestFullscreen) void page.requestFullscreen();
+  });
+  listen(exitInspectButton, 'click', () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+  });
+  listen(document, 'fullscreenchange', syncFullscreenState);
+
   const lightControl = mount.querySelector<HTMLInputElement>('#light-control')!;
   const lightValue = mount.querySelector<HTMLElement>('#light-value')!;
   listen(lightControl, 'input', () => {
@@ -702,6 +769,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     spinToggle.checked = true;
     lightControl.value = '70';
     lightValue.textContent = '70%';
+    brandControl.value = 'ANKER';
+    brandEngraving.visible = true;
+    updateTextPlane(brandEngraving, ['ANKER'], '#07090d');
     applyDimensions();
     applyWattage();
   });
