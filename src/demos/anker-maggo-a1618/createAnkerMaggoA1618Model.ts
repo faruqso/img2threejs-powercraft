@@ -99,58 +99,11 @@ function makeSidePort(
   return port;
 }
 
-function makeEdgeControls(
-  shadows: boolean,
-  shellMaterial: THREE.Material,
-  edgeMaterial: THREE.Material,
-  blueMaterial: THREE.Material,
-): THREE.Group {
-  const controls = new THREE.Group();
-  controls.name = 'bottom-and-top-controls';
-
-  // Bottom: a tactile power button, blue USB-C insert, and three tiny status
-  // apertures. The group is rotated so its local face lies on the bottom edge.
-  const bottom = new THREE.Group();
-  bottom.name = 'bottom-control-edge';
-  bottom.rotation.x = Math.PI / 2;
-  bottom.position.y = 0.072;
-  controls.add(bottom);
-
-  const button = makePanel('bottom-power-button', 0.20, 0.09, 0.015, 0.038, shellMaterial, shadows, 0.006);
-  button.position.set(-0.46, 0, 0.010);
-  bottom.add(button);
-
-  const portRecess = makePanel('bottom-usb-c-recess', 0.21, 0.09, 0.014, 0.035, edgeMaterial, shadows, 0.005);
-  portRecess.position.set(-0.10, 0, 0.011);
-  bottom.add(portRecess);
-
-  const blue = makePanel('bottom-usb-c-blue-insert', 0.145, 0.032, 0.010, 0.014, blueMaterial, false, 0.003);
-  blue.position.set(-0.10, 0, 0.020);
-  bottom.add(blue);
-
-  for (const [index, x] of [0.17, 0.25, 0.33].entries()) {
-    const dot = new THREE.Mesh(new THREE.CircleGeometry(0.014, 16), edgeMaterial);
-    dot.name = `bottom-status-aperture-${index + 1}`;
-    dot.position.set(x, 0, 0.020);
-    bottom.add(dot);
-  }
-
-  // Top: the second, unlit USB-C recess shown in the all-angle sheet.
-  const top = new THREE.Group();
-  top.name = 'top-usb-c-edge';
-  top.rotation.x = -Math.PI / 2;
-  top.position.y = BODY_CENTER_Y + BODY_HEIGHT / 2 - 0.008;
-  controls.add(top);
-
-  const topPort = makePanel('top-usb-c-recess', 0.18, 0.072, 0.014, 0.028, edgeMaterial, shadows, 0.004);
-  topPort.position.z = 0.010;
-  top.add(topPort);
-
-  const topCavity = makePanel('top-usb-c-cavity', 0.125, 0.026, 0.008, 0.011, shellMaterial, false, 0.003);
-  topCavity.position.z = 0.020;
-  top.add(topCavity);
-
-  return controls;
+function makeLowerPort(shadows: boolean, portMaterial: THREE.Material): THREE.Mesh {
+  const port = makePanel('lower-usb-c-recess', 0.17, 0.060, 0.010, 0.024, portMaterial, shadows, 0.003);
+  port.rotation.x = Math.PI / 2;
+  port.position.set(0, 0.073, 0);
+  return port;
 }
 
 function makeStatusDisplay(
@@ -184,47 +137,6 @@ function makeStatusDisplay(
   }
 
   return display;
-}
-
-function makeMagneticBack(
-  shadows: boolean,
-  ringMaterial: THREE.Material,
-  backMaterial: THREE.Material,
-  detailMaterial: THREE.Material,
-): THREE.Group {
-  const back = new THREE.Group();
-  back.name = 'magnetic-charging-back';
-
-  // The rear is a flush Qi2/MagSafe alignment surface: a dark outer ring and
-  // a slightly softer circular center pad, positioned high on the body.
-  const ring = new THREE.Mesh(new THREE.RingGeometry(0.352, 0.408, 96), ringMaterial);
-  ring.name = 'magnetic-alignment-ring';
-  ring.rotation.y = Math.PI;
-  ring.castShadow = shadows;
-  back.add(ring);
-
-  const pad = new THREE.Mesh(new THREE.CircleGeometry(0.352, 72), backMaterial);
-  pad.name = 'magnetic-center-pad';
-  pad.rotation.y = Math.PI;
-  pad.position.z = 0.004;
-  pad.receiveShadow = shadows;
-  back.add(pad);
-
-  const alignmentBar = makePanel(
-    'magnetic-alignment-bar',
-    0.058,
-    0.245,
-    0.012,
-    0.028,
-    detailMaterial,
-    false,
-    0.004,
-  );
-  alignmentBar.rotation.y = Math.PI;
-  alignmentBar.position.set(0, -0.76, 0.004);
-  back.add(alignmentBar);
-
-  return back;
 }
 
 /**
@@ -331,31 +243,26 @@ export function createAnkerMaggoA1618Model(
   const statusDisplay = makeStatusDisplay(shadows, ringMaterial, displayMaterial, ledMaterial);
   root.add(statusDisplay);
 
-  const magneticBack = makeMagneticBack(shadows, edgeMaterial, bodyGraphite, edgeMaterial);
-  magneticBack.position.set(0, BODY_CENTER_Y + 0.25, -BODY_DEPTH / 2 - 0.023);
-  root.add(magneticBack);
-
   const usbPort = makeSidePort(shadows, satinGraphite, blueMaterial);
   usbPort.position.y = 0.63;
   root.add(usbPort);
 
-  root.add(makeEdgeControls(shadows, satinGraphite, edgeMaterial, blueMaterial));
+  root.add(makeLowerPort(shadows, edgeMaterial));
 
-  // The left edge carries the long flush kickstand release visible in the
-  // supplied side views, running down toward the blue USB-C inset.
-  const standSeam = makePanel(
-    'left-kickstand-seam',
-    0.255,
-    BODY_HEIGHT * 0.49,
+  // Single, flush side button above the blue USB-C insert.
+  const sideButton = makePanel(
+    'side-power-button',
+    0.20,
+    BODY_HEIGHT * 0.34,
     0.006,
-    0.075,
+    0.065,
     bodyGraphite,
     shadows,
     0.006,
   );
-  standSeam.rotation.y = -Math.PI / 2;
-  standSeam.position.set(-BODY_WIDTH / 2 - 0.006, BODY_CENTER_Y + 0.015, -0.012);
-  root.add(standSeam);
+  sideButton.rotation.y = -Math.PI / 2;
+  sideButton.position.set(-BODY_WIDTH / 2 - 0.006, BODY_CENTER_Y + 0.11, -0.012);
+  root.add(sideButton);
 
   root.userData.tick = (dt: number): void => {
     root.rotation.y += dt * rotationSpeed;
