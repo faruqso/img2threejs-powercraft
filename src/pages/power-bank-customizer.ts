@@ -1071,6 +1071,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const usbCPort = model.getObjectByName('usb-c-port');
   const usbAPort = model.getObjectByName('usb-a-port');
+  const standardUsbPort = model.getObjectByName('standard-usb-port');
   const lightningPort = model.getObjectByName('lightning-port');
 
   const portInputs = Array.from(mount.querySelectorAll<HTMLInputElement>('input[name="port-option"]'));
@@ -1082,7 +1083,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const hasLightning = portInputs.some(i => i.value === 'lightning' && i.checked);
 
     if (usbCPort) usbCPort.visible = hasTypeC;
-    if (usbAPort) usbAPort.visible = hasTypeA;
+    if (usbAPort) usbAPort.visible = hasTypeC;
+    if (standardUsbPort) standardUsbPort.visible = hasTypeA;
     if (lightningPort) lightningPort.visible = hasLightning;
 
     const activePorts: string[] = [];
