@@ -217,6 +217,38 @@ function updateTextPlane(
   previous?.dispose();
 }
 
+function makeCapacityTexture(label: string): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 768;
+  canvas.height = 192;
+  const context = canvas.getContext('2d')!;
+  const [amount, unit] = label.split(' ');
+  const copper = '#d4a27c';
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = copper;
+  context.textBaseline = 'middle';
+  context.font = '700 104px Arial, sans-serif';
+  context.fillText(amount, 30, 102);
+
+  const amountWidth = context.measureText(amount).width;
+  context.font = '600 47px Arial, sans-serif';
+  context.fillText(unit, 48 + amountWidth, 116);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  return texture;
+}
+
+function updateCapacityPlane(mesh: THREE.Mesh, label: string): void {
+  const material = mesh.material as THREE.MeshBasicMaterial;
+  const previous = material.map;
+  material.map = makeCapacityTexture(label);
+  material.needsUpdate = true;
+  previous?.dispose();
+}
+
 function makeEngravedPlane(
   name: string,
   width: number,
@@ -680,13 +712,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const capacityEngraving = makeEngravedPlane(
     'power-bank-capacity-engraving',
-    0.76,
-    0.2,
-    ['5000 mAh'],
-    '#ecf4f2',
+    0.68,
+    0.17,
+    ['5,000 mAh'],
+    '#d4a27c',
   );
   capacityEngraving.rotation.y = 0;
-  capacityEngraving.position.set(0, 1.04, 0.322);
+  capacityEngraving.position.set(-0.23, 0.29, 0.322);
   model.add(capacityEngraving);
 
   const screenInset = new THREE.Mesh(
@@ -711,14 +743,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const brandEngraving = makeEngravedPlane(
     'power-bank-brand-engraving',
-    0.76,
-    0.16,
+    1.12,
+    0.2,
     ['ANKER'],
-    '#ffd4a4',
+    '#101216',
   );
-  // The rotated wordmark follows the long axis of the front face, as on the reference device.
+  // The wordmark is deliberately oversized and follows the long face axis.
   brandEngraving.rotation.z = -Math.PI / 2;
-  brandEngraving.position.set(0.22, 1.55, 0.322);
+  brandEngraving.position.set(0.31, 1.46, 0.323);
   model.add(brandEngraving);
   viewer.scene.add(model);
 
@@ -774,7 +806,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const capacity = CAPACITIES[selectedCapacity];
     targetScale.fromArray(capacity.scale);
     capacityReadout.textContent = capacity.label;
-    updateTextPlane(capacityEngraving, [capacity.label], '#ecf4f2');
+    updateCapacityPlane(capacityEngraving, capacity.label);
     updateProductSpecification();
   };
 
@@ -814,7 +846,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   listen(brandControl, 'input', () => {
     const brandName = brandControl.value.trim().toUpperCase();
     brandEngraving.visible = brandName.length > 0;
-    if (brandName) updateTextPlane(brandEngraving, [brandName], '#ffd4a4');
+    if (brandName) updateTextPlane(brandEngraving, [brandName], '#101216');
   });
 
   const glossControl = mount.querySelector<HTMLInputElement>('#gloss-control')!;
@@ -896,7 +928,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     lightValue.textContent = '70%';
     brandControl.value = 'ANKER';
     brandEngraving.visible = true;
-    updateTextPlane(brandEngraving, ['ANKER'], '#ffd4a4');
+    updateTextPlane(brandEngraving, ['ANKER'], '#101216');
     applyDimensions();
     syncLeds();
     viewer.camera.position.copy(defaultCameraPosition);
