@@ -1,8 +1,8 @@
 # Reference reconstruction pipeline
 
 This project pins the upstream [`hoainho/img2threejs`](https://github.com/hoainho/img2threejs)
-pipeline as the `tools/img2threejs` Git submodule. It is currently pinned to v1.2.0
-(`e8ff28a`). The local commands below intentionally cover the object workflow only.
+pipeline as the `tools/img2threejs` Git submodule. It is currently pinned to v1.3.0
+(`2c78038`). The local commands below intentionally cover the object workflow only.
 
 ## Prepare a clone
 
