@@ -286,28 +286,7 @@ function makeUsbCPort(
   return port;
 }
 
-function addOpenSideBezel(
-  port: THREE.Group,
-  prefix: string,
-  width: number,
-  height: number,
-  recessMaterial: THREE.Material,
-  shadows: boolean,
-): void {
-  const railThickness = 0.012;
-  const rails = [
-    [`${prefix}-bezel-top`, width, railThickness, 0, height / 2 - railThickness / 2],
-    [`${prefix}-bezel-bottom`, width, railThickness, 0, -height / 2 + railThickness / 2],
-    [`${prefix}-bezel-left`, railThickness, height - railThickness * 2, -width / 2 + railThickness / 2, 0],
-    [`${prefix}-bezel-right`, railThickness, height - railThickness * 2, width / 2 - railThickness / 2, 0],
-  ] as const;
-  for (const [name, railWidth, railHeight, z, y] of rails) {
-    const rail = makePanel(name, railWidth, railHeight, 0.010, 0.004, recessMaterial, shadows, 0.003);
-    rail.rotation.y = -Math.PI / 2;
-    rail.position.set(-BODY_WIDTH / 2 + 0.001, y, z);
-    port.add(rail);
-  }
-}
+
 
 function makeUsbAPort(
   shadows: boolean,
@@ -489,43 +468,177 @@ function makeUsbAPort(
 
 function makeStandardUsbPort(
   shadows: boolean,
-  recessMaterial: THREE.Material,
+  _recessMaterial: THREE.Material,
 ): THREE.Group {
   const port = new THREE.Group();
   port.name = 'usb-a-port';
 
-  const cavityMaterial = new THREE.MeshStandardMaterial({ color: 0x010101, roughness: 0.35, metalness: 0.10 });
-  const chromeMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xb9bec5,
-    roughness: 0.20,
-    metalness: 0.88,
-    clearcoat: 0.32,
-  });
-  const tongueMaterial = new THREE.MeshStandardMaterial({ color: 0x242629, roughness: 0.30, metalness: 0.18 });
-  const contactMaterial = new THREE.MeshPhysicalMaterial({ color: 0xd19a43, roughness: 0.26, metalness: 0.92 });
+  const P_W = 0.200;
+  const P_H = 0.090;
+  const DEPTH = 0.032;
+  const RECESS = 0.005;
+  const FACE_X = -BODY_WIDTH / 2;
 
-  const cavity = makePanel('standard-usb-cavity', 0.218, 0.096, 0.005, 0.018, cavityMaterial, false, 0.002);
+  const roundedRectShape = (w: number, h: number, r: number = 0.004): THREE.Shape => {
+    const s = new THREE.Shape();
+    const x = -w / 2, y = -h / 2;
+    s.moveTo(x + r, y);
+    s.lineTo(x + w - r, y);
+    s.quadraticCurveTo(x + w, y, x + w, y + r);
+    s.lineTo(x + w, y + h - r);
+    s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    s.lineTo(x + r, y + h);
+    s.quadraticCurveTo(x, y + h, x, y + h - r);
+    s.lineTo(x, y + r);
+    s.quadraticCurveTo(x, y, x + r, y);
+    return s;
+  };
+
+  // Outer bezel
+  const outerMat = new THREE.MeshPhysicalMaterial({ color: 0x111114, roughness: 0.55, metalness: 0.08 });
+  const outerShape = roundedRectShape(P_W, P_H, 0.005);
+  const innerHole = roundedRectShape(P_W - 0.016, P_H - 0.016, 0.003);
+  outerShape.holes.push(innerHole);
+  const bezelGeom = new THREE.ExtrudeGeometry(outerShape, { depth: 0.008, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.0015, bevelThickness: 0.0015 });
+  bezelGeom.translate(0, 0, -0.004);
+  const outerBezel = new THREE.Mesh(bezelGeom, outerMat);
+  outerBezel.rotation.y = -Math.PI / 2;
+  outerBezel.position.set(FACE_X + 0.001, 0, 0);
+  outerBezel.castShadow = shadows;
+  port.add(outerBezel);
+
+  // Chrome liner
+  const chromeMat = new THREE.MeshPhysicalMaterial({ color: 0x9098a2, roughness: 0.15, metalness: 0.94, clearcoat: 0.5 });
+  const linerOuter = roundedRectShape(P_W - 0.016, P_H - 0.016, 0.003);
+  const linerInner = roundedRectShape(P_W - 0.024, P_H - 0.024, 0.002);
+  linerOuter.holes.push(linerInner);
+  const linerGeom = new THREE.ExtrudeGeometry(linerOuter, { depth: 0.006, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
+  linerGeom.translate(0, 0, -0.003);
+  const chromeLiner = new THREE.Mesh(linerGeom, chromeMat);
+  chromeLiner.rotation.y = -Math.PI / 2;
+  chromeLiner.position.set(FACE_X, 0, 0);
+  port.add(chromeLiner);
+
+  // Cavity
+  const cavGeom = new THREE.ExtrudeGeometry(roundedRectShape(P_W - 0.024, P_H - 0.024, 0.002), { depth: DEPTH, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.0015, bevelThickness: 0.0015 });
+  cavGeom.translate(0, 0, -DEPTH);
+  const cavity = new THREE.Mesh(cavGeom, new THREE.MeshStandardMaterial({ color: 0x030304, roughness: 0.85, metalness: 0.05 }));
   cavity.rotation.y = -Math.PI / 2;
-  cavity.position.x = -BODY_WIDTH / 2 + 0.006;
+  cavity.position.set(FACE_X - 0.002, 0, 0);
   port.add(cavity);
 
-  // A separate chrome liner gives this USB-A socket the conventional metal
-  // face from the reference, while the outer black rails retain the case seam.
-  addOpenSideBezel(port, 'standard-usb', 0.246, 0.124, recessMaterial, shadows);
-  addOpenSideBezel(port, 'standard-usb-chrome', 0.208, 0.090, chromeMaterial, false);
-
-  const tongue = makePanel('standard-usb-tongue', 0.166, 0.024, 0.005, 0.003, tongueMaterial, false, 0.002);
+  // Dark grey/black tongue
+  const TONGUE_BW = 0.165;
+  const TONGUE_BH = 0.024;
+  const TONGUE_BD = 0.022;
+  const TONGUE_PX = FACE_X - RECESS - TONGUE_BD / 2;
+  const tongue = new THREE.Mesh(
+    new THREE.BoxGeometry(TONGUE_BW, TONGUE_BH, TONGUE_BD),
+    new THREE.MeshStandardMaterial({ color: 0x222428, roughness: 0.35, metalness: 0.15 }),
+  );
   tongue.rotation.y = -Math.PI / 2;
-  tongue.position.set(-BODY_WIDTH / 2 + 0.001, 0, 0);
+  tongue.position.set(TONGUE_PX, (P_H - 0.024) * 0.25, 0);
   port.add(tongue);
 
-  for (const [index, offset] of [-0.066, -0.022, 0.022, 0.066].entries()) {
-    for (const y of [-0.034, 0.034]) {
-      const contact = makePanel(`standard-usb-contact-${index + 1}-${y > 0 ? 'top' : 'bottom'}`, 0.018, 0.008, 0.003, 0.001, contactMaterial, false, 0.001);
-      contact.rotation.y = -Math.PI / 2;
-      contact.position.set(-BODY_WIDTH / 2 + 0.001, y, offset);
-      port.add(contact);
-    }
+  // Gold contact pins
+  const pinGeom = new THREE.BoxGeometry(0.016, 0.005, 0.016);
+  const goldMat = new THREE.MeshPhysicalMaterial({ color: 0xd4af37, roughness: 0.18, metalness: 0.96, clearcoat: 0.40 });
+  const span = TONGUE_BW * 0.75;
+  for (let i = 0; i < 4; i++) {
+    const pin = new THREE.Mesh(pinGeom, goldMat);
+    pin.rotation.y = -Math.PI / 2;
+    pin.position.set(TONGUE_PX + 0.002, (P_H - 0.024) * 0.25 - 0.014, -span / 2 + i * (span / 3));
+    port.add(pin);
+  }
+
+  return port;
+}
+
+function makeMicroUsbPort(
+  shadows: boolean,
+  _recessMaterial: THREE.Material,
+): THREE.Group {
+  const port = new THREE.Group();
+  port.name = 'micro-usb-port';
+
+  const P_W = 0.165;
+  const P_H = 0.065;
+  const DEPTH = 0.028;
+  const RECESS = 0.005;
+  const FACE_X = -BODY_WIDTH / 2;
+
+  // Trapezoid shape for classic Micro-USB female port
+  const trapezoidShape = (wTop: number, wBot: number, h: number, r: number = 0.003): THREE.Shape => {
+    const s = new THREE.Shape();
+    const halfH = h / 2;
+    const xT = wTop / 2, xB = wBot / 2;
+    s.moveTo(-xT + r, halfH);
+    s.lineTo(xT - r, halfH);
+    s.quadraticCurveTo(xT, halfH, xT, halfH - r);
+    s.lineTo(xB, -halfH + r);
+    s.quadraticCurveTo(xB, -halfH, xB - r, -halfH);
+    s.lineTo(-xB + r, -halfH);
+    s.quadraticCurveTo(-xB, -halfH, -xB, -halfH + r);
+    s.lineTo(-xT, halfH - r);
+    s.quadraticCurveTo(-xT, halfH, -xT + r, halfH);
+    return s;
+  };
+
+  // Outer Bezel
+  const outerMat = new THREE.MeshPhysicalMaterial({ color: 0x111114, roughness: 0.55, metalness: 0.08 });
+  const outerShape = trapezoidShape(P_W, P_W * 0.82, P_H, 0.004);
+  const innerHole = trapezoidShape(P_W - 0.014, (P_W - 0.014) * 0.82, P_H - 0.014, 0.002);
+  outerShape.holes.push(innerHole);
+  const bezelGeom = new THREE.ExtrudeGeometry(outerShape, { depth: 0.006, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
+  bezelGeom.translate(0, 0, -0.003);
+  const outerBezel = new THREE.Mesh(bezelGeom, outerMat);
+  outerBezel.rotation.y = -Math.PI / 2;
+  outerBezel.position.set(FACE_X + 0.001, 0, 0);
+  outerBezel.castShadow = shadows;
+  port.add(outerBezel);
+
+  // Chrome Liner
+  const chromeMat = new THREE.MeshPhysicalMaterial({ color: 0x8a929b, roughness: 0.15, metalness: 0.94, clearcoat: 0.5 });
+  const linerOuter = trapezoidShape(P_W - 0.014, (P_W - 0.014) * 0.82, P_H - 0.014, 0.002);
+  const linerInner = trapezoidShape(P_W - 0.022, (P_W - 0.022) * 0.82, P_H - 0.022, 0.002);
+  linerOuter.holes.push(linerInner);
+  const linerGeom = new THREE.ExtrudeGeometry(linerOuter, { depth: 0.005, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
+  linerGeom.translate(0, 0, -0.0025);
+  const chromeLiner = new THREE.Mesh(linerGeom, chromeMat);
+  chromeLiner.rotation.y = -Math.PI / 2;
+  chromeLiner.position.set(FACE_X, 0, 0);
+  port.add(chromeLiner);
+
+  // Cavity
+  const cavGeom = new THREE.ExtrudeGeometry(trapezoidShape(P_W - 0.022, (P_W - 0.022) * 0.82, P_H - 0.022, 0.002), { depth: DEPTH, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
+  cavGeom.translate(0, 0, -DEPTH);
+  const cavity = new THREE.Mesh(cavGeom, new THREE.MeshStandardMaterial({ color: 0x030304, roughness: 0.85, metalness: 0.05 }));
+  cavity.rotation.y = -Math.PI / 2;
+  cavity.position.set(FACE_X - 0.002, 0, 0);
+  port.add(cavity);
+
+  // Center black plastic tongue (5-pin wafer)
+  const TONGUE_BW = 0.130;
+  const TONGUE_BH = 0.016;
+  const TONGUE_BD = 0.018;
+  const TONGUE_PX = FACE_X - RECESS - TONGUE_BD / 2;
+  const tongue = new THREE.Mesh(
+    new THREE.BoxGeometry(TONGUE_BW, TONGUE_BH, TONGUE_BD),
+    new THREE.MeshStandardMaterial({ color: 0x181a1d, roughness: 0.35, metalness: 0.15 }),
+  );
+  tongue.rotation.y = -Math.PI / 2;
+  tongue.position.set(TONGUE_PX, 0.006, 0);
+  port.add(tongue);
+
+  // 5 tiny gold contact pins
+  const pinGeom = new THREE.BoxGeometry(0.012, 0.004, 0.012);
+  const goldMat = new THREE.MeshPhysicalMaterial({ color: 0xd4af37, roughness: 0.18, metalness: 0.96, clearcoat: 0.40 });
+  const span = TONGUE_BW * 0.70;
+  for (let i = 0; i < 5; i++) {
+    const pin = new THREE.Mesh(pinGeom, goldMat);
+    pin.rotation.y = -Math.PI / 2;
+    pin.position.set(TONGUE_PX + 0.001, 0.010, -span / 2 + i * (span / 4));
+    port.add(pin);
   }
 
   return port;
@@ -533,25 +646,60 @@ function makeStandardUsbPort(
 
 function makeLightningPort(
   shadows: boolean,
-  recessMaterial: THREE.Material,
+  _recessMaterial: THREE.Material,
 ): THREE.Group {
   const port = new THREE.Group();
   port.name = 'lightning-port';
 
-  const cavityMaterial = new THREE.MeshStandardMaterial({ color: 0x010101, roughness: 0.38, metalness: 0.08 });
-  addOpenSideBezel(port, 'lightning', 0.174, 0.072, recessMaterial, shadows);
+  const P_W = 0.160;
+  const P_H = 0.062;
+  const DEPTH = 0.026;
+  const RECESS = 0.005;
+  const FACE_X = -BODY_WIDTH / 2;
 
-  const cavity = makePanel('lightning-cavity', 0.144, 0.042, 0.004, 0.018, cavityMaterial, false, 0.002);
+  // Outer Bezel
+  const outerMat = new THREE.MeshPhysicalMaterial({ color: 0x111114, roughness: 0.55, metalness: 0.08 });
+  const outerShape = stadiumShape(P_W, P_H);
+  const innerHole = stadiumShape(P_W - 0.014, P_H - 0.014);
+  outerShape.holes.push(innerHole);
+  const bezelGeom = new THREE.ExtrudeGeometry(outerShape, { depth: 0.006, curveSegments: 24, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
+  bezelGeom.translate(0, 0, -0.003);
+  const outerBezel = new THREE.Mesh(bezelGeom, outerMat);
+  outerBezel.rotation.y = -Math.PI / 2;
+  outerBezel.position.set(FACE_X + 0.001, 0, 0);
+  outerBezel.castShadow = shadows;
+  port.add(outerBezel);
+
+  // Chrome Liner
+  const chromeMat = new THREE.MeshPhysicalMaterial({ color: 0x8a929b, roughness: 0.15, metalness: 0.94, clearcoat: 0.5 });
+  const linerOuter = stadiumShape(P_W - 0.014, P_H - 0.014);
+  const linerInner = stadiumShape(P_W - 0.022, P_H - 0.022);
+  linerOuter.holes.push(linerInner);
+  const linerGeom = new THREE.ExtrudeGeometry(linerOuter, { depth: 0.005, curveSegments: 24, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
+  linerGeom.translate(0, 0, -0.0025);
+  const chromeLiner = new THREE.Mesh(linerGeom, chromeMat);
+  chromeLiner.rotation.y = -Math.PI / 2;
+  chromeLiner.position.set(FACE_X, 0, 0);
+  port.add(chromeLiner);
+
+  // Cavity
+  const cavGeom = new THREE.ExtrudeGeometry(stadiumShape(P_W - 0.022, P_H - 0.022), { depth: DEPTH, curveSegments: 24, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
+  cavGeom.translate(0, 0, -DEPTH);
+  const cavity = new THREE.Mesh(cavGeom, new THREE.MeshStandardMaterial({ color: 0x050507, roughness: 0.80, metalness: 0.05 }));
   cavity.rotation.y = -Math.PI / 2;
-  cavity.position.x = -BODY_WIDTH / 2 + 0.006;
+  cavity.position.set(FACE_X - 0.002, 0, 0);
   port.add(cavity);
 
-  const contactMaterial = new THREE.MeshPhysicalMaterial({ color: 0xd19a43, roughness: 0.28, metalness: 0.9 });
-  for (const [index, offset] of [-0.049, -0.035, -0.021, -0.007, 0.007, 0.021, 0.035, 0.049].entries()) {
-    const contact = makePanel(`lightning-contact-${index + 1}`, 0.008, 0.018, 0.003, 0.001, contactMaterial, false, 0.001);
-    contact.rotation.y = -Math.PI / 2;
-    contact.position.set(-BODY_WIDTH / 2 + 0.002, 0, offset);
-    port.add(contact);
+  // 8 Gold Contact Pins along bottom cavity wall
+  const pinGeom = new THREE.BoxGeometry(0.008, 0.004, 0.012);
+  const goldMat = new THREE.MeshPhysicalMaterial({ color: 0xd4af37, roughness: 0.18, metalness: 0.96, clearcoat: 0.40 });
+  const span = (P_W - 0.035) * 0.85;
+  const pinPX = FACE_X - RECESS - 0.010;
+  for (let i = 0; i < 8; i++) {
+    const pin = new THREE.Mesh(pinGeom, goldMat);
+    pin.rotation.y = -Math.PI / 2;
+    pin.position.set(pinPX, -(P_H - 0.022) / 2 + 0.004, -span / 2 + i * (span / 7));
+    port.add(pin);
   }
 
   return port;
@@ -998,6 +1146,10 @@ export function createAnkerMaggoA1618Model(
   const lightningPort = makeLightningPort(shadows, edgeMaterial);
   lightningPort.position.y = 0.48;
   root.add(lightningPort);
+
+  const microUsbPort = makeMicroUsbPort(shadows, edgeMaterial);
+  microUsbPort.position.y = 0.33;
+  root.add(microUsbPort);
 
   const powerButton = makeSidePowerButton(shadows, edgeMaterial, bodyGraphite);
   powerButton.position.y = 0.63;
