@@ -231,9 +231,9 @@
 
 /* ---------- Card Header Row (shared across ALL cards) ---------- */
 /*
- * .card-header-row  — flex container that holds icon + title + optional aside + chevron
- * .card-header-icon — small icon badge on the far left
- * .card-header-aside — optional label (e.g. gloss %) between title and chevron
+ * .card-header-row  — flex container: [icon] [title] [aside?] [chevron]
+ * .card-header-icon — 26×26 icon badge, far left
+ * .card-header-aside — optional value label (e.g. "45%") before the chevron
  */
 .card-header-row {
   display: flex;
@@ -242,6 +242,8 @@
   margin-bottom: 0.85rem;
   cursor: pointer;
   user-select: none;
+  /* Ensure the flex container itself does not grow taller than needed */
+  min-height: 26px;
 }
 
 .card-header-icon {
@@ -249,29 +251,40 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  align-self: center;
   width: 26px;
   height: 26px;
   border-radius: 7px;
   background: #f2f4f7;
   color: #596171;
+  /* Icon SVG should not shift the baseline */
+  line-height: 1;
 }
 
 .card-header-row .card-title {
   margin: 0;
   flex: 1;
+  align-self: center;
+  /* Collapse the h3 line-box to cap-height so it centres against the 26px icon */
+  line-height: 1;
 }
 
 .card-header-aside {
+  flex-shrink: 0;
+  align-self: center;
   font-size: 0.78rem;
   font-weight: 700;
   color: #1a1f2b;
   letter-spacing: 0;
-  margin-right: 0.15rem;
+  line-height: 1;
 }
 
 .card-header-row .card-chevron {
-  margin-left: auto;
   flex-shrink: 0;
+  align-self: center;
+  /* Strip browser <button> defaults that shift the baseline */
+  padding: 0;
+  line-height: 1;
 }
 
 /* ---------- Controls ---------- */
