@@ -79,55 +79,133 @@ function makePanel(
   return mesh;
 }
 
+function stadiumShape(width: number, height: number): THREE.Shape {
+  const shape = new THREE.Shape();
+  const radius = height / 2;
+  const straightWidth = Math.max(0, width - height);
+  const xLeft = -straightWidth / 2;
+  const xRight = straightWidth / 2;
+
+  shape.moveTo(xLeft, -radius);
+  shape.lineTo(xRight, -radius);
+  shape.absarc(xRight, 0, radius, -Math.PI / 2, Math.PI / 2, false);
+  shape.lineTo(xLeft, radius);
+  shape.absarc(xLeft, 0, radius, Math.PI / 2, (3 * Math.PI) / 2, false);
+  return shape;
+}
+
+function makeStadiumBezelGeometry(width: number, height: number, depth: number, bevel: number): THREE.ExtrudeGeometry {
+  const outer = stadiumShape(width, height);
+  const innerWidth = width - bevel * 2;
+  const innerHeight = height - bevel * 2;
+  const hole = stadiumShape(innerWidth, innerHeight);
+  outer.holes.push(hole);
+
+  const geom = new THREE.ExtrudeGeometry(outer, {
+    depth,
+    steps: 1,
+    curveSegments: 24,
+    bevelEnabled: true,
+    bevelSegments: 3,
+    bevelSize: bevel * 0.4,
+    bevelThickness: bevel * 0.4,
+  });
+  geom.translate(0, 0, -depth / 2);
+  return geom;
+}
+
 function makeUsbCPort(
   shadows: boolean,
-  recessMaterial: THREE.Material,
-  blueMaterial: THREE.Material,
+  _recessMaterial: THREE.Material,
+  _blueMaterial: THREE.Material,
 ): THREE.Group {
   const port = new THREE.Group();
   port.name = 'usb-c-port';
 
-  // Reference-derived USB-C stack: polished black bezel, deep cavity, blue
-  // reversible tongue, and the four visible gold contact pads below it.
-  const bezelParts = [
-    ['usb-c-bezel-top', 0.152, 0.012, 0, 0.033],
-    ['usb-c-bezel-bottom', 0.152, 0.012, 0, -0.033],
-    ['usb-c-bezel-left', 0.012, 0.064, -0.076, 0],
-    ['usb-c-bezel-right', 0.012, 0.064, 0.076, 0],
-  ] as const;
-  for (const [name, width, height, z, y] of bezelParts) {
-    const rail = makePanel(name, width, height, 0.010, 0.005, recessMaterial, shadows, 0.003);
-    rail.rotation.y = -Math.PI / 2;
-    rail.position.set(-BODY_WIDTH / 2 + 0.001, y, z);
-    port.add(rail);
-  }
+  // 1. Photorealistic metallic chamfered outer bezel ring (Stadium shape)
+  const bezelMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xc8cccf,
+    metalness: 0.92,
+    roughness: 0.22,
+    clearcoat: 0.35,
+    clearcoatRoughness: 0.15,
+  });
+
+  const outerWidth = 0.165;
+  const outerHeight = 0.072;
+  const bezelGeom = makeStadiumBezelGeometry(outerWidth, outerHeight, 0.008, 0.008);
+  const bezel = new THREE.Mesh(bezelGeom, bezelMaterial);
+  bezel.name = 'usb-c-metallic-bezel';
+  bezel.rotation.y = -Math.PI / 2;
+  bezel.position.set(-BODY_WIDTH / 2 + 0.002, 0, 0);
+  bezel.castShadow = shadows;
+  port.add(bezel);
+
+  // 2. Dark inner metallic cavity
+  const cavityWidth = outerWidth - 0.016;
+  const cavityHeight = outerHeight - 0.016;
+  const cavityShape = stadiumShape(cavityWidth, cavityHeight);
+  const cavityGeom = new THREE.ExtrudeGeometry(cavityShape, {
+    depth: 0.025,
+    steps: 1,
+    curveSegments: 24,
+    bevelEnabled: true,
+    bevelSegments: 2,
+    bevelSize: 0.002,
+    bevelThickness: 0.002,
+  });
+  cavityGeom.translate(0, 0, -0.0125);
 
   const cavityMaterial = new THREE.MeshStandardMaterial({
-    color: 0x010101,
-    roughness: 0.42,
-    metalness: 0.05,
+    color: 0x070709,
+    roughness: 0.55,
+    metalness: 0.3,
   });
-  const cavity = makePanel('usb-c-cavity', 0.152, 0.046, 0.004, 0.020, cavityMaterial, false, 0.002);
+  const cavity = new THREE.Mesh(cavityGeom, cavityMaterial);
+  cavity.name = 'usb-c-cavity';
   cavity.rotation.y = -Math.PI / 2;
-  cavity.position.x = -BODY_WIDTH / 2 + 0.006;
+  cavity.position.set(-BODY_WIDTH / 2 - 0.004, 0, 0);
   port.add(cavity);
 
-  const tongue = makePanel('usb-c-blue-tongue', 0.102, 0.011, 0.004, 0.005, blueMaterial, false, 0.002);
+  // 3. Central Wafer / PCB Tongue (Suspended dead-center)
+  const tongueWidth = cavityWidth - 0.024;
+  const tongueHeight = 0.012;
+  const tongueLength = 0.018;
+  const tongueGeom = new THREE.BoxGeometry(tongueWidth, tongueHeight, tongueLength);
+  const tongueMaterial = new THREE.MeshStandardMaterial({
+    color: 0x141518,
+    roughness: 0.35,
+    metalness: 0.15,
+  });
+  const tongue = new THREE.Mesh(tongueGeom, tongueMaterial);
+  tongue.name = 'usb-c-center-wafer';
   tongue.rotation.y = -Math.PI / 2;
-  tongue.position.x = -BODY_WIDTH / 2 + 0.002;
+  tongue.position.set(-BODY_WIDTH / 2 - 0.006, 0, 0);
   port.add(tongue);
 
+  // 4. Photorealistic Symmetrical Gold Contact Pads (Top & Bottom of Wafer)
   const contactMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xa5773d,
-    roughness: 0.30,
-    metalness: 0.88,
-    clearcoat: 0.18,
+    color: 0xd4af37,
+    roughness: 0.18,
+    metalness: 0.95,
+    clearcoat: 0.4,
   });
-  for (const [index, offset] of [-0.039, -0.013, 0.013, 0.039].entries()) {
-    const contact = makePanel('usb-c-contact-' + (index + 1), 0.016, 0.009, 0.003, 0.002, contactMaterial, false, 0.001);
-    contact.rotation.y = -Math.PI / 2;
-    contact.position.set(-BODY_WIDTH / 2 + 0.002, -0.020, offset);
-    port.add(contact);
+  const padWidth = 0.007;
+  const padHeight = 0.0015;
+  const padLength = 0.012;
+  const padGeom = new THREE.BoxGeometry(padWidth, padHeight, padLength);
+
+  // 6 contacts across top and bottom
+  const offsets = [-0.042, -0.025, -0.008, 0.008, 0.025, 0.042];
+  for (const side of ['top', 'bottom'] as const) {
+    const yOffset = side === 'top' ? tongueHeight / 2 + padHeight / 2 : -tongueHeight / 2 - padHeight / 2;
+    for (const [index, xOff] of offsets.entries()) {
+      const pad = new THREE.Mesh(padGeom, contactMaterial);
+      pad.name = `usb-c-contact-${side}-${index + 1}`;
+      pad.rotation.y = -Math.PI / 2;
+      pad.position.set(-BODY_WIDTH / 2 - 0.006, yOffset, xOff);
+      port.add(pad);
+    }
   }
 
   return port;
