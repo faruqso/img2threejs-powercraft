@@ -129,7 +129,7 @@ export function renderMyAccount(mount: HTMLElement): () => void {
           </div>
 
           <!-- Orders -->
-          <div class="account-panel">
+          <div class="account-panel" id="panel-orders">
             <div class="account-panel-header">
               <h2>Recent Orders</h2>
               <span class="account-panel-count">4 orders</span>
@@ -140,35 +140,35 @@ export function renderMyAccount(mount: HTMLElement): () => void {
           </div>
 
           <!-- Saved designs -->
-          <div class="account-panel">
+          <div class="account-panel" id="panel-designs">
             <div class="account-panel-header">
               <h2>Saved Designs</h2>
               <a href="#/customize/power-bank" class="account-panel-action">+ New design</a>
             </div>
             <div class="account-designs-grid">
               <div class="account-design-card" id="design-1">
-                <div class="design-card-preview" style="background: linear-gradient(135deg, #1a1c22 60%, #00c9b1 100%);">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 11h2a2 2 0 0 1 0 4h-2"/></svg>
+                <div class="design-card-preview" style="background: linear-gradient(135deg, #1a1c22 60%, #008075 100%);">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 11h2a2 2 0 0 1 0 4h-2"/></svg>
                 </div>
                 <div class="design-card-info">
                   <strong>Graphite MagSafe 5K</strong>
                   <span>Saved 10 Jul 2025</span>
                 </div>
-                <a href="#/customize/power-bank" class="design-card-edit">Edit</a>
+                <a href="#/customize/power-bank" class="design-card-edit">Edit in 3D</a>
               </div>
               <div class="account-design-card" id="design-2">
                 <div class="design-card-preview" style="background: linear-gradient(135deg, #1b2a3b 60%, #4fa8e8 100%);">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 11h2a2 2 0 0 1 0 4h-2"/></svg>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 11h2a2 2 0 0 1 0 4h-2"/></svg>
                 </div>
                 <div class="design-card-info">
                   <strong>Midnight Blue 10K</strong>
                   <span>Saved 28 Jun 2025</span>
                 </div>
-                <a href="#/customize/power-bank" class="design-card-edit">Edit</a>
+                <a href="#/customize/power-bank" class="design-card-edit">Edit in 3D</a>
               </div>
               <div class="account-design-card account-design-new" id="design-new">
                 <a href="#/customize/power-bank" class="design-new-link">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00c9b1" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#008075" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   <span>New design</span>
                 </a>
               </div>
@@ -177,9 +177,9 @@ export function renderMyAccount(mount: HTMLElement): () => void {
 
           <!-- Profile & Billing -->
           <div class="account-two-col">
-            <div class="account-panel">
+            <div class="account-panel" id="panel-profile">
               <div class="account-panel-header">
-                <h2>Profile</h2>
+                <h2>Profile Information</h2>
                 <button class="account-panel-action" id="edit-profile-btn">Edit</button>
               </div>
               <div class="account-profile-fields">
@@ -201,9 +201,9 @@ export function renderMyAccount(mount: HTMLElement): () => void {
                 </div>
               </div>
             </div>
-            <div class="account-panel">
+            <div class="account-panel" id="panel-billing">
               <div class="account-panel-header">
-                <h2>Billing</h2>
+                <h2>Billing Method</h2>
                 <button class="account-panel-action" id="edit-billing-btn">Edit</button>
               </div>
               <div class="account-profile-fields">
@@ -233,8 +233,8 @@ export function renderMyAccount(mount: HTMLElement): () => void {
       <footer class="site-footer">
         <div class="footer-brand">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7 2.5H13.5L9.5 10.5H3.5L7 2.5Z" fill="#00C9B1"/>
-            <path d="M14.5 13.5H21L17 21.5H11L14.5 13.5Z" fill="#00C9B1"/>
+            <path d="M7 2.5H13.5L9.5 10.5H3.5L7 2.5Z" fill="#008075"/>
+            <path d="M14.5 13.5H21L17 21.5H11L14.5 13.5Z" fill="#008075"/>
           </svg>
           <strong>POWERCRAFT</strong>
         </div>
@@ -256,6 +256,22 @@ export function renderMyAccount(mount: HTMLElement): () => void {
   if (themeToggle) {
     themeToggle.addEventListener('click', () => accountPage.classList.toggle('dark-mode'));
   }
+
+  // Interactive Tab Navigation
+  const navItems = mount.querySelectorAll<HTMLElement>('.account-nav-item');
+  navItems.forEach((navItem) => {
+    navItem.addEventListener('click', (e) => {
+      e.preventDefault();
+      navItems.forEach((item) => item.classList.remove('active'));
+      navItem.classList.add('active');
+
+      const targetId = navItem.id.replace('nav-', 'panel-');
+      const targetPanel = mount.querySelector<HTMLElement>(`#${targetId}`);
+      if (targetPanel) {
+        targetPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  });
 
   return () => { /* no teardown needed */ };
 }
