@@ -242,7 +242,6 @@
   margin-bottom: 0.85rem;
   cursor: pointer;
   user-select: none;
-  /* Ensure the flex container itself does not grow taller than needed */
   min-height: 26px;
 }
 
@@ -251,40 +250,53 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  align-self: center;
   width: 26px;
   height: 26px;
   border-radius: 7px;
   background: #f2f4f7;
   color: #596171;
-  /* Icon SVG should not shift the baseline */
-  line-height: 1;
 }
 
 .card-header-row .card-title {
-  margin: 0;
+  margin: 0 !important;
+  padding: 0 !important;
   flex: 1;
-  align-self: center;
-  /* Collapse the h3 line-box to cap-height so it centres against the 26px icon */
-  line-height: 1;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: #1a1f2b;
+  line-height: 1.2 !important;
+  display: flex;
+  align-items: center;
+  min-height: 26px;
 }
 
 .card-header-aside {
   flex-shrink: 0;
-  align-self: center;
   font-size: 0.78rem;
   font-weight: 700;
   color: #1a1f2b;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  min-height: 26px;
 }
 
 .card-header-row .card-chevron {
   flex-shrink: 0;
-  align-self: center;
-  /* Strip browser <button> defaults that shift the baseline */
+  margin-left: auto;
   padding: 0;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid rgba(220, 227, 233, 0.7);
+  background: transparent;
+  color: #718096;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 /* ---------- Controls ---------- */
@@ -1771,17 +1783,27 @@ code,
 }
 
 /* Collapsible Accordion Cards */
-.customizer-page .card-header-accordion {
+.customizer-page .card-header-accordion,
+.customizer-page .card-header-row,
+.customizer-page .card-header-with-badge {
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
   user-select: none;
   margin-bottom: 0.85rem;
+  min-height: 26px;
 }
 
-.customizer-page .card-header-accordion .card-title {
-  margin-bottom: 0 !important;
+.customizer-page .card-header-accordion .card-title,
+.customizer-page .card-header-row .card-title,
+.customizer-page .card-header-with-badge .card-title {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  display: flex;
+  align-items: center;
+  min-height: 26px;
 }
 
 .customizer-page .card-chevron {
