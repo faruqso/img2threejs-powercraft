@@ -94,25 +94,6 @@ function stadiumShape(width: number, height: number): THREE.Shape {
   return shape;
 }
 
-function makeStadiumBezelGeometry(width: number, height: number, depth: number, bevel: number): THREE.ExtrudeGeometry {
-  const outer = stadiumShape(width, height);
-  const innerWidth = width - bevel * 2;
-  const innerHeight = height - bevel * 2;
-  const hole = stadiumShape(innerWidth, innerHeight);
-  outer.holes.push(hole);
-
-  const geom = new THREE.ExtrudeGeometry(outer, {
-    depth,
-    steps: 1,
-    curveSegments: 24,
-    bevelEnabled: true,
-    bevelSegments: 3,
-    bevelSize: bevel * 0.4,
-    bevelThickness: bevel * 0.4,
-  });
-  geom.translate(0, 0, -depth / 2);
-  return geom;
-}
 
 function makeUsbCPort(
   shadows: boolean,
@@ -122,117 +103,165 @@ function makeUsbCPort(
   const port = new THREE.Group();
   port.name = 'usb-c-port';
 
-  // 1. Dark satin outer bezel ring (Stadium shape matching power bank body)
-  const outerWidth = 0.168;
-  const outerHeight = 0.076;
-  const outerBezelMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x1b1c20,
-    roughness: 0.45,
-    metalness: 0.2,
-    clearcoat: 0.2,
+  // ─── Dimensions (world-space, portrait orientation) ────────────────────────
+  // USB-C female port is a wide oval (stadium shape) on the narrow side of the
+  // power bank. All measurements are derived from the reference photo.
+  const P_W  = 0.185;   // total stadium width
+  const P_H  = 0.080;   // total stadium height
+  const RIM  = 0.009;   // outer-bezel ring width
+  const DEPTH = 0.030;  // how deep the cavity goes into the body
+
+  // X-axis along the edge (port faces -X in body space)
+  const FACE_X = -BODY_WIDTH / 2;
+
+  // ─── 1. OUTER BLACK STADIUM BEZEL (matches device body colour) ────────────
+  //  Rings drawn as outer-shape with inner hole to get the flat face of the rim.
+  const outerBezelMat = new THREE.MeshPhysicalMaterial({
+    color: 0x111114,
+    roughness: 0.55,
+    metalness: 0.08,
   });
-  const outerBezelGeom = makeStadiumBezelGeometry(outerWidth, outerHeight, 0.008, 0.008);
-  const outerBezel = new THREE.Mesh(outerBezelGeom, outerBezelMaterial);
+  const outerShape  = stadiumShape(P_W,          P_H);
+  const innerHole   = stadiumShape(P_W - RIM * 2, P_H - RIM * 2);
+  outerShape.holes.push(innerHole);
+  const bezelGeom = new THREE.ExtrudeGeometry(outerShape, {
+    depth: 0.008,
+    curveSegments: 32,
+    bevelEnabled: true,
+    bevelSegments: 2,
+    bevelSize: 0.0018,
+    bevelThickness: 0.0018,
+  });
+  bezelGeom.translate(0, 0, -0.004);
+  const outerBezel = new THREE.Mesh(bezelGeom, outerBezelMat);
   outerBezel.name = 'usb-c-outer-bezel';
   outerBezel.rotation.y = -Math.PI / 2;
-  outerBezel.position.set(-BODY_WIDTH / 2 + 0.002, 0, 0);
+  outerBezel.position.set(FACE_X + 0.001, 0, 0);
   outerBezel.castShadow = shadows;
   port.add(outerBezel);
 
-  // 2. Polished metallic inner rim highlight (Chrome/Nickel stadium ring)
-  const innerRimWidth = outerWidth - 0.012;
-  const innerRimHeight = outerHeight - 0.012;
-  const innerRimMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x9098a2,
-    roughness: 0.18,
-    metalness: 0.92,
+  // ─── 2. CHROME/NICKEL INNER RIM RING ─────────────────────────────────────
+  //  A thin polished ring just inside the outer black bezel.
+  const cavW  = P_W - RIM * 2;
+  const cavH  = P_H - RIM * 2;
+  const rimMat = new THREE.MeshPhysicalMaterial({
+    color: 0x8a929b,
+    roughness: 0.15,
+    metalness: 0.94,
     clearcoat: 0.5,
+    clearcoatRoughness: 0.08,
   });
-  const innerRimGeom = makeStadiumBezelGeometry(innerRimWidth, innerRimHeight, 0.006, 0.004);
-  const innerRim = new THREE.Mesh(innerRimGeom, innerRimMaterial);
-  innerRim.name = 'usb-c-inner-metallic-rim';
+  const rimRingThk = 0.004;
+  const rimOuter = stadiumShape(cavW, cavH);
+  const rimInner = stadiumShape(cavW - rimRingThk * 2, cavH - rimRingThk * 2);
+  rimOuter.holes.push(rimInner);
+  const rimGeom = new THREE.ExtrudeGeometry(rimOuter, {
+    depth: 0.005,
+    curveSegments: 32,
+    bevelEnabled: true,
+    bevelSegments: 2,
+    bevelSize: 0.001,
+    bevelThickness: 0.001,
+  });
+  rimGeom.translate(0, 0, -0.0025);
+  const innerRim = new THREE.Mesh(rimGeom, rimMat);
+  innerRim.name = 'usb-c-chrome-rim';
   innerRim.rotation.y = -Math.PI / 2;
-  innerRim.position.set(-BODY_WIDTH / 2 + 0.001, 0, 0);
+  innerRim.position.set(FACE_X, 0, 0);
   port.add(innerRim);
 
-  // 3. Deep black recessed cavity
-  const cavityWidth = innerRimWidth - 0.008;
-  const cavityHeight = innerRimHeight - 0.008;
-  const cavityShape = stadiumShape(cavityWidth, cavityHeight);
-  const cavityGeom = new THREE.ExtrudeGeometry(cavityShape, {
-    depth: 0.025,
-    steps: 1,
-    curveSegments: 24,
+  // ─── 3. DEEP BLACK CAVITY (fill the opening with a very dark recess) ──────
+  const cav2W = cavW - rimRingThk * 2;
+  const cav2H = cavH - rimRingThk * 2;
+  const cavShape = stadiumShape(cav2W, cav2H);
+  const cavGeom  = new THREE.ExtrudeGeometry(cavShape, {
+    depth: DEPTH,
+    curveSegments: 32,
     bevelEnabled: true,
     bevelSegments: 2,
     bevelSize: 0.002,
     bevelThickness: 0.002,
   });
-  cavityGeom.translate(0, 0, -0.0125);
-
-  const cavityMaterial = new THREE.MeshStandardMaterial({
-    color: 0x050507,
-    roughness: 0.65,
-    metalness: 0.1,
-  });
-  const cavity = new THREE.Mesh(cavityGeom, cavityMaterial);
+  cavGeom.translate(0, 0, -DEPTH);
+  const cavMat = new THREE.MeshStandardMaterial({ color: 0x030304, roughness: 0.80, metalness: 0.05 });
+  const cavity = new THREE.Mesh(cavGeom, cavMat);
   cavity.name = 'usb-c-cavity';
   cavity.rotation.y = -Math.PI / 2;
-  cavity.position.set(-BODY_WIDTH / 2 - 0.004, 0, 0);
+  cavity.position.set(FACE_X - 0.002, 0, 0);
   port.add(cavity);
 
-  // 4. Reversible Blue USB-C Connector (Stadium-shaped Blue Center Tongue)
-  const tongueWidth = cavityWidth - 0.022;
-  const tongueHeight = 0.014;
-  const tongueDepth = 0.018;
-  const tongueShape = stadiumShape(tongueWidth, tongueHeight);
-  const tongueGeom = new THREE.ExtrudeGeometry(tongueShape, {
-    depth: tongueDepth,
-    steps: 1,
-    curveSegments: 20,
+  // ─── 4. BRIGHT BLUE TONGUE — stadium, offset toward TOP of port ──────────
+  //  In the reference photo the blue tongue/slab occupies the upper ~40 % of
+  //  the cavity and spans most of the port width. It appears to float just
+  //  behind the front face (the connector you plug into).
+  const TONGUE_W     = cav2W - 0.018;   // slightly narrower than cavity
+  const TONGUE_THICK = 0.013;           // vertical thickness of the slab
+  const TONGUE_DEEP  = 0.022;           // how far back it sits
+
+  // Vertical centre: offset ~35 % toward the top so the 4 contacts underneath
+  // have room on the cavity floor, exactly like the reference diagram.
+  const TONGUE_Y = (cav2H / 2 - TONGUE_THICK / 2) * 0.55;
+
+  const tongShape = stadiumShape(TONGUE_W, TONGUE_THICK);
+  const tongGeom  = new THREE.ExtrudeGeometry(tongShape, {
+    depth: TONGUE_DEEP,
+    curveSegments: 24,
     bevelEnabled: true,
-    bevelSegments: 2,
+    bevelSegments: 3,
     bevelSize: 0.0015,
     bevelThickness: 0.0015,
   });
-  tongueGeom.translate(0, 0, -tongueDepth / 2);
+  tongGeom.translate(0, 0, -TONGUE_DEEP / 2);
 
-  const electricBlueMaterial = new THREE.MeshStandardMaterial({
-    color: 0x3399ff,
-    emissive: 0x0055c8,
-    emissiveIntensity: 0.35,
-    roughness: 0.25,
-    metalness: 0.2,
+  const blueMat = new THREE.MeshStandardMaterial({
+    color:            0x2b8fff,
+    emissive:         0x0055dd,
+    emissiveIntensity: 0.28,
+    roughness: 0.22,
+    metalness: 0.14,
   });
-  const tongue = new THREE.Mesh(tongueGeom, electricBlueMaterial);
+  const tongue = new THREE.Mesh(tongGeom, blueMat);
   tongue.name = 'usb-c-blue-tongue';
   tongue.rotation.y = -Math.PI / 2;
-  tongue.position.set(-BODY_WIDTH / 2 - 0.006, 0, 0);
+  tongue.position.set(FACE_X - 0.005, TONGUE_Y, 0);
   port.add(tongue);
 
-  // 5. Metal Contacts (4 distinct gold pins below & above tongue)
-  const contactMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xd4a537,
-    roughness: 0.2,
-    metalness: 0.95,
-    clearcoat: 0.3,
-  });
-  const padWidth = 0.008;
-  const padHeight = 0.003;
-  const padLength = 0.010;
-  const padGeom = new THREE.BoxGeometry(padWidth, padHeight, padLength);
+  // ─── 5. FOUR GOLD CONTACT TEETH (on the cavity floor, below the tongue) ──
+  //  In the reference photo there are exactly 4 trapezoidal gold/brass
+  //  contacts standing up from the bottom wall of the port cavity.
+  //  We model them as thin fins attached to the cavity floor.
+  const FLOOR_Y = -(cav2H / 2) + 0.003;        // bottom of cavity
+  const TOOTH_H = (TONGUE_Y - TONGUE_THICK / 2 - FLOOR_Y) * 0.72; // rise toward tongue
+  const TOOTH_W = 0.014;                         // width of each tooth (Z-axis)
+  const TOOTH_D = 0.012;                         // depth into cavity
 
-  // Exactly 4 gold contacts evenly spaced across width matching reference diagram
-  const offsets = [-0.033, -0.011, 0.011, 0.033];
-  for (const side of ['bottom', 'top'] as const) {
-    const yOffset = side === 'bottom' ? -tongueHeight / 2 - padHeight / 2 - 0.001 : tongueHeight / 2 + padHeight / 2 + 0.001;
-    for (const [index, xOff] of offsets.entries()) {
-      const pad = new THREE.Mesh(padGeom, contactMaterial);
-      pad.name = `usb-c-contact-${side}-${index + 1}`;
-      pad.rotation.y = -Math.PI / 2;
-      pad.position.set(-BODY_WIDTH / 2 - 0.006, yOffset, xOff);
-      port.add(pad);
-    }
+  const contactMat = new THREE.MeshPhysicalMaterial({
+    color:     0xc8921e,
+    roughness: 0.20,
+    metalness: 0.96,
+    clearcoat: 0.35,
+    clearcoatRoughness: 0.10,
+  });
+
+  // Space the 4 contacts evenly across ~70 % of the cavity width
+  const CONTACT_SPAN = TONGUE_W * 0.68;
+  const contactOffsets = [-CONTACT_SPAN / 2 + CONTACT_SPAN / 6,
+                          -CONTACT_SPAN / 6,
+                           CONTACT_SPAN / 6,
+                           CONTACT_SPAN / 2 - CONTACT_SPAN / 6];
+  for (const [i, zOff] of contactOffsets.entries()) {
+    // Angled box rising from floor toward tongue
+    const toothGeom = new THREE.BoxGeometry(TOOTH_D, TOOTH_H, TOOTH_W);
+    // Round the top with a very thin cap to simulate the curved contact tip
+    const tooth = new THREE.Mesh(toothGeom, contactMat);
+    tooth.name = `usb-c-contact-${i + 1}`;
+    tooth.rotation.y = -Math.PI / 2;
+    tooth.position.set(
+      FACE_X - 0.006 - TOOTH_D / 2,
+      FLOOR_Y + TOOTH_H / 2,
+      zOff,
+    );
+    port.add(tooth);
   }
 
   return port;
