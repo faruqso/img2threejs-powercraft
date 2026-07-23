@@ -660,7 +660,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             </div>
           </div>
 
-          <div class="customizer-card">
+          <div class="customizer-card collapsed">
             <div class="card-header-row">
               <div class="card-header-icon">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
@@ -707,13 +707,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             </div>
           </div>
 
-          <div class="customizer-card">
+          <div class="customizer-card collapsed">
             <div class="card-header-row">
               <div class="card-header-icon">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="14" height="10" rx="2"/><line x1="7" y1="12" x2="11" y2="12"/></svg>
               </div>
               <h3 class="card-title" style="margin:0;">Port configuration</h3>
-              <span class="port-status-badge" id="port-status-badge">No Ports (Wireless Only)</span>
+              <span class="port-status-badge" id="port-status-badge">Wireless Only</span>
               <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
             <div class="port-choice-grid">
@@ -740,7 +740,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
                   </div>
                   <div class="port-choice-info">
-                    <strong>Legacy USB</strong>
+                    <strong>USB</strong>
                     <small>Standard port</small>
                   </div>
                   <div class="port-checkbox-icon">
@@ -801,7 +801,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             </div>
           </div>
 
-          <div class="customizer-card summary-card">
+          <div class="customizer-card summary-card collapsed">
             <div class="card-header-row">
               <div class="card-header-icon">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -1182,7 +1182,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
     const activePorts: string[] = [];
     if (hasTypeA) activePorts.push('USB-A');
-    if (hasLegacyUsb) activePorts.push('Legacy USB');
+    if (hasLegacyUsb) activePorts.push('USB');
     if (hasTypeC) activePorts.push('USB-C');
     if (hasLightning) activePorts.push('Lightning');
 
@@ -1194,10 +1194,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (portStatusBadge) {
       if (activePorts.length === 0) {
         portStatusBadge.textContent = 'Wireless Only';
-      } else if (activePorts.length === 4) {
-        portStatusBadge.textContent = 'All 4 Ports';
       } else {
-        portStatusBadge.textContent = activePorts.join(' + ');
+        portStatusBadge.textContent = `${activePorts.length} ${activePorts.length === 1 ? 'Port' : 'Ports'}`;
       }
     }
   };
