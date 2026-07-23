@@ -21,6 +21,7 @@
     "reconstruct:compare": "python3 tools/img2threejs/forge/stage4_review/make_comparison_sheet.py"
   },
   "dependencies": {
+    "motion": "^12.42.2",
     "three": "^0.169.0"
   },
   "devDependencies": {

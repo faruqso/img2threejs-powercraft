@@ -1910,12 +1910,9 @@ code,
   margin-bottom: 0 !important;
 }
 
-.customizer-page .customizer-card.collapsed .card-chevron svg {
-  transform: rotate(-180deg);
-}
-
-.customizer-page .customizer-card.collapsed > *:not(.card-header-accordion):not(.card-header-with-badge):not(.card-header-row) {
-  display: none !important;
+.customizer-page .card-content-wrapper {
+  overflow: hidden;
+  will-change: height, opacity;
 }
 
 .customizer-page .capacity-segmented {

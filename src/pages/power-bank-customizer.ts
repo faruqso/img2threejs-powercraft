@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { animate } from 'motion';
 import {
   createAnkerMaggoA1618LookDevLights,
   createAnkerMaggoA1618Model,
@@ -1260,12 +1261,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   // FAB listeners & Recenter controls handle view resetting smoothly
 
-  // Enable accordion collapse/expand on all customizer cards with chevron icons
+  // Enable Framer-Motion powered smooth accordion collapse/expand on all customizer cards
   for (const card of allCards) {
     const titleEl = card.querySelector<HTMLElement>('.card-title');
     if (!titleEl) continue;
 
-    // Prefer a pre-built header element (card-header-row, card-header-with-badge, or card-header-accordion)
     let headerEl = card.querySelector<HTMLElement>('.card-header-row, .card-header-with-badge, .card-header-accordion');
     if (!headerEl) {
       headerEl = document.createElement('div');
@@ -1283,10 +1283,99 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       headerEl.appendChild(chevron);
     }
 
+    // Wrap remaining card contents in a smooth content wrapper
+    let contentWrapper = card.querySelector<HTMLElement>('.card-content-wrapper');
+    if (!contentWrapper) {
+      contentWrapper = document.createElement('div');
+      contentWrapper.className = 'card-content-wrapper';
+      const siblings: Element[] = [];
+      let next = headerEl.nextElementSibling;
+      while (next) {
+        siblings.push(next);
+        next = next.nextElementSibling;
+      }
+      siblings.forEach((child) => contentWrapper!.appendChild(child));
+      card.appendChild(contentWrapper);
+    }
+
+    const chevronSvg = headerEl.querySelector<HTMLElement>('.card-chevron svg, svg.card-chevron');
+
+    // Initial state set-up
+    const isInitiallyCollapsed = card.classList.contains('collapsed');
+    if (isInitiallyCollapsed) {
+      contentWrapper.style.display = 'none';
+      contentWrapper.style.height = '0px';
+      contentWrapper.style.opacity = '0';
+      contentWrapper.style.overflow = 'hidden';
+      if (chevronSvg) chevronSvg.style.transform = 'rotate(-180deg)';
+    } else {
+      contentWrapper.style.display = 'block';
+      contentWrapper.style.height = 'auto';
+      contentWrapper.style.opacity = '1';
+      contentWrapper.style.overflow = 'visible';
+      if (chevronSvg) chevronSvg.style.transform = 'rotate(0deg)';
+    }
+
+    let isAnimating = false;
+
     listen(headerEl, 'click', (e) => {
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'A' || target.closest('input')) return;
-      card.classList.toggle('collapsed');
+
+      if (isAnimating) return;
+      isAnimating = true;
+
+      const isCurrentlyCollapsed = card.classList.contains('collapsed');
+
+      if (isCurrentlyCollapsed) {
+        // --- OPEN ACCORDION ---
+        card.classList.remove('collapsed');
+        contentWrapper!.style.display = 'block';
+        contentWrapper!.style.height = 'auto';
+        contentWrapper!.style.overflow = 'hidden';
+        const targetHeight = contentWrapper!.scrollHeight;
+        contentWrapper!.style.height = '0px';
+
+        // Animate chevron
+        if (chevronSvg) {
+          animate(chevronSvg, { rotate: 0 }, { duration: 0.35, ease: [0.34, 1.56, 0.64, 1] });
+        }
+
+        // Animate wrapper height & opacity using Framer Motion
+        const controls = animate(
+          contentWrapper!,
+          { height: [0, targetHeight], opacity: [0, 1] },
+          { duration: 0.38, ease: [0.34, 1.56, 0.64, 1] }
+        );
+
+        controls.then(() => {
+          contentWrapper!.style.height = 'auto';
+          contentWrapper!.style.overflow = 'visible';
+          isAnimating = false;
+        });
+      } else {
+        // --- CLOSE ACCORDION ---
+        contentWrapper!.style.overflow = 'hidden';
+        const startHeight = contentWrapper!.offsetHeight;
+
+        // Animate chevron
+        if (chevronSvg) {
+          animate(chevronSvg, { rotate: -180 }, { duration: 0.3, ease: [0.16, 1, 0.3, 1] });
+        }
+
+        // Animate wrapper height & opacity using Framer Motion
+        const controls = animate(
+          contentWrapper!,
+          { height: [startHeight, 0], opacity: [1, 0] },
+          { duration: 0.32, ease: [0.16, 1, 0.3, 1] }
+        );
+
+        controls.then(() => {
+          card.classList.add('collapsed');
+          contentWrapper!.style.display = 'none';
+          isAnimating = false;
+        });
+      }
     });
   }
 
