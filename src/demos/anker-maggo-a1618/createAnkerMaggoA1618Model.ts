@@ -190,78 +190,97 @@ function makeUsbCPort(
   cavity.position.set(FACE_X - 0.002, 0, 0);
   port.add(cavity);
 
-  // ─── 4. BRIGHT BLUE TONGUE — stadium, offset toward TOP of port ──────────
-  //  In the reference photo the blue tongue/slab occupies the upper ~40 % of
-  //  the cavity and spans most of the port width. It appears to float just
-  //  behind the front face (the connector you plug into).
-  const TONGUE_W     = cav2W - 0.018;   // slightly narrower than cavity
-  const TONGUE_THICK = 0.013;           // vertical thickness of the slab
-  const TONGUE_DEEP  = 0.022;           // how far back it sits
+  // ── Key geometry insight (rotation.y = -π/2) ──────────────────────────────
+  // After this rotation:  local X → world Z (port width direction)
+  //                       local Y → world Y (port height direction)
+  //                       local Z → world -X (depth INTO the body)
+  //
+  // For BoxGeometry(bW, bH, bD) at position (px, py, pz):
+  //   • World Z extent : pz ± bW/2   (port width)
+  //   • World Y extent : py ± bH/2   (port height)
+  //   • World X extent : px ± bD/2   (viewer-facing face = px + bD/2)
+  //
+  // To ensure NO protrusion (viewer face ≤ FACE_X):
+  //   px + bD/2 ≤ FACE_X  →  px = FACE_X - RECESS - bD/2
+  // ────────────────────────────────────────────────────────────────────────────
 
-  // Vertical centre: offset ~35 % toward the top so the 4 contacts underneath
-  // have room on the cavity floor, exactly like the reference diagram.
-  const TONGUE_Y = (cav2H / 2 - TONGUE_THICK / 2) * 0.55;
+  // Common constants
+  const RECESS = 0.005; // how far both tongue and contacts sit back from FACE_X
 
-  const tongShape = stadiumShape(TONGUE_W, TONGUE_THICK);
-  const tongGeom  = new THREE.ExtrudeGeometry(tongShape, {
-    depth: TONGUE_DEEP,
-    curveSegments: 24,
-    bevelEnabled: true,
-    bevelSegments: 3,
-    bevelSize: 0.0015,
-    bevelThickness: 0.0015,
-  });
-  tongGeom.translate(0, 0, -TONGUE_DEEP / 2);
+  // Derived cavity inner dimensions (same as above)
+  // cav2W ≈ 0.159, cav2H ≈ 0.054  (already declared above)
+
+  // ─── 4. BRIGHT BLUE TONGUE — flat BoxGeometry slab, fully inside cavity ──
+  //
+  // Reference image proportions (img2threejs pass):
+  //   • Width  : ~80 % of cavity width  → cav2W * 0.80
+  //   • Height : ~22 % of cavity height → cav2H * 0.22
+  //   • Y pos  : tongue centre sits ~24 % of cavity half-height above centre
+  //              → TONGUE_Y = cav2H * 0.24 / 2 ≈ cav2H * 0.12
+  //              (occupies roughly the upper portion of the opening, like ref)
+  //   • Depth  : 5 mm thin slab — just enough to cast light/shadow
+
+  const TONGUE_BW  = cav2W * 0.80;  // world-Z span  (local X in BoxGeometry)
+  const TONGUE_BH  = cav2H * 0.22;  // world-Y span  (local Y)
+  const TONGUE_BD  = 0.005;          // world-X depth (local Z) — thin slab
+  const TONGUE_Y   = cav2H * 0.12;  // upward offset from cavity centre (world Y)
+
+  // Outer (viewer-facing) face lands at: FACE_X - RECESS ✓ (fully inside)
+  const TONGUE_PX  = FACE_X - RECESS - TONGUE_BD / 2;
 
   const blueMat = new THREE.MeshStandardMaterial({
-    color:            0x2b8fff,
-    emissive:         0x0055dd,
-    emissiveIntensity: 0.28,
-    roughness: 0.22,
-    metalness: 0.14,
+    color:             0x2b8fff,
+    emissive:          0x0055dd,
+    emissiveIntensity: 0.30,
+    roughness:         0.22,
+    metalness:         0.14,
   });
-  const tongue = new THREE.Mesh(tongGeom, blueMat);
+  const tongue = new THREE.Mesh(
+    new THREE.BoxGeometry(TONGUE_BW, TONGUE_BH, TONGUE_BD),
+    blueMat,
+  );
   tongue.name = 'usb-c-blue-tongue';
   tongue.rotation.y = -Math.PI / 2;
-  tongue.position.set(FACE_X - 0.005, TONGUE_Y, 0);
+  tongue.position.set(TONGUE_PX, TONGUE_Y, 0);
   port.add(tongue);
 
-  // ─── 5. FOUR GOLD CONTACT TEETH (on the cavity floor, below the tongue) ──
-  //  In the reference photo there are exactly 4 trapezoidal gold/brass
-  //  contacts standing up from the bottom wall of the port cavity.
-  //  We model them as thin fins attached to the cavity floor.
-  const FLOOR_Y = -(cav2H / 2) + 0.003;        // bottom of cavity
-  const TOOTH_H = (TONGUE_Y - TONGUE_THICK / 2 - FLOOR_Y) * 0.72; // rise toward tongue
-  const TOOTH_W = 0.014;                         // width of each tooth (Z-axis)
-  const TOOTH_D = 0.012;                         // depth into cavity
+  // ─── 5. FOUR GOLD CONTACT TEETH — flat BoxGeometry tabs, fully inside ─────
+  //
+  // Reference image proportions (img2threejs pass):
+  //   • Each tab width : ~14 % of cavity width  → cav2W * 0.14
+  //   • Tab height     : ~22 % of cavity height → cav2H * 0.22  (same as tongue height)
+  //   • Y centre       : sits just below cavity centre by ~9 % of cavity half-height
+  //                       → CONTACT_CY = -(cav2H * 0.09)
+  //   • 4 tabs evenly spaced across 72 % of tongue span
+
+  const C_BW   = cav2W * 0.14;   // individual tab world-Z width
+  const C_BH   = cav2H * 0.22;   // tab world-Y height
+  const C_BD   = 0.005;           // tab world-X depth (same recess as tongue)
+  const C_CY   = -(cav2H * 0.09); // vertical centre below cavity mid-line
+
+  const CONTACT_PX   = FACE_X - RECESS - C_BD / 2;  // flush behind tongue face
+  const CONTACT_SPAN = TONGUE_BW * 0.72;             // total span for 4 tabs
+  const CONTACT_STEP = CONTACT_SPAN / 3;             // gap between centres
 
   const contactMat = new THREE.MeshPhysicalMaterial({
-    color:     0xc8921e,
-    roughness: 0.20,
-    metalness: 0.96,
-    clearcoat: 0.35,
+    color:              0xc8921e,
+    roughness:          0.20,
+    metalness:          0.96,
+    clearcoat:          0.35,
     clearcoatRoughness: 0.10,
   });
+  const contactGeom = new THREE.BoxGeometry(C_BW, C_BH, C_BD);
 
-  // Space the 4 contacts evenly across ~70 % of the cavity width
-  const CONTACT_SPAN = TONGUE_W * 0.68;
-  const contactOffsets = [-CONTACT_SPAN / 2 + CONTACT_SPAN / 6,
-                          -CONTACT_SPAN / 6,
-                           CONTACT_SPAN / 6,
-                           CONTACT_SPAN / 2 - CONTACT_SPAN / 6];
-  for (const [i, zOff] of contactOffsets.entries()) {
-    // Angled box rising from floor toward tongue
-    const toothGeom = new THREE.BoxGeometry(TOOTH_D, TOOTH_H, TOOTH_W);
-    // Round the top with a very thin cap to simulate the curved contact tip
-    const tooth = new THREE.Mesh(toothGeom, contactMat);
-    tooth.name = `usb-c-contact-${i + 1}`;
-    tooth.rotation.y = -Math.PI / 2;
-    tooth.position.set(
-      FACE_X - 0.006 - TOOTH_D / 2,
-      FLOOR_Y + TOOTH_H / 2,
-      zOff,
+  for (let i = 0; i < 4; i++) {
+    const contact = new THREE.Mesh(contactGeom, contactMat);
+    contact.name = `usb-c-contact-${i + 1}`;
+    contact.rotation.y = -Math.PI / 2;
+    contact.position.set(
+      CONTACT_PX,
+      C_CY,
+      -CONTACT_SPAN / 2 + i * CONTACT_STEP,   // evenly spaced in world Z
     );
-    port.add(tooth);
+    port.add(contact);
   }
 
   return port;
