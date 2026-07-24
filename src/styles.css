@@ -3846,14 +3846,14 @@ code,
     z-index: 1;
     padding-top: 1.25rem;
     transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1), top 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    transform-origin: center 42%;
+    transform-origin: center center;
   }
 
   .is-sheet-collapsed .customizer-canvas-mount,
   .customizer-page:has(.customizer-columns.is-collapsed) .customizer-canvas-mount {
-    height: calc(100vh - 280px - 1.8rem);
-    top: 2.5rem;
-    transform: scale(1.18);
+    height: calc(100vh - 280px - 3rem);
+    top: 3rem;
+    transform: translateY(2.8rem) scale(1.5);
   }
 
   /* ---- Hint text ---- */
