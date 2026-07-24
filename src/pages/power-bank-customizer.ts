@@ -980,8 +980,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   viewer.controls.addEventListener('start', () => {
     isCameraTransitioning = false;
+    // Ensure manual orbit drags are always centered on the main product axis
+    viewer.controls.target.copy(defaultCameraTarget);
     targetCameraPosition.copy(viewer.camera.position);
-    targetCameraTarget.copy(viewer.controls.target);
+    targetCameraTarget.copy(defaultCameraTarget);
     targetCameraZoom = viewer.camera.zoom;
   });
 
@@ -1132,9 +1134,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const setInscriptionFocus = (focused: boolean): void => {
     if (focused) {
-      targetCameraTarget.set(0.35, 0.45, 0.1);
-      targetCameraPosition.set(-1.8, 0.45, 6.0);
-      targetCameraZoom = 1.45;
+      targetCameraTarget.set(0.12, -0.10, 0.0);
+      targetCameraPosition.set(-1.6, 0.35, 6.2);
+      targetCameraZoom = 1.38;
     } else {
       targetCameraPosition.copy(defaultCameraPosition);
       targetCameraTarget.copy(defaultCameraTarget);
