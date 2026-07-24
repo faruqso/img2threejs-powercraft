@@ -602,61 +602,56 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <p class="page-subtitle">Design, personalise and order premium power banks tailored to your brand and customers.</p>
 
           <div class="left-control-stack">
+            <!-- Accordion 1: Design & Finish -->
             <div class="customizer-card">
               <div class="card-header-row">
                 <div class="card-header-icon">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
                 </div>
-                <h3 class="card-title">Body colour</h3>
+                <h3 class="card-title">Design &amp; Finish</h3>
                 <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
               </div>
-              <div class="swatch-grid body-swatch-grid">
-                ${Object.entries(FINISHES)
-                  .map(
-                    ([key, finish]) => `
-                      <label class="swatch-option ${key === 'graphite' ? 'active' : ''}" title="${finish.label}">
-                        <input type="radio" name="finish" value="${key}" ${key === 'graphite' ? 'checked' : ''} />
-                        <span class="swatch" style="--swatch-color:#${finish.body.toString(16).padStart(6, '0')}"></span>
-                      </label>
-                    `,
-                  )
-                  .join('')}
-              </div>
-            </div>
 
-            <div class="customizer-card">
-              <div class="card-header-row">
-                <div class="card-header-icon">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M5.2 5.2A7 7 0 0 0 5 7"/><path d="M19 12a7 7 0 0 1-7 7"/></svg>
+              <div class="card-sub-block">
+                <h4 class="sub-block-title">Body colour</h4>
+                <div class="swatch-grid body-swatch-grid">
+                  ${Object.entries(FINISHES)
+                    .map(
+                      ([key, finish]) => `
+                        <label class="swatch-option ${key === 'graphite' ? 'active' : ''}" title="${finish.label}">
+                          <input type="radio" name="finish" value="${key}" ${key === 'graphite' ? 'checked' : ''} />
+                          <span class="swatch" style="--swatch-color:#${finish.body.toString(16).padStart(6, '0')}"></span>
+                        </label>
+                      `,
+                    )
+                    .join('')}
                 </div>
-                <h3 class="card-title">Surface gloss</h3>
-                <strong id="gloss-value" class="card-header-aside">45%</strong>
-                <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
               </div>
-              <label class="range-control range-control-compact">
-                <input id="gloss-control" type="range" min="0" max="100" value="45" />
-              </label>
-            </div>
 
-            <div class="customizer-card">
-              <div class="card-header-row">
-                <div class="card-header-icon">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <div class="card-sub-block">
+                <div class="sub-block-header">
+                  <h4 class="sub-block-title">Surface gloss</h4>
+                  <strong id="gloss-value" class="card-header-aside">45%</strong>
                 </div>
-                <h3 class="card-title">Personalisation</h3>
-                <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                <label class="range-control range-control-compact">
+                  <input id="gloss-control" type="range" min="0" max="100" value="45" />
+                </label>
               </div>
-              <label class="text-control">
-                <span class="input-label">Inscription</span>
-                <div class="input-wrapper">
-                  <input id="brand-control" type="text" value="PowerCraft" maxlength="10" autocomplete="off" placeholder="Enter words or names" />
-                  <button class="inscription-done" id="inscription-done" type="button" hidden aria-label="Finish inscription">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  </button>
-                </div>
-                <p class="input-error" id="brand-error" hidden></p>
-              </label>
-              <p class="card-desc">Up to 10 characters</p>
+
+              <div class="card-sub-block">
+                <h4 class="sub-block-title">Personalisation</h4>
+                <label class="text-control">
+                  <span class="input-label">Inscription</span>
+                  <div class="input-wrapper">
+                    <input id="brand-control" type="text" value="PowerCraft" maxlength="10" autocomplete="off" placeholder="Enter words or names" />
+                    <button class="inscription-done" id="inscription-done" type="button" hidden aria-label="Finish inscription">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </button>
+                  </div>
+                  <p class="input-error" id="brand-error" hidden></p>
+                </label>
+                <p class="card-desc" id="brand-desc">Up to 10 characters</p>
+              </div>
             </div>
           </div>
 
@@ -668,31 +663,37 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         </div>
 
         <div class="customizer-column customizer-column-right">
-          <div class="customizer-card capacity-output-card">
+          <!-- Accordion 2: Power & Capacity -->
+          <div class="customizer-card capacity-output-card collapsed">
             <div class="card-header-row">
               <div class="card-header-icon">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 11h2a2 2 0 0 1 0 4h-2"/></svg>
               </div>
-              <h3 class="card-title">Capacity size</h3>
+              <h3 class="card-title">Power &amp; Capacity</h3>
               <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <div class="segmented-control capacity-segmented capacity-grid">
-              ${Object.entries(CAPACITIES)
-                .map(
-                  ([key, capacity]) => `
-                    <label>
-                      <input type="radio" name="capacity" value="${key}" ${key === '5k' ? 'checked' : ''} />
-                      <span class="segmented-box">
-                        <strong>${capacity.label.split(' ')[0]}</strong>
-                        <small>mAh</small>
-                      </span>
-                    </label>
-                  `,
-                )
-                .join('')}
+
+            <div class="card-sub-block">
+              <h4 class="sub-block-title">Capacity size</h4>
+              <div class="segmented-control capacity-segmented capacity-grid">
+                ${Object.entries(CAPACITIES)
+                  .map(
+                    ([key, capacity]) => `
+                      <label>
+                        <input type="radio" name="capacity" value="${key}" ${key === '5k' ? 'checked' : ''} />
+                        <span class="segmented-box">
+                          <strong>${capacity.label.split(' ')[0]}</strong>
+                          <small>mAh</small>
+                        </span>
+                      </label>
+                    `,
+                  )
+                  .join('')}
+              </div>
             </div>
-            <div class="wattage-control-block">
-              <h3 class="card-title">Wattage output</h3>
+
+            <div class="card-sub-block">
+              <h4 class="sub-block-title">Wattage output</h4>
               <div class="segmented-control wattage-segmented">
                 ${Object.entries(WATTAGES)
                   .map(
@@ -706,14 +707,104 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   .join('')}
               </div>
             </div>
+
+            <div class="card-sub-block">
+              <div class="sub-block-header">
+                <h4 class="sub-block-title">Port configuration</h4>
+                <span class="port-status-badge" id="port-status-badge">Wireless Only</span>
+              </div>
+              <div class="port-choice-grid">
+                <label class="port-choice-card">
+                  <input type="checkbox" name="port-option" value="type-a" />
+                  <div class="port-choice-inner">
+                    <div class="port-icon-wrapper">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"/><line x1="6" y1="10" x2="18" y2="10"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
+                    </div>
+                    <div class="port-choice-info">
+                      <strong>USB-A</strong>
+                      <small>High-speed</small>
+                    </div>
+                    <div class="port-checkbox-icon">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+                </label>
+
+                <label class="port-choice-card">
+                  <input type="checkbox" name="port-option" value="legacy-usb" />
+                  <div class="port-choice-inner">
+                    <div class="port-icon-wrapper">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+                    </div>
+                    <div class="port-choice-info">
+                      <strong>USB</strong>
+                      <small>Standard port</small>
+                    </div>
+                    <div class="port-checkbox-icon">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+                </label>
+
+                <label class="port-choice-card">
+                  <input type="checkbox" name="port-option" value="type-c" />
+                  <div class="port-choice-inner">
+                    <div class="port-icon-wrapper">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
+                    </div>
+                    <div class="port-choice-info">
+                      <strong>USB-C</strong>
+                      <small>Fast charge</small>
+                    </div>
+                    <div class="port-checkbox-icon">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+                </label>
+
+                <label class="port-choice-card">
+                  <input type="checkbox" name="port-option" value="lightning" />
+                  <div class="port-choice-inner">
+                    <div class="port-icon-wrapper">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="8" rx="2"/><path d="M12 2v6"/><path d="M12 16v6"/></svg>
+                    </div>
+                    <div class="port-choice-info">
+                      <strong>Lightning</strong>
+                      <small>iOS port</small>
+                    </div>
+                    <div class="port-checkbox-icon">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Sub-customization: USB tongue colour -->
+              <div class="sub-customization-section" id="usb-tongue-section" style="display: none; margin-top: 0.75rem;">
+                <h4 class="sub-section-title">USB tongue colour</h4>
+                <div class="swatch-grid body-swatch-grid">
+                  ${Object.entries(USB_COLORS)
+                    .map(
+                      ([key, color]) => `
+                        <label class="swatch-option ${key === 'cyan' ? 'active' : ''}" title="${color.label}">
+                          <input type="radio" name="usb-color" value="${key}" ${key === 'cyan' ? 'checked' : ''} />
+                          <span class="swatch" style="--swatch-color:#${color.value.toString(16).padStart(6, '0')}"></span>
+                        </label>
+                      `,
+                    )
+                    .join('')}
+                </div>
+              </div>
+            </div>
           </div>
 
+          <!-- Accordion 3: Charging Features -->
           <div class="customizer-card collapsed">
             <div class="card-header-row">
               <div class="card-header-icon">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
               </div>
-              <h3 class="card-title">Charging features</h3>
+              <h3 class="card-title">Charging Features</h3>
               <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
             
@@ -753,103 +844,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                 </label>
               </div>
             </div>
-            <button class="card-done-btn" type="button" style="display: none;">Done</button>
           </div>
 
-          <div class="customizer-card collapsed">
-            <div class="card-header-row">
-              <div class="card-header-icon">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="14" height="10" rx="2"/><line x1="7" y1="12" x2="11" y2="12"/></svg>
-              </div>
-              <h3 class="card-title" style="margin:0;">Port configuration</h3>
-              <span class="port-status-badge" id="port-status-badge">Wireless Only</span>
-              <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </div>
-            <div class="port-choice-grid">
-              <label class="port-choice-card">
-                <input type="checkbox" name="port-option" value="type-a" />
-                <div class="port-choice-inner">
-                  <div class="port-icon-wrapper">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"/><line x1="6" y1="10" x2="18" y2="10"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
-                  </div>
-                  <div class="port-choice-info">
-                    <strong>USB-A</strong>
-                    <small>High-speed</small>
-                  </div>
-                  <div class="port-checkbox-icon">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
-                  </div>
-                </div>
-              </label>
-
-              <label class="port-choice-card">
-                <input type="checkbox" name="port-option" value="legacy-usb" />
-                <div class="port-choice-inner">
-                  <div class="port-icon-wrapper">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
-                  </div>
-                  <div class="port-choice-info">
-                    <strong>USB</strong>
-                    <small>Standard port</small>
-                  </div>
-                  <div class="port-checkbox-icon">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
-                  </div>
-                </div>
-              </label>
-
-              <label class="port-choice-card">
-                <input type="checkbox" name="port-option" value="type-c" />
-                <div class="port-choice-inner">
-                  <div class="port-icon-wrapper">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
-                  </div>
-                  <div class="port-choice-info">
-                    <strong>USB-C</strong>
-                    <small>Fast charge</small>
-                  </div>
-                  <div class="port-checkbox-icon">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
-                  </div>
-                </div>
-              </label>
-
-              <label class="port-choice-card">
-                <input type="checkbox" name="port-option" value="lightning" />
-                <div class="port-choice-inner">
-                  <div class="port-icon-wrapper">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="8" width="14" height="8" rx="2"/><path d="M12 2v6"/><path d="M12 16v6"/></svg>
-                  </div>
-                  <div class="port-choice-info">
-                    <strong>Lightning</strong>
-                    <small>iOS port</small>
-                  </div>
-                  <div class="port-checkbox-icon">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>
-                  </div>
-                </div>
-              </label>
-            </div>
-
-            <!-- Sub-customization: USB tongue colour (shown when at least 1 port is enabled) -->
-            <div class="sub-customization-section" id="usb-tongue-section" style="display: none;">
-              <h4 class="sub-section-title">USB tongue colour</h4>
-              <div class="swatch-grid body-swatch-grid">
-                ${Object.entries(USB_COLORS)
-                  .map(
-                    ([key, color]) => `
-                      <label class="swatch-option ${key === 'cyan' ? 'active' : ''}" title="${color.label}">
-                        <input type="radio" name="usb-color" value="${key}" ${key === 'cyan' ? 'checked' : ''} />
-                        <span class="swatch" style="--swatch-color:#${color.value.toString(16).padStart(6, '0')}"></span>
-                      </label>
-                    `,
-                  )
-                  .join('')}
-              </div>
-            </div>
-            <button class="card-done-btn" type="button" style="display: none;">Done</button>
-          </div>
-
+          <!-- Accordion 4: Order Summary & Booking -->
           <div class="customizer-card summary-card collapsed">
             <div class="card-header-row">
               <div class="card-header-icon">
@@ -1167,7 +1164,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const brandControl = mount.querySelector<HTMLInputElement>('#brand-control')!;
   const inscriptionDone = mount.querySelector<HTMLButtonElement>('#inscription-done')!;
   const brandError = mount.querySelector<HTMLParagraphElement>('#brand-error')!;
-  const brandDesc = mount.querySelector<HTMLParagraphElement>('.left-control-stack .card-desc')!;
+  const brandDesc = mount.querySelector<HTMLParagraphElement>('#brand-desc')!;
   let committedBrandName = brandControl.value.trim();
 
   const applyDimensions = (): void => {
