@@ -1,8 +1,7 @@
 import './styles.css';
 import './hero-redesign.css';
-import { currentRoute, onRouteChange } from './router';
+import { onRouteChange } from './router';
 import { renderPowerBankCustomizer } from './pages/power-bank-customizer';
-import { renderDesignSystem } from './pages/design-system';
 
 const app = document.getElementById('app')!;
 
@@ -13,13 +12,7 @@ function render(): void {
     cleanupCurrentRoute();
     cleanupCurrentRoute = null;
   }
-
-  const route = currentRoute();
-  if (route.name === 'design-system') {
-    cleanupCurrentRoute = renderDesignSystem(app);
-  } else {
-    cleanupCurrentRoute = renderPowerBankCustomizer(app);
-  }
+  cleanupCurrentRoute = renderPowerBankCustomizer(app);
 }
 
 onRouteChange(render);

@@ -1,14 +1,8 @@
 export type Route =
-  | { name: 'power-bank-customizer' }
-  | { name: 'design-system' };
+  | { name: 'power-bank-customizer' };
 
-/** Parses `location.hash` into a Route. Defaults to power-bank-customizer. */
-export function parseRoute(hash: string): Route {
-  const clean = hash.replace(/^#\/?/, '');
-  const parts = clean.split('/').filter(Boolean);
-  if (parts[0] === 'design-system') {
-    return { name: 'design-system' };
-  }
+/** Parses `location.hash` into a Route. Always returns power-bank-customizer. */
+export function parseRoute(_hash: string): Route {
   return { name: 'power-bank-customizer' };
 }
 
@@ -22,6 +16,6 @@ export function onRouteChange(handler: (route: Route) => void): () => void {
   return () => window.removeEventListener('hashchange', listener);
 }
 
-export function navigate(hash: string): void {
-  window.location.hash = hash;
+export function navigate(_hash: string): void {
+  // No navigation needed - single page
 }
