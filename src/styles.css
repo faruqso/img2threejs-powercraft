@@ -600,6 +600,10 @@
   margin: 0;
 }
 
+.start-customising-btn {
+  display: none;
+}
+
 .dark-mode .card-sub-block {
   border-bottom-color: rgba(51, 65, 85, 0.6);
 }

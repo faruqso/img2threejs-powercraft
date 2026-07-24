@@ -1463,6 +1463,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       if (container) {
         if (container.classList.contains('is-collapsed')) {
           container.classList.remove('is-collapsed');
+          mount.classList.remove('is-sheet-collapsed');
         }
         setTimeout(() => {
           const containerRect = container.getBoundingClientRect();
@@ -1783,21 +1784,26 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const sheetHeaderColumn = mount.querySelector<HTMLElement>('.customizer-column-left');
 
   if (bottomSheet) {
+    const setSheetState = (collapsed: boolean) => {
+      bottomSheet.classList.toggle('is-collapsed', collapsed);
+      mount.classList.toggle('is-sheet-collapsed', collapsed);
+    };
+
     // Start collapsed by default on mobile screens
     if (window.innerWidth <= 768) {
-      bottomSheet.classList.add('is-collapsed');
+      setSheetState(true);
     }
 
     if (startCustomisingBtn) {
       listen(startCustomisingBtn, 'click', (e: Event) => {
         e.stopPropagation();
-        bottomSheet.classList.remove('is-collapsed');
+        setSheetState(false);
       });
     }
 
     if (sheetHandle) {
       listen(sheetHandle, 'click', () => {
-        bottomSheet.classList.toggle('is-collapsed');
+        setSheetState(!bottomSheet.classList.contains('is-collapsed'));
       });
     }
 
@@ -1826,10 +1832,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       const deltaY = touch.clientY - startY;
       
       if (deltaY > 35 && bottomSheet.scrollTop <= 5) {
-        bottomSheet.classList.add('is-collapsed');
+        setSheetState(true);
         isDragging = false;
       } else if (deltaY < -35 && bottomSheet.classList.contains('is-collapsed')) {
-        bottomSheet.classList.remove('is-collapsed');
+        setSheetState(false);
         isDragging = false;
       }
     });
