@@ -341,19 +341,8 @@
 }
 
 .customizer-page .page-title {
-  animation: textReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards,
-             textShimmer 2s ease-in-out 1.2s infinite;
+  animation: textReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
   opacity: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(13, 201, 177, 0.4) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 .customizer-page .page-subtitle {
@@ -395,15 +384,6 @@
     opacity: 1;
     transform: translateY(0) scale(1);
     filter: blur(0);
-  }
-}
-
-@keyframes textShimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
   }
 }
 
