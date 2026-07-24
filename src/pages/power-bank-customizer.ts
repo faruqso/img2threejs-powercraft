@@ -605,6 +605,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           <h1 class="page-title">Custom power banks. Built for <span class="text-teal">your brand.</span></h1>
           <p class="page-subtitle">Design, personalise and order premium power banks tailored to your brand and customers.</p>
 
+          <button type="button" class="start-customising-btn" id="start-customising-cta">
+            <span>Start Customising</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+
           <div class="left-control-stack">
             <div class="customizer-card">
               <div class="card-header-row">
@@ -1771,31 +1776,61 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     });
   }
 
-  // Bottom sheet collapse/peek toggle & touch drag
+  // Bottom sheet collapse/peek toggle, CTA click & touch drag
   const bottomSheet = mount.querySelector<HTMLElement>('#customizer-bottom-sheet');
   const sheetHandle = mount.querySelector<HTMLElement>('#sheet-handle');
-  if (bottomSheet && sheetHandle) {
+  const startCustomisingBtn = mount.querySelector<HTMLButtonElement>('#start-customising-cta');
+  const sheetHeaderColumn = mount.querySelector<HTMLElement>('.customizer-column-left');
+
+  if (bottomSheet) {
+    // Start collapsed by default on mobile screens
+    if (window.innerWidth <= 768) {
+      bottomSheet.classList.add('is-collapsed');
+    }
+
+    if (startCustomisingBtn) {
+      listen(startCustomisingBtn, 'click', (e: Event) => {
+        e.stopPropagation();
+        bottomSheet.classList.remove('is-collapsed');
+      });
+    }
+
+    if (sheetHandle) {
+      listen(sheetHandle, 'click', () => {
+        bottomSheet.classList.toggle('is-collapsed');
+      });
+    }
+
     let startY = 0;
     let isDragging = false;
 
-    listen(sheetHandle, 'click', () => {
-      bottomSheet.classList.toggle('is-collapsed');
-    });
-
-    listen(sheetHandle, 'touchstart', (e: Event) => {
-      const touch = (e as TouchEvent).touches[0];
-      startY = touch.clientY;
+    const onTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
       isDragging = true;
-    });
+    };
+
+    if (sheetHandle) {
+      listen(sheetHandle, 'touchstart', onTouchStart as EventListener);
+    }
+    if (sheetHeaderColumn) {
+      listen(sheetHeaderColumn, 'touchstart', (e: Event) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('.customizer-card') || target.closest('button')) return;
+        onTouchStart(e as TouchEvent);
+      });
+    }
 
     listen(window, 'touchmove', (e: Event) => {
       if (!isDragging) return;
       const touch = (e as TouchEvent).touches[0];
       const deltaY = touch.clientY - startY;
-      if (deltaY > 40) {
+      
+      if (deltaY > 35 && bottomSheet.scrollTop <= 5) {
         bottomSheet.classList.add('is-collapsed');
-      } else if (deltaY < -40) {
+        isDragging = false;
+      } else if (deltaY < -35 && bottomSheet.classList.contains('is-collapsed')) {
         bottomSheet.classList.remove('is-collapsed');
+        isDragging = false;
       }
     });
 
