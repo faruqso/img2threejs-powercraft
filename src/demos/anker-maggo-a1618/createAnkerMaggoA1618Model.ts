@@ -733,7 +733,9 @@ export function createRingRimGeometry(shapeKey: RingShapeKey): THREE.BufferGeome
   if (shapeKey === 'circle') {
     return new THREE.TorusGeometry(0.192, 0.015, 16, 64);
   } else if (shapeKey === 'hexagon') {
-    return new THREE.TorusGeometry(0.198, 0.015, 16, 6);
+    const geom = new THREE.TorusGeometry(0.198, 0.015, 16, 6);
+    geom.rotateZ(Math.PI / 6);
+    return geom;
   } else {
     // Squircle (Rounded Square)
     const shape = new THREE.Shape();
@@ -758,7 +760,9 @@ export function createRingFaceGeometry(shapeKey: RingShapeKey): THREE.BufferGeom
   if (shapeKey === 'circle') {
     return new THREE.CircleGeometry(0.192, 64);
   } else if (shapeKey === 'hexagon') {
-    return new THREE.CircleGeometry(0.198, 6);
+    const geom = new THREE.CircleGeometry(0.198, 6);
+    geom.rotateZ(Math.PI / 6);
+    return geom;
   } else {
     // Squircle face matching squircle rim dimensions
     const shape = new THREE.Shape();
