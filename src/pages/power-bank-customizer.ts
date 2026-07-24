@@ -575,6 +575,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   )
                   .join('')}
               </div>
+              <button class="card-done-btn" type="button">Done</button>
             </div>
 
             <div class="customizer-card">
@@ -589,6 +590,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               <label class="range-control range-control-compact">
                 <input id="gloss-control" type="range" min="0" max="100" value="45" />
               </label>
+              <button class="card-done-btn" type="button">Done</button>
             </div>
 
             <div class="customizer-card">
@@ -609,6 +611,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                 </div>
               </label>
               <p class="card-desc">Up to 15 characters</p>
+              <button class="card-done-btn" type="button">Done</button>
             </div>
           </div>
 
@@ -658,6 +661,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   .join('')}
               </div>
             </div>
+            <button class="card-done-btn" type="button">Done</button>
           </div>
 
           <div class="customizer-card collapsed">
@@ -705,6 +709,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                 </label>
               </div>
             </div>
+            <button class="card-done-btn" type="button">Done</button>
           </div>
 
           <div class="customizer-card collapsed">
@@ -799,6 +804,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   .join('')}
               </div>
             </div>
+            <button class="card-done-btn" type="button">Done</button>
           </div>
 
           <div class="customizer-card summary-card collapsed">
@@ -922,7 +928,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     cameraPosition: [-5.5, 0.8, 8.8],
     cameraTarget: [0, -0.50, 0],
     cameraFov: 36,
-    cameraOffsetY: 0.15,
+    cameraOffsetY: 0.22,
     installLights: (scene) => scene.add(createAnkerMaggoA1618LookDevLights()),
   });
   const defaultCameraPosition = viewer.camera.position.clone();
@@ -1206,6 +1212,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const resetCameraFocus = (): void => {
     restorePreFocusState();
   };
+
+  // "Done" CTA in each card → reset camera to default
+  for (const doneBtn of mount.querySelectorAll<HTMLButtonElement>('.card-done-btn')) {
+    listen(doneBtn, 'click', (e: Event) => {
+      e.stopPropagation(); // don't toggle the accordion
+      resetToDefaultCamera();
+    });
+  }
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="usb-color"]')) {
     listen(input, 'change', () => {

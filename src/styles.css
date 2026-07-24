@@ -1838,6 +1838,27 @@ code,
   font-size: 0.7rem;
 }
 
+.customizer-page .card-done-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0;
+  border: 1px solid #e0e5ea;
+  border-radius: 10px;
+  background: transparent;
+  color: #425068;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+.customizer-page .card-done-btn:hover {
+  background: #0dc9b1;
+  color: #fff;
+  border-color: #0dc9b1;
+}
+
 .customizer-page .left-benefits {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
