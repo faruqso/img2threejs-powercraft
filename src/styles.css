@@ -3787,24 +3787,24 @@ code,
     background: #475569;
   }
 
-  /* ---- Sticky Order Summary Card on Mobile ---- */
+  /* ---- Non-Sticky Order Summary Card on Mobile ---- */
   .customizer-card.summary-card {
-    position: sticky;
-    bottom: 0.5rem;
-    z-index: 25;
-    margin-top: auto;
-    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.08);
+    position: static !important;
+    bottom: auto !important;
+    z-index: auto !important;
+    margin-top: 0 !important;
+    box-shadow: none !important;
   }
 
-  /* ---- Canvas: Pin to top 45vh on mobile ---- */
+  /* ---- Canvas: Pin to top 45vh on mobile, shifted down by 10% for optimal positioning ---- */
   .customizer-canvas-mount {
     position: fixed;
-    top: 0;
+    top: 2.2rem;
     left: 0;
     right: 0;
     height: 45vh;
     z-index: 1;
-    padding-bottom: 0;
+    padding-top: 1.25rem;
   }
 
   /* ---- Hint text ---- */
