@@ -273,6 +273,176 @@
   display: block;
 }
 
+/* ---------- Page Entry Animations ---------- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes textReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.customizer-page .customizer-column {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.customizer-page .customizer-column-left {
+  animation-delay: 0.1s;
+}
+
+.customizer-page .customizer-column-right {
+  animation-delay: 0.2s;
+}
+
+.customizer-page .page-title {
+  animation: textReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+  opacity: 0;
+}
+
+.customizer-page .page-subtitle {
+  animation: textReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+  opacity: 0;
+}
+
+.customizer-page .global-header {
+  animation: fadeIn 0.6s ease 0.05s forwards;
+  opacity: 0;
+}
+
+.customizer-page .stage-control-bar {
+  animation: slideInRight 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+  opacity: 0;
+}
+
+.customizer-page .customizer-hint {
+  animation: fadeIn 0.5s ease 0.7s forwards;
+  opacity: 0;
+}
+
+/* Staggered card animations */
+.customizer-page .customizer-card {
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+/* Left column cards */
+.customizer-page .customizer-column-left .customizer-card:nth-of-type(1) { animation-delay: 0.2s; }
+.customizer-page .customizer-column-left .customizer-card:nth-of-type(2) { animation-delay: 0.28s; }
+.customizer-page .customizer-column-left .customizer-card:nth-of-type(3) { animation-delay: 0.36s; }
+
+/* Left benefits */
+.customizer-page .left-benefits {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+  opacity: 0;
+}
+
+.customizer-page .left-benefit {
+  animation: fadeIn 0.4s ease forwards;
+  opacity: 0;
+}
+.customizer-page .left-benefit:nth-child(1) { animation-delay: 0.55s; }
+.customizer-page .left-benefit:nth-child(2) { animation-delay: 0.6s; }
+.customizer-page .left-benefit:nth-child(3) { animation-delay: 0.65s; }
+
+/* Right column cards */
+.customizer-page .customizer-column-right .customizer-card:nth-of-type(1) { animation-delay: 0.3s; }
+.customizer-page .customizer-column-right .customizer-card:nth-of-type(2) { animation-delay: 0.38s; }
+.customizer-page .customizer-column-right .customizer-card:nth-of-type(3) { animation-delay: 0.46s; }
+.customizer-page .customizer-column-right .customizer-card:nth-of-type(4) { animation-delay: 0.54s; }
+.customizer-page .customizer-column-right .customizer-card:nth-of-type(5) { animation-delay: 0.62s; }
+
+/* Card content stagger */
+.customizer-page .card-header-row {
+  animation: fadeIn 0.4s ease forwards;
+  opacity: 0;
+}
+
+.customizer-page .card-header-row {
+  animation-delay: 0.1s;
+}
+
+.customizer-page .card-title {
+  animation: textReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  animation-delay: 0.15s;
+}
+
+.customizer-page .swatch-grid,
+.customizer-page .segmented-control,
+.customizer-page .range-control,
+.customizer-page .text-control,
+.customizer-page .toggle-row,
+.customizer-page .control-row {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.customizer-page .swatch-grid { animation-delay: 0.2s; }
+.customizer-page .segmented-control { animation-delay: 0.2s; }
+.customizer-page .range-control { animation-delay: 0.2s; }
+.customizer-page .text-control { animation-delay: 0.2s; }
+.customizer-page .toggle-row { animation-delay: 0.2s; }
+.customizer-page .control-row { animation-delay: 0.2s; }
+
+/* Reduce motion support */
+@media (prefers-reduced-motion: reduce) {
+  .customizer-page .customizer-column,
+  .customizer-page .page-title,
+  .customizer-page .page-subtitle,
+  .customizer-page .global-header,
+  .customizer-page .stage-control-bar,
+  .customizer-page .customizer-hint,
+  .customizer-page .customizer-card,
+  .customizer-page .left-benefits,
+  .customizer-page .left-benefit,
+  .customizer-page .card-header-row,
+  .customizer-page .card-title,
+  .customizer-page .swatch-grid,
+  .customizer-page .segmented-control,
+  .customizer-page .range-control,
+  .customizer-page .text-control,
+  .customizer-page .toggle-row,
+  .customizer-page .control-row {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
+
 .customizer-column::-webkit-scrollbar-track {
   background: transparent;
 }
