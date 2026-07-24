@@ -1857,6 +1857,22 @@ code,
   box-shadow: 0 0 0 2px rgba(13, 201, 177, 0.12);
 }
 
+.customizer-page .text-control input.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+.customizer-page .input-error {
+  margin: -0.25rem 0 0.15rem 0.15rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #ef4444;
+}
+
+.customizer-page .input-error[hidden] {
+  display: none;
+}
+
 .customizer-page .check-circle {
   width: 22px;
   height: 22px;
@@ -2409,6 +2425,19 @@ code,
   background: rgba(13, 201, 177, 0.14);
 }
 
+/* Dark mode for sub-customization-section (USB tongue color section) */
+.customizer-page.dark-mode .sub-customization-section {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.customizer-page.dark-mode .sub-section-title {
+  color: #8a94a6;
+}
+
+.customizer-page.dark-mode .port-checkbox-icon {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 /* Bottom Stage Controls Toolbar */
 .customizer-page .stage-control-bar {
   position: fixed;
@@ -2567,6 +2596,38 @@ code,
   background: rgba(30, 35, 45, 0.75);
   border-color: rgba(255, 255, 255, 0.08);
 }
+
+.customizer-page.dark-mode .left-benefits {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(23, 27, 38, 0.88);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.customizer-page.dark-mode .left-benefit {
+  color: #cbd5e1;
+}
+
+.customizer-page.dark-mode .left-benefit-icon {
+  background: rgba(13, 201, 177, 0.14);
+  color: var(--teal-dark-mode, #00e6cb);
+}
+
+.customizer-page.dark-mode .left-benefits {
+  background: rgba(30, 35, 45, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+}
+
+.customizer-page.dark-mode .left-benefit {
+  color: #e2e8f0;
+}
+
+.customizer-page.dark-mode .left-benefit-icon {
+  background: rgba(13, 201, 177, 0.15);
+  color: #0dc9b1;
+}
 .customizer-page.dark-mode .card-subtitle,
 .customizer-page.dark-mode .model-name strong,
 .customizer-page.dark-mode .active-radio,
@@ -2596,6 +2657,11 @@ code,
 
 .customizer-page.dark-mode .label-swatch {
   background: rgba(255,255,255,0.05);
+}
+
+.customizer-page.dark-mode .label-swatch:has(input:checked) {
+  background: rgba(13, 201, 177, 0.15);
+  border-color: #0dc9b1;
 }
 
 .customizer-page.dark-mode .swatch-option:not(.label-swatch):has(input:checked) {
@@ -2652,6 +2718,11 @@ code,
 }
 .customizer-page.dark-mode .text-control input:focus {
   border-color: #0dc9b1;
+}
+
+.customizer-page.dark-mode .text-control input.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
 }
 .customizer-page.dark-mode .input-label {
   background: #1e232d;

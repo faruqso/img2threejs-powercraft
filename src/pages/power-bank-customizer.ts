@@ -654,6 +654,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </button>
                 </div>
+                <p class="input-error" id="brand-error" hidden></p>
               </label>
               <p class="card-desc">Up to 10 characters</p>
             </div>
@@ -833,14 +834,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             <!-- Sub-customization: USB tongue colour (shown when at least 1 port is enabled) -->
             <div class="sub-customization-section" id="usb-tongue-section" style="display: none;">
               <h4 class="sub-section-title">USB tongue colour</h4>
-              <div class="usb-swatch-grid">
+              <div class="swatch-grid body-swatch-grid">
                 ${Object.entries(USB_COLORS)
                   .map(
                     ([key, color]) => `
-                      <label class="swatch-option label-swatch ${key === 'cyan' ? 'active' : ''}" title="${color.label}">
+                      <label class="swatch-option ${key === 'cyan' ? 'active' : ''}" title="${color.label}">
                         <input type="radio" name="usb-color" value="${key}" ${key === 'cyan' ? 'checked' : ''} />
                         <span class="swatch" style="--swatch-color:#${color.value.toString(16).padStart(6, '0')}"></span>
-                        <span class="swatch-label">${color.label}</span>
                       </label>
                     `,
                   )
@@ -1166,6 +1166,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const capacityReadout = mount.querySelector<HTMLElement>('#capacity-readout')!;
   const brandControl = mount.querySelector<HTMLInputElement>('#brand-control')!;
   const inscriptionDone = mount.querySelector<HTMLButtonElement>('#inscription-done')!;
+  const brandError = mount.querySelector<HTMLParagraphElement>('#brand-error')!;
+  const brandDesc = mount.querySelector<HTMLParagraphElement>('.left-control-stack .card-desc')!;
   let committedBrandName = brandControl.value.trim();
 
   const applyDimensions = (): void => {
@@ -1574,9 +1576,20 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     brandEngraving.visible = brandName.length > 0;
     if (brandName) updateBrandPlane(brandEngraving, brandName);
     inscriptionDone.hidden = brandName === committedBrandName;
+
+    const hasError = brandControl.value.length > 10;
+    brandControl.classList.toggle('error', hasError);
+    brandError.textContent = hasError ? 'Maximum 10 characters allowed' : '';
+    brandError.hidden = !hasError;
+    brandDesc.hidden = hasError;
   });
 
-  listen(brandControl, 'focus', () => setInscriptionFocus(true));
+  listen(brandControl, 'focus', () => {
+    setInscriptionFocus(true);
+    brandControl.classList.remove('error');
+    brandError.hidden = true;
+    brandDesc.hidden = false;
+  });
   listen(brandControl, 'blur', () => {
     if (brandControl.value.trim() === committedBrandName) {
       setInscriptionFocus(false);
@@ -1585,6 +1598,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   listen(inscriptionDone, 'click', () => {
     committedBrandName = brandControl.value.trim();
     inscriptionDone.hidden = true;
+    brandControl.classList.remove('error');
+    brandError.hidden = true;
+    brandDesc.hidden = false;
     setInscriptionFocus(false);
     brandControl.blur();
   });
