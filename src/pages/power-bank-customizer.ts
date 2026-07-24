@@ -1707,7 +1707,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (orderTotalPrice) orderTotalPrice.textContent = `£${total.toFixed(2)}`;
     if (collapsedQtyVal) collapsedQtyVal.textContent = `${qty} units`;
     if (collapsedPriceVal) collapsedPriceVal.textContent = `£${total.toFixed(2)}`;
-    if (summaryCapacityReadout) summaryCapacityReadout.textContent = `Base Power Bank (${qty}x)`;
+    if (summaryCapacityReadout) summaryCapacityReadout.textContent = CAPACITIES[selectedCapacity].label;
   }
 
   if (qtyMinus && orderQtyInput) {
