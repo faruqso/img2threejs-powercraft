@@ -697,7 +697,7 @@
   transition: all 0.2s ease;
 }
 
-/* ---------- Desktop Stage Control Bar (Floating at Bottom Center) ---------- */
+/* ---------- Desktop Stage Control Bar (Floating at Bottom Center: Light, Rotation, Center, Zoom) ---------- */
 .stage-fab-wrapper {
   position: fixed;
   left: 50%;
