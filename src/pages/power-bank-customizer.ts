@@ -951,11 +951,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const restorePreFocusState = (): void => {
     if (isFocusedOnCard) {
-      isFocusedOnCard = false;
-      targetCameraPosition.copy(preFocusState.position);
-      targetCameraTarget.copy(preFocusState.target);
-      targetCameraZoom = preFocusState.zoom;
-      isCameraTransitioning = true;
+      resetToDefaultCamera();
     }
   };
 
