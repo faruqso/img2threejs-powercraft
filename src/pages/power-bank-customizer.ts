@@ -1943,6 +1943,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     });
   }
 
+  for (const col of mount.querySelectorAll<HTMLElement>('.customizer-column')) {
+    const updateScrollState = () => {
+      col.classList.toggle('is-scrolled', col.scrollTop > 4);
+    };
+    listen(col, 'scroll', updateScrollState);
+    updateScrollState();
+  }
+
   applyDimensions();
   syncLeds();
   viewer.start();
