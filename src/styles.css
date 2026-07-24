@@ -2656,6 +2656,8 @@ code,
   padding: 0.65rem 1.4rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   transition: all 0.22s ease;
+  max-width: 90vw;
+  width: max-content;
 }
 
 .customizer-page.dark-mode .stage-control-bar {
