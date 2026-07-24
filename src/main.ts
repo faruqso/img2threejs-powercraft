@@ -1,4 +1,5 @@
 import './styles.css';
+import './hero-redesign.css';
 import { currentRoute, onRouteChange } from './router';
 import { renderHome } from './pages/home';
 import { renderAbout } from './pages/about';
