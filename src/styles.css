@@ -3583,60 +3583,172 @@ code,
     justify-content: center;
   }
 
-  /* ---- Stage Control Bar ---- */
-  .stage-control-bar {
+  /* ---- Stage FAB & Popover Menu ---- */
+  .stage-fab-wrapper {
     position: fixed;
-    bottom: 0;
-    left: 0;
+    top: calc(45vh - 60px);
+    bottom: auto;
+    right: 1rem;
+    z-index: 15;
+  }
+
+  .stage-fab-button {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .stage-fab-button:hover {
+    transform: translateY(-2px);
+    border-color: var(--teal-primary);
+    box-shadow: 0 10px 28px rgba(0, 128, 117, 0.18);
+  }
+
+  .dark-mode .stage-fab-button {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: #334155;
+    color: #cbd5e1;
+  }
+
+  .stage-popover-menu {
+    position: absolute;
+    bottom: calc(100% + 0.6rem);
     right: 0;
-    z-index: 100;
-    padding: 0.75rem 1rem;
-    background: var(--bg-glass);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid var(--border);
+    width: 220px;
+    padding: 1rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    gap: 0.85rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px) scale(0.96);
+    transition: opacity 0.2s var(--ease-out-expo), transform 0.2s var(--ease-out-expo), visibility 0.2s ease;
+  }
+
+  .stage-fab-wrapper.is-open .stage-popover-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+
+  .dark-mode .stage-popover-menu {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: #334155;
   }
 
   .stage-control-group {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .stage-control-title {
-    font-size: 0.8rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .stage-control-divider {
-    display: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
   }
 
   .stage-btn {
     width: 100%;
     justify-content: center;
-    padding: 0.875rem 1rem;
-    min-height: 44px;
-    font-size: 0.9rem;
+    padding: 0.65rem 0.85rem;
+    min-height: 38px;
+    font-size: 0.82rem;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+  }
+
+  .stage-btn:hover {
+    border-color: var(--teal-primary);
+    color: var(--teal-primary);
+  }
+
+  .dark-mode .stage-btn {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: #334155;
+    color: #cbd5e1;
   }
 
   .stage-action-buttons {
+    display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
-  /* ---- Canvas: Pin to top 48vh on mobile ---- */
+  /* ---- Drag Handle Bar for Bottom Sheet ---- */
+  .bottom-sheet-handle-bar {
+    padding: 0.75rem 0 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .sheet-handle-pill {
+    width: 40px;
+    height: 5px;
+    border-radius: 3px;
+    background: #cbd5e1;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .bottom-sheet-handle-bar:hover .sheet-handle-pill {
+    background: var(--teal-primary);
+    transform: scaleX(1.1);
+  }
+
+  .dark-mode .sheet-handle-pill {
+    background: #475569;
+  }
+
+  /* ---- Sticky Order Summary Card on Mobile ---- */
+  .customizer-card.summary-card {
+    position: sticky;
+    bottom: 0.5rem;
+    z-index: 25;
+    margin-top: auto;
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  /* ---- Canvas: Pin to top 45vh on mobile ---- */
   .customizer-canvas-mount {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 48vh;
+    height: 45vh;
     z-index: 1;
     padding-bottom: 0;
   }

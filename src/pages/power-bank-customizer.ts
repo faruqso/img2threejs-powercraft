@@ -596,7 +596,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         </div>
       </header>
 
-      <div class="customizer-columns">
+      <div class="customizer-columns" id="customizer-bottom-sheet">
+        <div class="bottom-sheet-handle-bar" id="sheet-handle">
+          <div class="sheet-handle-pill"></div>
+        </div>
+
         <div class="customizer-column customizer-column-left">
           <h1 class="page-title">Custom power banks. Built for <span class="text-teal">your brand.</span></h1>
           <p class="page-subtitle">Design, personalise and order premium power banks tailored to your brand and customers.</p>
@@ -913,40 +917,46 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
       <div class="customizer-hint">Drag to orbit &middot; Scroll to zoom</div>
 
-      <div class="stage-control-bar">
-        <div class="stage-control-group">
-          <span class="stage-control-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-            Stage light <strong id="light-value">70%</strong>
-          </span>
-          <label class="range-control no-margin" style="width: 100px;">
-            <input id="light-control" type="range" min="20" max="120" value="70" />
-          </label>
-        </div>
+      <div class="stage-fab-wrapper" id="stage-fab-wrapper">
+        <button class="stage-fab-button" id="stage-fab-toggle" type="button" aria-label="Toggle stage controls" title="Lighting & Camera Controls">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span class="fab-label">Stage</span>
+        </button>
 
-        <div class="stage-control-divider"></div>
-
-        <div class="stage-control-group">
-          <label class="toggle-row no-margin" style="margin: 0; gap: 0.6rem;">
-            <span class="stage-control-title" style="margin: 0;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              Auto rotation
+        <div class="stage-popover-menu" id="stage-popover-menu">
+          <div class="stage-control-group">
+            <span class="stage-control-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              Stage light <strong id="light-value">70%</strong>
             </span>
-            <input id="spin-toggle" class="apple-switch" type="checkbox" />
-          </label>
-        </div>
+            <label class="range-control no-margin" style="width: 100%;">
+              <input id="light-control" type="range" min="20" max="120" value="70" />
+            </label>
+          </div>
 
-        <div class="stage-control-divider"></div>
+          <div class="stage-control-group">
+            <label class="toggle-row no-margin" style="margin: 0; gap: 0.6rem; justify-content: space-between; width: 100%;">
+              <span class="stage-control-title" style="margin: 0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                Auto rotation
+              </span>
+              <input id="spin-toggle" class="apple-switch" type="checkbox" />
+            </label>
+          </div>
 
-        <div class="stage-action-buttons">
-          <button class="stage-btn" id="fab-center" type="button" title="Recenter View">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
-            <span>Center</span>
-          </button>
-          <button class="stage-btn" id="fab-zoom" type="button" title="Zoom Product">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-            <span>Zoom</span>
-          </button>
+          <div class="stage-action-buttons">
+            <button class="stage-btn" id="fab-center" type="button" title="Recenter View">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>Center</span>
+            </button>
+            <button class="stage-btn" id="fab-zoom" type="button" title="Zoom Product">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              <span>Zoom</span>
+            </button>
+          </div>
         </div>
       </div>
 </div>
@@ -1721,6 +1731,55 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     ensureValidChargingMechanism();
     syncPorts();
   });
+
+  // Stage FAB toggle
+  const fabWrapper = mount.querySelector<HTMLElement>('#stage-fab-wrapper');
+  const fabToggle = mount.querySelector<HTMLButtonElement>('#stage-fab-toggle');
+  if (fabToggle && fabWrapper) {
+    listen(fabToggle, 'click', (e: Event) => {
+      e.stopPropagation();
+      fabWrapper.classList.toggle('is-open');
+    });
+
+    listen(document.body, 'click', (e: Event) => {
+      if (!fabWrapper.contains(e.target as Node)) {
+        fabWrapper.classList.remove('is-open');
+      }
+    });
+  }
+
+  // Bottom sheet collapse/peek toggle & touch drag
+  const bottomSheet = mount.querySelector<HTMLElement>('#customizer-bottom-sheet');
+  const sheetHandle = mount.querySelector<HTMLElement>('#sheet-handle');
+  if (bottomSheet && sheetHandle) {
+    let startY = 0;
+    let isDragging = false;
+
+    listen(sheetHandle, 'click', () => {
+      bottomSheet.classList.toggle('is-collapsed');
+    });
+
+    listen(sheetHandle, 'touchstart', (e: Event) => {
+      const touch = (e as TouchEvent).touches[0];
+      startY = touch.clientY;
+      isDragging = true;
+    });
+
+    listen(window, 'touchmove', (e: Event) => {
+      if (!isDragging) return;
+      const touch = (e as TouchEvent).touches[0];
+      const deltaY = touch.clientY - startY;
+      if (deltaY > 40) {
+        bottomSheet.classList.add('is-collapsed');
+      } else if (deltaY < -40) {
+        bottomSheet.classList.remove('is-collapsed');
+      }
+    });
+
+    listen(window, 'touchend', () => {
+      isDragging = false;
+    });
+  }
 
   const spinToggle = mount.querySelector<HTMLInputElement>('#spin-toggle')!;
   listen(spinToggle, 'change', () => {
