@@ -915,8 +915,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const canvasMount = mount.querySelector<HTMLDivElement>('#power-bank-canvas')!;
   const viewer = new Viewer(canvasMount, {
-    cameraPosition: [-5.5, 0.8, 8.8],
-    cameraTarget: [0, -0.50, 0],
+    cameraPosition: [-5.5, 2.5, 8.8],
+    cameraTarget: [0, 1.2, 0],
     cameraFov: 36,
     installLights: (scene) => scene.add(createAnkerMaggoA1618LookDevLights()),
   });

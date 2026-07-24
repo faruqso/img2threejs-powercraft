@@ -83,10 +83,7 @@
 
 .customizer-canvas-mount {
   position: absolute;
-  top: 12vh;
-  left: 0;
-  right: 0;
-  bottom: -12vh;
+  inset: 0;
   z-index: 1;
 }
 
