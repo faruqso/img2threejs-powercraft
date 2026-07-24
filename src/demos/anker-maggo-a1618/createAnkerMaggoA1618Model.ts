@@ -911,11 +911,11 @@ export function createAnkerMaggoA1618Model(
     envMapIntensity: 0.4,
   });
   const ringMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x303237,
-    roughness: 0.27,
-    metalness: 0.30,
-    clearcoat: 0.68,
-    clearcoatRoughness: 0.22,
+    color: 0x8a929b,
+    roughness: 0.15,
+    metalness: 0.94,
+    clearcoat: 0.5,
+    clearcoatRoughness: 0.08,
   });
   const displayMaterial = new THREE.MeshPhysicalMaterial({
     color: 0x232529,

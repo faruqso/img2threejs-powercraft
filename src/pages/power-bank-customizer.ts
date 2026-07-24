@@ -60,7 +60,7 @@ const FINISHES: Record<FinishKey, FinishPreset> = {
     body: 0x202126,
     edge: 0x121316,
     panel: 0x25272c,
-    ring: 0x35383f,
+    ring: 0x8a929b,
   },
   silver: {
     label: 'Lunar silver',
@@ -438,6 +438,58 @@ function makePowerBankContactShadow(): THREE.Mesh {
   return shadow;
 }
 
+function makeRevealPlateau(): THREE.Group {
+  const stage = new THREE.Group();
+  stage.name = 'power-bank-reveal-plateau';
+
+  const baseMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff,
+    roughness: 0.1,
+    metalness: 0.05,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.1,
+  });
+  const glowMaterial = new THREE.MeshBasicMaterial({
+    color: 0x0dc9b1,
+    transparent: true,
+    opacity: 0.7,
+    depthWrite: false,
+  });
+
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(1.58, 1.72, 0.18, 96), baseMaterial);
+  base.name = 'reveal-plateau-base';
+  base.position.y = 0.09;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  stage.add(base);
+
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.018, 16, 112), baseMaterial);
+  rim.name = 'reveal-plateau-rim';
+  rim.rotation.x = Math.PI / 2;
+  rim.position.y = 0.195;
+  rim.castShadow = true;
+  stage.add(rim);
+
+  const lightRing = new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.01, 12, 112), glowMaterial);
+  lightRing.name = 'reveal-plateau-light-ring';
+  lightRing.rotation.x = Math.PI / 2;
+  lightRing.position.y = 0.205;
+  stage.add(lightRing);
+
+  const halo = new THREE.Mesh(new THREE.RingGeometry(0.72, 1.42, 112), glowMaterial);
+  halo.name = 'reveal-plateau-halo';
+  halo.rotation.x = -Math.PI / 2;
+  halo.position.y = 0.212;
+  stage.add(halo);
+
+  const column = new THREE.PointLight(0x0dc9b1, 0.75, 4.2, 1.7);
+  column.name = 'reveal-plateau-lift-light';
+  column.position.set(0, 0.85, 0);
+  stage.add(column);
+
+  return stage;
+}
+
 function captureDefaults(root: THREE.Object3D, lights: THREE.Light[]): DefaultsSnapshot {
   const materials: MaterialSnapshot[] = [];
   const seenMaterials = new Set<THREE.Material>();
@@ -602,13 +654,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               <label class="text-control">
                 <span class="input-label">Inscription</span>
                 <div class="input-wrapper">
-                  <input id="brand-control" type="text" value="PowerCraft" maxlength="15" autocomplete="off" placeholder="Enter words or names" />
+                  <input id="brand-control" type="text" value="PowerCraft" maxlength="10" autocomplete="off" placeholder="Enter words or names" />
                   <button class="inscription-done" id="inscription-done" type="button" hidden aria-label="Finish inscription">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </button>
                 </div>
               </label>
-              <p class="card-desc">Up to 15 characters</p>
+              <p class="card-desc">Up to 10 characters</p>
             </div>
           </div>
 
@@ -946,9 +998,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     }
   };
 
+  const revealPlateau = makeRevealPlateau();
+  revealPlateau.position.y = -0.593;
+  viewer.scene.add(revealPlateau);
+
   const contactShadow = makePowerBankContactShadow();
-  contactShadow.position.y = -0.38;
-  viewer.scene.add(contactShadow);
+  contactShadow.position.y = 0.213;
+  revealPlateau.add(contactShadow);
 
   // The generic viewer floor produces a long directional shadow outside the product stage.
   viewer.scene.traverse((object) => {
@@ -980,9 +1036,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   model.add(capacityEngraving);
 
   const brandEngraving = makeBrandPlane('power-bank-brand-engraving', 'PowerCraft');
-  // The wordmark is rotated vertically, moved slightly left to 0.53, and anchored to the top-right corner.
+  // The wordmark is rotated vertically, moved slightly left to 0.53, and raised by 10% offset from top of model (Y=1.62).
   brandEngraving.rotation.z = -Math.PI / 2;
-  brandEngraving.position.set(0.53, 1.35, 0.323);
+  brandEngraving.position.set(0.53, 1.62, 0.323);
   model.add(brandEngraving);
   viewer.scene.add(model);
 
@@ -1024,8 +1080,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const invScaleY = 1 / model.scale.y;
     const invScaleZ = 1 / model.scale.z;
 
-    // Keep PowerCraft text anchored at top-right corner at 1:1 scale without font stretching
-    brandEngraving.position.y = 1.35 + (model.scale.y - 1.0) * 0.72;
+    // Keep PowerCraft text raised by a fixed 10% offset from top of model (2.78 - 1.16/scaleY), independent of model scaling
+    brandEngraving.position.y = 2.78 - 1.16 * invScaleY;
     // brandEngraving is rotated -90deg on Z, so local X maps to world Y. Set local X to invScaleY to cancel model.scale.y!
     brandEngraving.scale.set(invScaleY, 1.0, invScaleZ);
 
@@ -1516,6 +1572,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   }
 
   listen(brandControl, 'input', () => {
+    if (brandControl.value.length > 10) {
+      brandControl.value = brandControl.value.slice(0, 10);
+    }
     const brandName = brandControl.value.trim().toUpperCase();
     brandEngraving.visible = brandName.length > 0;
     if (brandName) updateBrandPlane(brandEngraving, brandName);
@@ -1827,6 +1886,15 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   if (themeToggle && customizerPage) {
     listen(themeToggle, 'click', () => {
       const isDark = customizerPage.classList.toggle('dark-mode');
+
+      const plateauBase = revealPlateau.getObjectByName('reveal-plateau-base') as THREE.Mesh;
+      const plateauRim = revealPlateau.getObjectByName('reveal-plateau-rim') as THREE.Mesh;
+      if (plateauBase && plateauBase.material instanceof THREE.Material && 'color' in plateauBase.material) {
+        (plateauBase.material as THREE.MeshStandardMaterial).color.setHex(isDark ? 0x181c2b : 0xffffff);
+      }
+      if (plateauRim && plateauRim.material instanceof THREE.Material && 'color' in plateauRim.material) {
+        (plateauRim.material as THREE.MeshStandardMaterial).color.setHex(isDark ? 0x181c2b : 0xffffff);
+      }
 
       // Toggle icon
       if (isDark) {
