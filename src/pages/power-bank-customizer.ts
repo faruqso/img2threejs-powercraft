@@ -998,13 +998,25 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   viewer.controls.addEventListener('start', () => {
     isCameraTransitioning = false;
-    isFocusedOnCard = false;
-    targetCameraPosition.copy(viewer.camera.position);
-    targetCameraTarget.copy(viewer.controls.target);
-    targetCameraZoom = viewer.camera.zoom;
-    preFocusState.position.copy(viewer.camera.position);
-    preFocusState.target.copy(viewer.controls.target);
-    preFocusState.zoom = viewer.camera.zoom;
+    if (!isFocusedOnCard) {
+      targetCameraPosition.copy(viewer.camera.position);
+      targetCameraTarget.copy(viewer.controls.target);
+      targetCameraZoom = viewer.camera.zoom;
+      preFocusState.position.copy(viewer.camera.position);
+      preFocusState.target.copy(viewer.controls.target);
+      preFocusState.zoom = viewer.camera.zoom;
+    } else {
+      // If user manually drags on canvas while focused, release card focus
+      isFocusedOnCard = false;
+    }
+  });
+
+  viewer.controls.addEventListener('change', () => {
+    if (!isFocusedOnCard && !isCameraTransitioning) {
+      preFocusState.position.copy(viewer.camera.position);
+      preFocusState.target.copy(viewer.controls.target);
+      preFocusState.zoom = viewer.camera.zoom;
+    }
   });
 
   model.userData.tick = (dt: number, elapsed: number): void => {
@@ -1171,6 +1183,17 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     } else {
       restorePreFocusState();
     }
+  };
+
+  const resetToDefaultCamera = (): void => {
+    isFocusedOnCard = false;
+    isCameraTransitioning = true;
+    targetCameraPosition.copy(defaultCameraPosition);
+    targetCameraTarget.copy(defaultCameraTarget);
+    targetCameraZoom = defaultCameraZoom;
+    preFocusState.position.copy(defaultCameraPosition);
+    preFocusState.target.copy(defaultCameraTarget);
+    preFocusState.zoom = defaultCameraZoom;
   };
 
   const resetCameraFocus = (): void => {
@@ -1388,6 +1411,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         });
       } else {
         // --- CLOSE ACCORDION ---
+        restorePreFocusState();
         contentWrapper!.style.overflow = 'hidden';
         const startHeight = contentWrapper!.offsetHeight;
 
@@ -1594,14 +1618,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     updateBrandPlane(brandEngraving, 'ANKER');
     applyDimensions();
     syncLeds();
-    viewer.camera.position.copy(defaultCameraPosition);
-    viewer.controls.target.copy(defaultCameraTarget);
-    targetCameraPosition.copy(defaultCameraPosition);
-    targetCameraTarget.copy(defaultCameraTarget);
-    targetCameraZoom = defaultCameraZoom;
-    viewer.camera.zoom = defaultCameraZoom;
-    viewer.camera.updateProjectionMatrix();
-    viewer.controls.update();
+    resetToDefaultCamera();
   });
 
   // FAB Listeners
@@ -1610,7 +1627,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const fabZoom = mount.querySelector<HTMLButtonElement>('#fab-zoom');
   
   if (fabCenter) {
-    listen(fabCenter, 'click', () => resetCameraFocus());
+    listen(fabCenter, 'click', () => resetToDefaultCamera());
   }
   if (fabOrbit) {
     listen(fabOrbit, 'click', () => resetCameraFocus());
@@ -1699,15 +1716,19 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   }
   if (fabCenter) {
     listen(fabCenter, 'click', () => {
-      viewer.controls.target.copy(defaultCameraTarget);
-      viewer.camera.position.copy(defaultCameraPosition);
-      viewer.controls.update();
+      resetToDefaultCamera();
     });
   }
   if (fabZoom) {
     listen(fabZoom, 'click', () => {
-      viewer.camera.position.copy(defaultCameraTarget).add(new THREE.Vector3(0, 0.4, 2.8));
-      viewer.controls.update();
+      isFocusedOnCard = false;
+      isCameraTransitioning = true;
+      targetCameraPosition.copy(defaultCameraPosition);
+      targetCameraTarget.copy(defaultCameraTarget);
+      targetCameraZoom = Math.abs(viewer.camera.zoom - 1.45) < 0.05 ? 1.0 : 1.45;
+      preFocusState.position.copy(defaultCameraPosition);
+      preFocusState.target.copy(defaultCameraTarget);
+      preFocusState.zoom = targetCameraZoom;
     });
   }
 
