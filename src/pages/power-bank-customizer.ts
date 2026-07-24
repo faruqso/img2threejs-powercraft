@@ -767,7 +767,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
             </div>
             <div class="port-choice-grid">
               <label class="port-choice-card">
-                <input type="checkbox" name="port-option" value="type-a" checked />
+                <input type="checkbox" name="port-option" value="type-a" />
                 <div class="port-choice-inner">
                   <div class="port-icon-wrapper">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"/><line x1="6" y1="10" x2="18" y2="10"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
