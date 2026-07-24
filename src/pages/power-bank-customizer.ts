@@ -812,12 +812,30 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
             
+            <div class="order-spec-grid summary-extra-detail">
+              <div class="order-spec-item">
+                <span class="spec-label">MOQ (MIN. ORDER)</span>
+                <strong class="spec-val">50 units</strong>
+              </div>
+              <div class="order-spec-item">
+                <span class="spec-label">UNIT PRICE</span>
+                <strong class="spec-val" id="unit-price-val">£14.50 / unit</strong>
+              </div>
+            </div>
+
             <div class="quantity-picker-row">
               <span class="row-label info-label" style="margin: 0;">Order Quantity</span>
               <div class="qty-control">
                 <button type="button" class="qty-btn" id="qty-minus">-</button>
                 <input type="number" id="order-qty" value="50" min="50" step="50" readonly />
                 <button type="button" class="qty-btn" id="qty-plus">+</button>
+              </div>
+            </div>
+
+            <div class="summary-rows summary-extra-detail" aria-live="polite">
+              <div class="summary-row">
+                <span id="capacity-readout">5,000 mAh</span>
+                <strong id="subtotal-val">£725.00</strong>
               </div>
             </div>
 
@@ -831,39 +849,19 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               Place Order
             </button>
 
-            <div class="card-expand-details">
-              <div class="order-spec-grid">
-                <div class="order-spec-item">
-                  <span class="spec-label">MOQ (Min. Order)</span>
-                  <strong class="spec-val">50 units</strong>
-                </div>
-                <div class="order-spec-item">
-                  <span class="spec-label">Unit Price</span>
-                  <strong class="spec-val" id="unit-price-val">£14.50 / unit</strong>
-                </div>
-              </div>
+            <div class="lead-time-notice summary-extra-detail">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Estimated Lead Time: <strong>5 - 7 Days</strong></span>
+            </div>
 
-              <div class="summary-rows" aria-live="polite">
-                <div class="summary-row">
-                  <span id="capacity-readout">Base Power Bank (50x)</span>
-                  <strong id="subtotal-val">£725.00</strong>
-                </div>
-              </div>
-
-              <div class="lead-time-notice">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                <span>Estimated Lead Time: <strong>5 - 7 Days</strong></span>
-              </div>
-
-              <div class="order-secondary-actions">
-                <button class="btn-secondary-link" id="reset-customizer" type="button">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                  Reset to default
-                </button>
-                <button class="btn-secondary-link" id="request-sample-btn" type="button">
-                  Request sample (£25)
-                </button>
-              </div>
+            <div class="order-secondary-actions summary-extra-detail">
+              <button class="btn-secondary-link" id="reset-customizer" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                Reset to default
+              </button>
+              <button class="btn-secondary-link" id="request-sample-btn" type="button">
+                Request sample (£25)
+              </button>
             </div>
           </div>
         </div>
@@ -1325,8 +1323,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const cardAnimMap = new Map<HTMLElement, boolean>();
 
   const animateCollapseCard = (card: HTMLElement): Promise<void> => {
-    const contentWrapper = card.querySelector<HTMLElement>('.card-expand-details, .card-content-wrapper');
-    if (!contentWrapper || card.classList.contains('collapsed')) return Promise.resolve();
+    if (card.classList.contains('collapsed')) return Promise.resolve();
 
     const headerEl = card.querySelector<HTMLElement>('.card-header-row, .card-header-with-badge, .card-header-accordion');
     const chevronSvg = headerEl?.querySelector<HTMLElement>('.card-chevron svg, svg.card-chevron');
@@ -1335,10 +1332,27 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       chevronSvg.style.transform = 'rotate(0deg)';
     }
 
+    cardAnimMap.set(card, true);
+
+    const extraDetails = Array.from(card.querySelectorAll<HTMLElement>('.summary-extra-detail'));
+    if (extraDetails.length > 0) {
+      const controls = animate(
+        extraDetails,
+        { opacity: [1, 0] },
+        { duration: 0.22, ease: 'easeOut' }
+      );
+      return controls.then(() => {
+        card.classList.add('collapsed');
+        extraDetails.forEach(el => el.style.display = 'none');
+        cardAnimMap.set(card, false);
+      });
+    }
+
+    const contentWrapper = card.querySelector<HTMLElement>('.card-content-wrapper');
+    if (!contentWrapper) return Promise.resolve();
+
     contentWrapper.style.overflow = 'hidden';
     const startHeight = contentWrapper.offsetHeight || contentWrapper.scrollHeight;
-
-    cardAnimMap.set(card, true);
 
     const controls = animate(
       contentWrapper,
@@ -1359,8 +1373,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   };
 
   const animateExpandCard = (card: HTMLElement): Promise<void> => {
-    const contentWrapper = card.querySelector<HTMLElement>('.card-expand-details, .card-content-wrapper');
-    if (!contentWrapper || !card.classList.contains('collapsed')) return Promise.resolve();
+    if (!card.classList.contains('collapsed')) return Promise.resolve();
 
     // Mutual exclusion: Close any other open card in the same column!
     const parentCol = card.closest('.customizer-column');
@@ -1374,11 +1387,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     }
 
     card.classList.remove('collapsed');
-    contentWrapper.style.display = 'block';
-    contentWrapper.style.height = 'auto';
-    contentWrapper.style.overflow = 'hidden';
-    const targetHeight = contentWrapper.scrollHeight;
-    contentWrapper.style.height = '0px';
 
     const headerEl = card.querySelector<HTMLElement>('.card-header-row, .card-header-with-badge, .card-header-accordion');
     const chevronSvg = headerEl?.querySelector<HTMLElement>('.card-chevron svg, svg.card-chevron');
@@ -1388,6 +1396,28 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     }
 
     cardAnimMap.set(card, true);
+
+    const extraDetails = Array.from(card.querySelectorAll<HTMLElement>('.summary-extra-detail'));
+    if (extraDetails.length > 0) {
+      extraDetails.forEach(el => el.style.display = '');
+      const controls = animate(
+        extraDetails,
+        { opacity: [0, 1] },
+        { duration: 0.28, ease: 'easeOut' }
+      );
+      return controls.then(() => {
+        cardAnimMap.set(card, false);
+      });
+    }
+
+    const contentWrapper = card.querySelector<HTMLElement>('.card-content-wrapper');
+    if (!contentWrapper) return Promise.resolve();
+
+    contentWrapper.style.display = 'block';
+    contentWrapper.style.height = 'auto';
+    contentWrapper.style.overflow = 'hidden';
+    const targetHeight = contentWrapper.scrollHeight;
+    contentWrapper.style.height = '0px';
 
     const controls = animate(
       contentWrapper,
@@ -1428,8 +1458,9 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       headerEl.appendChild(chevron);
     }
 
-    let contentWrapper = card.querySelector<HTMLElement>('.card-expand-details, .card-content-wrapper');
-    if (!contentWrapper) {
+    const extraDetails = Array.from(card.querySelectorAll<HTMLElement>('.summary-extra-detail'));
+    let contentWrapper = card.querySelector<HTMLElement>('.card-content-wrapper');
+    if (!contentWrapper && extraDetails.length === 0) {
       contentWrapper = document.createElement('div');
       contentWrapper.className = 'card-content-wrapper';
       const siblings: Element[] = [];
@@ -1446,16 +1477,24 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
     const isInitiallyCollapsed = card.classList.contains('collapsed');
     if (isInitiallyCollapsed) {
-      contentWrapper.style.display = 'none';
-      contentWrapper.style.height = '0px';
-      contentWrapper.style.opacity = '0';
-      contentWrapper.style.overflow = 'hidden';
+      if (extraDetails.length > 0) {
+        extraDetails.forEach(el => el.style.display = 'none');
+      } else if (contentWrapper) {
+        contentWrapper.style.display = 'none';
+        contentWrapper.style.height = '0px';
+        contentWrapper.style.opacity = '0';
+        contentWrapper.style.overflow = 'hidden';
+      }
       if (chevronSvg) chevronSvg.style.transform = 'rotate(0deg)';
     } else {
-      contentWrapper.style.display = 'block';
-      contentWrapper.style.height = 'auto';
-      contentWrapper.style.opacity = '1';
-      contentWrapper.style.overflow = 'visible';
+      if (extraDetails.length > 0) {
+        extraDetails.forEach(el => el.style.display = '');
+      } else if (contentWrapper) {
+        contentWrapper.style.display = 'block';
+        contentWrapper.style.height = 'auto';
+        contentWrapper.style.opacity = '1';
+        contentWrapper.style.overflow = 'visible';
+      }
       if (chevronSvg) chevronSvg.style.transform = 'rotate(-180deg)';
     }
 

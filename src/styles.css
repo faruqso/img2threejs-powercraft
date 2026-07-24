@@ -2165,6 +2165,10 @@ code,
   margin-top: auto;
 }
 
+.customizer-page .summary-card.collapsed .summary-extra-detail {
+  display: none !important;
+}
+
 .customizer-page .card-expand-details {
   display: flex;
   flex-direction: column;
