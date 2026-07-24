@@ -1680,17 +1680,47 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     });
   }
 
+  let toastTimer: number | undefined;
+  const showToast = (title: string, message: string, emoji = '🎉'): void => {
+    let toast = mount.querySelector<HTMLElement>('.customizer-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'customizer-toast';
+      mount.appendChild(toast);
+    }
+    toast.innerHTML = `
+      <span class="customizer-toast-icon">${emoji}</span>
+      <div>
+        <strong style="display:block; color:#fff; font-weight:600;">${title}</strong>
+        <span style="color:#a0aec0; font-size:0.85rem;">${message}</span>
+      </div>
+    `;
+    toast.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toast?.classList.remove('show');
+    }, 4200);
+  };
+
   const placeOrderBtn = mount.querySelector<HTMLButtonElement>('#place-order-btn');
   if (placeOrderBtn) {
     listen(placeOrderBtn, 'click', () => {
-      alert(`🎉 Order Placed Successfully!\n\nQuantity: ${orderQtyInput?.value || 50} units\nTotal: ${orderTotalPrice?.textContent || '£725.00'}\nLead time: 5 - 7 business days.`);
+      showToast(
+        'Order Placed Successfully!',
+        `Quantity: ${orderQtyInput?.value || 50} units | Total: ${orderTotalPrice?.textContent || '£725.00'} (Lead time: 5-7 business days)`,
+        '🎉',
+      );
     });
   }
 
   const requestSampleBtn = mount.querySelector<HTMLButtonElement>('#request-sample-btn');
   if (requestSampleBtn) {
     listen(requestSampleBtn, 'click', () => {
-      alert('Sample Request Initiated!\n\nA customized sample unit (£25) will be prepared and shipped to your address.');
+      showToast(
+        'Sample Request Initiated!',
+        'A customized sample unit (£25) will be prepared and shipped to your address.',
+        '📦',
+      );
     });
   }
 
