@@ -804,51 +804,20 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
 
           <div class="customizer-card summary-card collapsed">
-            <div class="card-header-row summary-header-row">
-              <div class="summary-header-left">
-                <div class="card-header-icon">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                </div>
-                <h3 class="card-title" style="margin:0;">Order summary</h3>
+            <div class="card-header-row">
+              <div class="card-header-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
               </div>
-
-              <div class="summary-collapsed-preview">
-                <div class="summary-collapsed-row">
-                  <span class="collapsed-qty-badge" id="collapsed-qty-val">50 units</span>
-                  <strong class="collapsed-price-val" id="collapsed-price-val">£725.00</strong>
-                </div>
-                <button class="btn-primary-sm place-order-btn-sm" id="collapsed-order-btn" type="button">
-                  Place Order
-                </button>
-              </div>
-
+              <h3 class="card-title">Order summary &amp; booking</h3>
               <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
             
-            <div class="order-spec-grid">
-              <div class="order-spec-item">
-                <span class="spec-label">MOQ (Min. Order)</span>
-                <strong class="spec-val">50 units</strong>
-              </div>
-              <div class="order-spec-item">
-                <span class="spec-label">Unit Price</span>
-                <strong class="spec-val" id="unit-price-val">£14.50 / unit</strong>
-              </div>
-            </div>
-
             <div class="quantity-picker-row">
               <span class="row-label info-label" style="margin: 0;">Order Quantity</span>
               <div class="qty-control">
                 <button type="button" class="qty-btn" id="qty-minus">-</button>
                 <input type="number" id="order-qty" value="50" min="50" step="50" readonly />
                 <button type="button" class="qty-btn" id="qty-plus">+</button>
-              </div>
-            </div>
-
-            <div class="summary-rows" aria-live="polite">
-              <div class="summary-row">
-                <span id="capacity-readout">Base Power Bank (50x)</span>
-                <strong id="subtotal-val">£725.00</strong>
               </div>
             </div>
 
@@ -862,19 +831,39 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               Place Order
             </button>
 
-            <div class="lead-time-notice">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span>Estimated Lead Time: <strong>5 - 7 Days</strong></span>
-            </div>
+            <div class="card-expand-details">
+              <div class="order-spec-grid">
+                <div class="order-spec-item">
+                  <span class="spec-label">MOQ (Min. Order)</span>
+                  <strong class="spec-val">50 units</strong>
+                </div>
+                <div class="order-spec-item">
+                  <span class="spec-label">Unit Price</span>
+                  <strong class="spec-val" id="unit-price-val">£14.50 / unit</strong>
+                </div>
+              </div>
 
-            <div class="order-secondary-actions">
-              <button class="btn-secondary-link" id="reset-customizer" type="button">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                Reset to default
-              </button>
-              <button class="btn-secondary-link" id="request-sample-btn" type="button">
-                Request sample (£25)
-              </button>
+              <div class="summary-rows" aria-live="polite">
+                <div class="summary-row">
+                  <span id="capacity-readout">Base Power Bank (50x)</span>
+                  <strong id="subtotal-val">£725.00</strong>
+                </div>
+              </div>
+
+              <div class="lead-time-notice">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Estimated Lead Time: <strong>5 - 7 Days</strong></span>
+              </div>
+
+              <div class="order-secondary-actions">
+                <button class="btn-secondary-link" id="reset-customizer" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                  Reset to default
+                </button>
+                <button class="btn-secondary-link" id="request-sample-btn" type="button">
+                  Request sample (£25)
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1336,7 +1325,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const cardAnimMap = new Map<HTMLElement, boolean>();
 
   const animateCollapseCard = (card: HTMLElement): Promise<void> => {
-    const contentWrapper = card.querySelector<HTMLElement>('.card-content-wrapper');
+    const contentWrapper = card.querySelector<HTMLElement>('.card-expand-details, .card-content-wrapper');
     if (!contentWrapper || card.classList.contains('collapsed')) return Promise.resolve();
 
     const headerEl = card.querySelector<HTMLElement>('.card-header-row, .card-header-with-badge, .card-header-accordion');
@@ -1370,7 +1359,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   };
 
   const animateExpandCard = (card: HTMLElement): Promise<void> => {
-    const contentWrapper = card.querySelector<HTMLElement>('.card-content-wrapper');
+    const contentWrapper = card.querySelector<HTMLElement>('.card-expand-details, .card-content-wrapper');
     if (!contentWrapper || !card.classList.contains('collapsed')) return Promise.resolve();
 
     // Mutual exclusion: Close any other open card in the same column!
@@ -1439,7 +1428,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       headerEl.appendChild(chevron);
     }
 
-    let contentWrapper = card.querySelector<HTMLElement>('.card-content-wrapper');
+    let contentWrapper = card.querySelector<HTMLElement>('.card-expand-details, .card-content-wrapper');
     if (!contentWrapper) {
       contentWrapper = document.createElement('div');
       contentWrapper.className = 'card-content-wrapper';
