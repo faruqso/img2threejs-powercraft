@@ -1452,6 +1452,25 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
     card.classList.remove('collapsed');
 
+    // On mobile, snap/scroll the expanded card to the top of the action sheet drawer
+    if (window.innerWidth <= 768) {
+      const container = document.getElementById('customizer-bottom-sheet');
+      if (container) {
+        if (container.classList.contains('is-collapsed')) {
+          container.classList.remove('is-collapsed');
+        }
+        setTimeout(() => {
+          const containerRect = container.getBoundingClientRect();
+          const cardRect = card.getBoundingClientRect();
+          const relativeTop = cardRect.top - containerRect.top + container.scrollTop;
+          container.scrollTo({
+            top: Math.max(0, relativeTop - 12),
+            behavior: 'smooth',
+          });
+        }, 50);
+      }
+    }
+
     const headerEl = card.querySelector<HTMLElement>('.card-header-row, .card-header-with-badge, .card-header-accordion');
     const chevronSvg = headerEl?.querySelector<HTMLElement>('.card-chevron svg, svg.card-chevron');
 
