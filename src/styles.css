@@ -3451,7 +3451,7 @@ code,
   }
 
   .customizer-columns.is-collapsed {
-    top: calc(100vh - 235px);
+    top: calc(100vh - 280px);
     overflow-y: hidden;
   }
 
@@ -3658,10 +3658,16 @@ code,
   .stage-fab-wrapper {
     display: flex;
     position: fixed;
-    top: calc(45vh - 60px);
-    bottom: auto;
+    top: auto;
+    bottom: calc(52vh + 32px);
     right: 1rem;
-    z-index: 15;
+    z-index: 25;
+    transition: bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease;
+  }
+
+  .is-sheet-collapsed .stage-fab-wrapper,
+  .customizer-page:has(.customizer-columns.is-collapsed) .stage-fab-wrapper {
+    bottom: calc(280px + 32px);
   }
 
   .stage-fab-button {
@@ -3830,7 +3836,7 @@ code,
     box-shadow: none !important;
   }
 
-  /* ---- Canvas: Pin to top 45vh on mobile, shifted down by 10% for optimal positioning ---- */
+  /* ---- Canvas: Pin to top on mobile, expands & centers when sheet is collapsed ---- */
   .customizer-canvas-mount {
     position: fixed;
     top: 2.2rem;
@@ -3839,6 +3845,15 @@ code,
     height: 45vh;
     z-index: 1;
     padding-top: 1.25rem;
+    transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1), top 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center 42%;
+  }
+
+  .is-sheet-collapsed .customizer-canvas-mount,
+  .customizer-page:has(.customizer-columns.is-collapsed) .customizer-canvas-mount {
+    height: calc(100vh - 280px - 1.8rem);
+    top: 2.5rem;
+    transform: scale(1.18);
   }
 
   /* ---- Hint text ---- */
