@@ -212,6 +212,11 @@
 }
 
 /* ---------- Columns & Layout ---------- */
+.stage-fab-wrapper,
+.bottom-sheet-handle-bar {
+  display: none;
+}
+
 .customizer-columns {
   position: absolute;
   top: 6rem;
@@ -3583,8 +3588,9 @@ code,
     justify-content: center;
   }
 
-  /* ---- Stage FAB & Popover Menu ---- */
+  /* ---- Mobile-Only Stage FAB & Popover Menu ---- */
   .stage-fab-wrapper {
+    display: flex;
     position: fixed;
     top: calc(45vh - 60px);
     bottom: auto;
@@ -3652,6 +3658,22 @@ code,
   .dark-mode .stage-popover-menu {
     background: rgba(15, 23, 42, 0.95);
     border-color: #334155;
+  }
+
+  .stage-control-bar {
+    display: none !important;
+  }
+
+  /* ---- Drag Handle Bar for Mobile Bottom Sheet ---- */
+  .bottom-sheet-handle-bar {
+    display: flex;
+    padding: 0.75rem 0 0.5rem;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    flex-shrink: 0;
   }
 
   .stage-control-group {
