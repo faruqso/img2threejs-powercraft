@@ -306,11 +306,24 @@
     opacity: 0;
     transform: translateY(12px);
     clip-path: inset(0 100% 0 0);
+    filter: blur(6px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
     clip-path: inset(0 0 0 0);
+    filter: blur(0);
+  }
+}
+
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -328,8 +341,19 @@
 }
 
 .customizer-page .page-title {
-  animation: textReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+  animation: textReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards,
+             textShimmer 2s ease-in-out 1.2s infinite;
   opacity: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(13, 201, 177, 0.4) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .customizer-page .page-subtitle {
@@ -354,8 +378,33 @@
 
 /* Staggered card animations */
 .customizer-page .customizer-card {
-  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: cardReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
+}
+
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+    filter: blur(12px);
+  }
+  60% {
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes textShimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 /* Left column cards */
