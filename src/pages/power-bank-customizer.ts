@@ -802,11 +802,22 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
 
           <div class="customizer-card summary-card collapsed">
-            <div class="card-header-row">
-              <div class="card-header-icon">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <div class="card-header-row summary-header-row">
+              <div class="summary-header-left">
+                <div class="card-header-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                </div>
+                <h3 class="card-title" style="margin:0;">Order summary</h3>
               </div>
-              <h3 class="card-title">Order summary &amp; booking</h3>
+
+              <div class="summary-collapsed-preview">
+                <span class="collapsed-qty-badge" id="collapsed-qty-val">50 units</span>
+                <strong class="collapsed-price-val" id="collapsed-price-val">£725.00</strong>
+                <button class="btn-primary-sm place-order-btn-sm" id="collapsed-order-btn" type="button">
+                  Place Order
+                </button>
+              </div>
+
               <svg class="card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
             
@@ -1376,7 +1387,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
     listen(headerEl, 'click', (e) => {
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'A' || target.closest('input')) return;
+      if (target.tagName === 'INPUT' || target.tagName === 'A' || target.tagName === 'BUTTON' || target.closest('input') || target.closest('button')) return;
 
       if (isAnimating) return;
       isAnimating = true;
@@ -1654,9 +1665,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
     const total = qty * unitPrice;
 
+    const collapsedQtyVal = mount.querySelector<HTMLElement>('#collapsed-qty-val');
+    const collapsedPriceVal = mount.querySelector<HTMLElement>('#collapsed-price-val');
+
     if (unitPriceVal) unitPriceVal.textContent = `£${unitPrice.toFixed(2)} / unit`;
     if (subtotalVal) subtotalVal.textContent = `£${total.toFixed(2)}`;
     if (orderTotalPrice) orderTotalPrice.textContent = `£${total.toFixed(2)}`;
+    if (collapsedQtyVal) collapsedQtyVal.textContent = `${qty} units`;
+    if (collapsedPriceVal) collapsedPriceVal.textContent = `£${total.toFixed(2)}`;
     if (summaryCapacityReadout) summaryCapacityReadout.textContent = `Base Power Bank (${qty}x)`;
   }
 
@@ -1702,14 +1718,24 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     }, 4200);
   };
 
+  const handlePlaceOrder = (): void => {
+    showToast(
+      'Order Placed Successfully!',
+      `Quantity: ${orderQtyInput?.value || 50} units | Total: ${orderTotalPrice?.textContent || '£725.00'} (Lead time: 5-7 business days)`,
+      '🎉',
+    );
+  };
+
   const placeOrderBtn = mount.querySelector<HTMLButtonElement>('#place-order-btn');
   if (placeOrderBtn) {
-    listen(placeOrderBtn, 'click', () => {
-      showToast(
-        'Order Placed Successfully!',
-        `Quantity: ${orderQtyInput?.value || 50} units | Total: ${orderTotalPrice?.textContent || '£725.00'} (Lead time: 5-7 business days)`,
-        '🎉',
-      );
+    listen(placeOrderBtn, 'click', handlePlaceOrder);
+  }
+
+  const collapsedOrderBtn = mount.querySelector<HTMLButtonElement>('#collapsed-order-btn');
+  if (collapsedOrderBtn) {
+    listen(collapsedOrderBtn, 'click', (e: Event) => {
+      e.stopPropagation();
+      handlePlaceOrder();
     });
   }
 
