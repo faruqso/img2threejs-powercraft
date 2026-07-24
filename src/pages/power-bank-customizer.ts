@@ -1332,7 +1332,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const chevronSvg = headerEl?.querySelector<HTMLElement>('.card-chevron svg, svg.card-chevron');
 
     if (chevronSvg) {
-      chevronSvg.style.transform = 'rotate(-180deg)';
+      chevronSvg.style.transform = 'rotate(0deg)';
     }
 
     contentWrapper.style.overflow = 'hidden';
@@ -1384,7 +1384,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const chevronSvg = headerEl?.querySelector<HTMLElement>('.card-chevron svg, svg.card-chevron');
 
     if (chevronSvg) {
-      chevronSvg.style.transform = 'rotate(0deg)';
+      chevronSvg.style.transform = 'rotate(-180deg)';
     }
 
     cardAnimMap.set(card, true);
@@ -1450,13 +1450,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       contentWrapper.style.height = '0px';
       contentWrapper.style.opacity = '0';
       contentWrapper.style.overflow = 'hidden';
-      if (chevronSvg) chevronSvg.style.transform = 'rotate(-180deg)';
+      if (chevronSvg) chevronSvg.style.transform = 'rotate(0deg)';
     } else {
       contentWrapper.style.display = 'block';
       contentWrapper.style.height = 'auto';
       contentWrapper.style.opacity = '1';
       contentWrapper.style.overflow = 'visible';
-      if (chevronSvg) chevronSvg.style.transform = 'rotate(0deg)';
+      if (chevronSvg) chevronSvg.style.transform = 'rotate(-180deg)';
     }
 
     listen(headerEl, 'click', (e) => {
