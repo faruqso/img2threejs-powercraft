@@ -575,7 +575,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   )
                   .join('')}
               </div>
-              <button class="card-done-btn" type="button">Done</button>
             </div>
 
             <div class="customizer-card">
@@ -590,7 +589,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               <label class="range-control range-control-compact">
                 <input id="gloss-control" type="range" min="0" max="100" value="45" />
               </label>
-              <button class="card-done-btn" type="button">Done</button>
             </div>
 
             <div class="customizer-card">
@@ -604,14 +602,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               <label class="text-control">
                 <span class="input-label">Inscription</span>
                 <div class="input-wrapper">
-                  <input id="brand-control" type="text" value="ANKER" maxlength="15" autocomplete="off" placeholder="Enter words or names" />
+                  <input id="brand-control" type="text" value="PowerCraft" maxlength="15" autocomplete="off" placeholder="Enter words or names" />
                   <button class="inscription-done" id="inscription-done" type="button" hidden aria-label="Finish inscription">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </button>
                 </div>
               </label>
               <p class="card-desc">Up to 15 characters</p>
-              <button class="card-done-btn" type="button">Done</button>
             </div>
           </div>
 
@@ -661,7 +658,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   .join('')}
               </div>
             </div>
-            <button class="card-done-btn" type="button">Done</button>
           </div>
 
           <div class="customizer-card collapsed">
@@ -709,7 +705,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                 </label>
               </div>
             </div>
-            <button class="card-done-btn" type="button">Done</button>
+            <button class="card-done-btn" type="button" style="display: none;">Done</button>
           </div>
 
           <div class="customizer-card collapsed">
@@ -804,7 +800,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                   .join('')}
               </div>
             </div>
-            <button class="card-done-btn" type="button">Done</button>
+            <button class="card-done-btn" type="button" style="display: none;">Done</button>
           </div>
 
           <div class="customizer-card summary-card collapsed">
@@ -994,7 +990,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   capacityEngraving.position.set(-0.31, 0.29, 0.322);
   model.add(capacityEngraving);
 
-  const brandEngraving = makeBrandPlane('power-bank-brand-engraving', 'ANKER');
+  const brandEngraving = makeBrandPlane('power-bank-brand-engraving', 'PowerCraft');
   // The wordmark is rotated vertically, moved slightly left to 0.53, and anchored to the top-right corner.
   brandEngraving.rotation.z = -Math.PI / 2;
   brandEngraving.position.set(0.53, 1.46, 0.323);
@@ -1039,7 +1035,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const invScaleY = 1 / model.scale.y;
     const invScaleZ = 1 / model.scale.z;
 
-    // Keep ANKER text anchored at top-right corner at 1:1 scale without font stretching
+    // Keep PowerCraft text anchored at top-right corner at 1:1 scale without font stretching
     brandEngraving.position.y = 1.46 + (model.scale.y - 1.0) * 0.72;
     // brandEngraving is rotated -90deg on Z, so local X maps to world Y. Set local X to invScaleY to cancel model.scale.y!
     brandEngraving.scale.set(invScaleY, 1.0, invScaleZ);
@@ -1232,6 +1228,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           | null;
         if (material?.emissive) material.emissive.setHex(color.value);
       });
+      markPortChanged();
     });
   }
 
@@ -1280,65 +1277,133 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   // Customizer Card Focus Interactivity
   const allCards = Array.from(mount.querySelectorAll<HTMLElement>('.customizer-card'));
   const portCard = allCards.find(c => c.querySelector('input[name="port-option"]'));
-  const tongueCard = allCards.find(c => c.querySelector('input[name="usb-color"]'));
   const chargingFeaturesCard = allCards.find(c => c.querySelector('#magsafe-toggle'));
-  const inscriptionCard = allCards.find(c => c.querySelector('#brand-control'));
-
-  if (portCard) {
-    listen(portCard, 'click', (e: Event) => {
-      e.stopPropagation();
-      setPortFocus();
-    });
-  }
-
-  if (tongueCard) {
-    listen(tongueCard, 'click', (e: Event) => {
-      e.stopPropagation();
-      setUsbTongueFocus();
-    });
-  }
-
-  if (chargingFeaturesCard) {
-    listen(chargingFeaturesCard, 'click', (e: Event) => {
-      e.stopPropagation();
-      const target = e.target as HTMLElement;
-      if (target.closest('#magsafe-toggle')) {
-        const checked = (target as HTMLInputElement).checked;
-        if (checked) setMagSafeFocus();
-        else setFrontDisplayFocus();
-      } else {
-        setFrontDisplayFocus();
-      }
-    });
-  }
-
-  if (inscriptionCard) {
-    listen(inscriptionCard, 'click', (e: Event) => {
-      e.stopPropagation();
-      setInscriptionFocus(true);
-    });
-  }
-
-  listen(canvasMount, 'click', () => {
-    restorePreFocusState();
-  });
-
   const magsafeToggle = mount.querySelector<HTMLInputElement>('#magsafe-toggle')!;
+  const chargingDoneBtn = chargingFeaturesCard?.querySelector<HTMLButtonElement>('.card-done-btn');
+  const portDoneBtn = portCard?.querySelector<HTMLButtonElement>('.card-done-btn');
+
+  const markChargingChanged = () => {
+    if (chargingDoneBtn) chargingDoneBtn.style.display = 'block';
+  };
+
+  const markPortChanged = () => {
+    if (portDoneBtn) portDoneBtn.style.display = 'block';
+  };
+
+  if (chargingDoneBtn) {
+    listen(chargingDoneBtn, 'click', (e: Event) => {
+      e.stopPropagation();
+      resetToDefaultCamera();
+      chargingDoneBtn.style.display = 'none';
+    });
+  }
+
+  if (portDoneBtn) {
+    listen(portDoneBtn, 'click', (e: Event) => {
+      e.stopPropagation();
+      resetToDefaultCamera();
+      portDoneBtn.style.display = 'none';
+    });
+  }
 
   for (const input of portInputs) {
     listen(input, 'change', () => {
       setPortFocus();
       const checkedPorts = portInputs.filter(i => i.checked);
-      if (!magsafeToggle.checked && checkedPorts.length === 0) {
+      if (magsafeToggle && !magsafeToggle.checked && checkedPorts.length === 0) {
         input.checked = true;
       }
       syncPorts();
+      markPortChanged();
     });
   }
 
-  // FAB listeners & Recenter controls handle view resetting smoothly
+  // Smooth Motion accordion functions with column-based mutual exclusion & motion blur
+  const cardAnimMap = new Map<HTMLElement, boolean>();
 
-  // Enable Framer-Motion powered smooth accordion collapse/expand on all customizer cards
+  const animateCollapseCard = (card: HTMLElement): Promise<void> => {
+    const contentWrapper = card.querySelector<HTMLElement>('.card-content-wrapper');
+    if (!contentWrapper || card.classList.contains('collapsed')) return Promise.resolve();
+
+    const headerEl = card.querySelector<HTMLElement>('.card-header-row, .card-header-with-badge, .card-header-accordion');
+    const chevronSvg = headerEl?.querySelector<HTMLElement>('.card-chevron svg, svg.card-chevron');
+
+    if (chevronSvg) {
+      chevronSvg.style.transform = 'rotate(-180deg)';
+    }
+
+    contentWrapper.style.overflow = 'hidden';
+    const startHeight = contentWrapper.offsetHeight || contentWrapper.scrollHeight;
+
+    cardAnimMap.set(card, true);
+
+    const controls = animate(
+      contentWrapper,
+      {
+        height: [startHeight, 0],
+        opacity: [1, 0],
+        filter: ['blur(0px)', 'blur(6px)'],
+      },
+      { duration: 0.32, ease: [0.16, 1, 0.3, 1] }
+    );
+
+    return controls.then(() => {
+      card.classList.add('collapsed');
+      contentWrapper.style.display = 'none';
+      contentWrapper.style.filter = 'none';
+      cardAnimMap.set(card, false);
+    });
+  };
+
+  const animateExpandCard = (card: HTMLElement): Promise<void> => {
+    const contentWrapper = card.querySelector<HTMLElement>('.card-content-wrapper');
+    if (!contentWrapper || !card.classList.contains('collapsed')) return Promise.resolve();
+
+    // Mutual exclusion: Close any other open card in the same column!
+    const parentCol = card.closest('.customizer-column');
+    if (parentCol) {
+      const openSiblings = Array.from(parentCol.querySelectorAll<HTMLElement>('.customizer-card:not(.collapsed)'));
+      openSiblings.forEach((sibling) => {
+        if (sibling !== card) {
+          animateCollapseCard(sibling);
+        }
+      });
+    }
+
+    card.classList.remove('collapsed');
+    contentWrapper.style.display = 'block';
+    contentWrapper.style.height = 'auto';
+    contentWrapper.style.overflow = 'hidden';
+    const targetHeight = contentWrapper.scrollHeight;
+    contentWrapper.style.height = '0px';
+
+    const headerEl = card.querySelector<HTMLElement>('.card-header-row, .card-header-with-badge, .card-header-accordion');
+    const chevronSvg = headerEl?.querySelector<HTMLElement>('.card-chevron svg, svg.card-chevron');
+
+    if (chevronSvg) {
+      chevronSvg.style.transform = 'rotate(0deg)';
+    }
+
+    cardAnimMap.set(card, true);
+
+    const controls = animate(
+      contentWrapper,
+      {
+        height: [0, targetHeight],
+        opacity: [0, 1],
+        filter: ['blur(6px)', 'blur(0px)'],
+      },
+      { duration: 0.36, ease: [0.16, 1, 0.3, 1] }
+    );
+
+    return controls.then(() => {
+      contentWrapper.style.height = 'auto';
+      contentWrapper.style.overflow = 'visible';
+      contentWrapper.style.filter = 'none';
+      cardAnimMap.set(card, false);
+    });
+  };
+
   for (const card of allCards) {
     const titleEl = card.querySelector<HTMLElement>('.card-title');
     if (!titleEl) continue;
@@ -1360,7 +1425,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       headerEl.appendChild(chevron);
     }
 
-    // Wrap remaining card contents in a smooth content wrapper
     let contentWrapper = card.querySelector<HTMLElement>('.card-content-wrapper');
     if (!contentWrapper) {
       contentWrapper = document.createElement('div');
@@ -1377,7 +1441,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
     const chevronSvg = headerEl.querySelector<HTMLElement>('.card-chevron svg, svg.card-chevron');
 
-    // Initial state set-up
     const isInitiallyCollapsed = card.classList.contains('collapsed');
     if (isInitiallyCollapsed) {
       contentWrapper.style.display = 'none';
@@ -1393,66 +1456,19 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       if (chevronSvg) chevronSvg.style.transform = 'rotate(0deg)';
     }
 
-    let isAnimating = false;
-
     listen(headerEl, 'click', (e) => {
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'A' || target.tagName === 'BUTTON' || target.closest('input') || target.closest('button')) return;
 
-      if (isAnimating) return;
-      isAnimating = true;
+      if (cardAnimMap.get(card)) return;
 
       const isCurrentlyCollapsed = card.classList.contains('collapsed');
 
       if (isCurrentlyCollapsed) {
-        // --- OPEN ACCORDION ---
-        card.classList.remove('collapsed');
-        contentWrapper!.style.display = 'block';
-        contentWrapper!.style.height = 'auto';
-        contentWrapper!.style.overflow = 'hidden';
-        const targetHeight = contentWrapper!.scrollHeight;
-        contentWrapper!.style.height = '0px';
-
-        // Update chevron transform (animated by CSS transition)
-        if (chevronSvg) {
-          chevronSvg.style.transform = 'rotate(0deg)';
-        }
-
-        // Animate wrapper height & opacity using Framer Motion
-        const controls = animate(
-          contentWrapper!,
-          { height: [0, targetHeight], opacity: [0, 1] },
-          { duration: 0.3, ease: 'easeOut' }
-        );
-
-        controls.then(() => {
-          contentWrapper!.style.height = 'auto';
-          contentWrapper!.style.overflow = 'visible';
-          isAnimating = false;
-        });
+        animateExpandCard(card);
       } else {
-        // --- CLOSE ACCORDION ---
         restorePreFocusState();
-        contentWrapper!.style.overflow = 'hidden';
-        const startHeight = contentWrapper!.offsetHeight;
-
-        // Update chevron transform (animated by CSS transition)
-        if (chevronSvg) {
-          chevronSvg.style.transform = 'rotate(-180deg)';
-        }
-
-        // Animate wrapper height & opacity using Framer Motion
-        const controls = animate(
-          contentWrapper!,
-          { height: [startHeight, 0], opacity: [1, 0] },
-          { duration: 0.3, ease: 'easeOut' }
-        );
-
-        controls.then(() => {
-          card.classList.add('collapsed');
-          contentWrapper!.style.display = 'none';
-          isAnimating = false;
-        });
+        animateCollapseCard(card);
       }
     });
   }
@@ -1490,12 +1506,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       setFrontDisplayFocus();
       selectedIndicator = input.value as 'leds' | 'screen';
       syncLeds();
+      markChargingChanged();
     });
   }
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="ring-shape"]')) {
     listen(input, 'change', () => {
       setFrontDisplayFocus();
+      markChargingChanged();
       const shapeKey = input.value as RingShapeKey;
       const rimMesh = model.getObjectByName('status-ring') as THREE.Mesh | null;
       const faceMesh = model.getObjectByName('status-face') as THREE.Mesh | null;
@@ -1578,7 +1596,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   };
 
   listen(magsafeToggle, 'change', () => {
+    markChargingChanged();
     const magsafeVisible = magsafeToggle.checked;
+    if (magsafeVisible) setMagSafeFocus();
+    else setFrontDisplayFocus();
     // Hide/show the entire magsafe-charging-surface group (includes ring, center-pad, grooves, bar)
     setVisibility(model, ['magsafe-charging-surface'], magsafeVisible);
     // Belt-and-suspenders: also traverse to catch any individually-visible groove meshes
@@ -1632,11 +1653,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     spinToggle.checked = false;
     lightControl.value = '70';
     lightValue.textContent = '70%';
-    brandControl.value = 'ANKER';
-    committedBrandName = 'ANKER';
+    brandControl.value = 'PowerCraft';
+    committedBrandName = 'POWERCRAFT';
     inscriptionDone.hidden = true;
     brandEngraving.visible = true;
-    updateBrandPlane(brandEngraving, 'ANKER');
+    updateBrandPlane(brandEngraving, 'PowerCraft');
     applyDimensions();
     syncLeds();
     resetToDefaultCamera();

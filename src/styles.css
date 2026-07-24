@@ -235,13 +235,39 @@
   padding-bottom: 6rem;
 }
 
-/* Hide scrollbars for cleaner look */
-.customizer-column::-webkit-scrollbar {
-  display: none;
-}
+/* Custom sleek overlay scrollbar for columns */
 .customizer-column {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(13, 201, 177, 0.4) transparent;
+  overflow-y: auto;
+  overflow-y: overlay;
+}
+
+.customizer-column::-webkit-scrollbar {
+  width: 5px;
+  display: block;
+}
+
+.customizer-column::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.customizer-column::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 99px;
+  transition: background 0.2s ease;
+}
+
+.customizer-column::-webkit-scrollbar-thumb:hover {
+  background: #0dc9b1;
+}
+
+.customizer-page.dark-mode .customizer-column::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.customizer-page.dark-mode .customizer-column::-webkit-scrollbar-thumb:hover {
+  background: #0dc9b1;
 }
 
 /* ---------- Title Area ---------- */
@@ -1961,19 +1987,30 @@ code,
   transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.customizer-page .customizer-card {
+  transition: transform 0.25s var(--ease-out-expo), box-shadow 0.25s var(--ease-out-expo), border-color 0.25s ease, padding-bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .customizer-page .customizer-card.collapsed {
-  padding-bottom: 1.1rem !important;
+  padding-bottom: 1.1rem;
+}
+
+.customizer-page .card-header-accordion,
+.customizer-page .card-header-with-badge,
+.customizer-page .card-header-row {
+  transition: margin-bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .customizer-page .customizer-card.collapsed .card-header-accordion,
 .customizer-page .customizer-card.collapsed .card-header-with-badge,
 .customizer-page .customizer-card.collapsed .card-header-row {
-  margin-bottom: 0 !important;
+  margin-bottom: 0;
 }
 
 .customizer-page .card-content-wrapper {
   overflow: hidden;
-  will-change: height, opacity;
+  will-change: height, opacity, filter;
+  transform: translateZ(0);
 }
 
 .customizer-page .capacity-segmented {
