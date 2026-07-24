@@ -923,6 +923,31 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   viewer.controls.minDistance = 2.2;
   viewer.controls.maxDistance = 10;
 
+  let isFocusedOnCard = false;
+  const preFocusState = {
+    position: defaultCameraPosition.clone(),
+    target: defaultCameraTarget.clone(),
+    zoom: defaultCameraZoom,
+  };
+
+  const savePreFocusState = (): void => {
+    if (!isFocusedOnCard) {
+      preFocusState.position.copy(viewer.camera.position);
+      preFocusState.target.copy(viewer.controls.target);
+      preFocusState.zoom = viewer.camera.zoom;
+    }
+  };
+
+  const restorePreFocusState = (): void => {
+    if (isFocusedOnCard) {
+      isFocusedOnCard = false;
+      targetCameraPosition.copy(preFocusState.position);
+      targetCameraTarget.copy(preFocusState.target);
+      targetCameraZoom = preFocusState.zoom;
+      isCameraTransitioning = true;
+    }
+  };
+
   const contactShadow = makePowerBankContactShadow();
   contactShadow.position.y = -0.38;
   viewer.scene.add(contactShadow);
@@ -973,11 +998,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   viewer.controls.addEventListener('start', () => {
     isCameraTransitioning = false;
-    // Ensure manual orbit drags are always centered on the main product axis
-    viewer.controls.target.copy(defaultCameraTarget);
+    isFocusedOnCard = false;
     targetCameraPosition.copy(viewer.camera.position);
-    targetCameraTarget.copy(defaultCameraTarget);
+    targetCameraTarget.copy(viewer.controls.target);
     targetCameraZoom = viewer.camera.zoom;
+    preFocusState.position.copy(viewer.camera.position);
+    preFocusState.target.copy(viewer.controls.target);
+    preFocusState.zoom = viewer.camera.zoom;
   });
 
   model.userData.tick = (dt: number, elapsed: number): void => {
@@ -1098,6 +1125,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   }
 
   const setPortFocus = (): void => {
+    savePreFocusState();
+    isFocusedOnCard = true;
     isCameraTransitioning = true;
     targetCameraPosition.set(-5.2, 0.15, 2.6);
     targetCameraTarget.set(-0.55, 0.12, 0.0);
@@ -1105,6 +1134,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   };
 
   const setUsbTongueFocus = (): void => {
+    savePreFocusState();
+    isFocusedOnCard = true;
     isCameraTransitioning = true;
     targetCameraPosition.set(-4.5, 0.18, 1.9);
     targetCameraTarget.set(-0.60, 0.22, 0.0);
@@ -1112,6 +1143,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   };
 
   const setMagSafeFocus = (): void => {
+    savePreFocusState();
+    isFocusedOnCard = true;
     isCameraTransitioning = true;
     targetCameraPosition.set(3.8, 0.35, -5.2);
     targetCameraTarget.set(0, 0.20, 0);
@@ -1119,6 +1152,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   };
 
   const setFrontDisplayFocus = (): void => {
+    savePreFocusState();
+    isFocusedOnCard = true;
     isCameraTransitioning = true;
     targetCameraPosition.set(-0.4, 0.25, 6.2);
     targetCameraTarget.set(0, 0.18, 0);
@@ -1127,22 +1162,19 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   const setInscriptionFocus = (focused: boolean): void => {
     if (focused) {
+      savePreFocusState();
+      isFocusedOnCard = true;
       targetCameraTarget.set(0.12, -0.10, 0.0);
       targetCameraPosition.set(-1.6, 0.35, 6.2);
       targetCameraZoom = 1.38;
+      isCameraTransitioning = true;
     } else {
-      targetCameraPosition.copy(defaultCameraPosition);
-      targetCameraTarget.copy(defaultCameraTarget);
-      targetCameraZoom = defaultCameraZoom;
+      restorePreFocusState();
     }
-    isCameraTransitioning = true;
   };
 
   const resetCameraFocus = (): void => {
-    isCameraTransitioning = true;
-    targetCameraPosition.copy(defaultCameraPosition);
-    targetCameraTarget.copy(defaultCameraTarget);
-    targetCameraZoom = defaultCameraZoom;
+    restorePreFocusState();
   };
 
   for (const input of mount.querySelectorAll<HTMLInputElement>('input[name="usb-color"]')) {
@@ -1242,6 +1274,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
       setInscriptionFocus(true);
     });
   }
+
+  listen(canvasMount, 'click', () => {
+    restorePreFocusState();
+  });
 
   const magsafeToggle = mount.querySelector<HTMLInputElement>('#magsafe-toggle')!;
 
