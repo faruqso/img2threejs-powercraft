@@ -1154,8 +1154,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     listen(input, 'change', () => {
       setUsbTongueFocus();
       const color = USB_COLORS[input.value as keyof typeof USB_COLORS];
-      setMaterialColor(model, ['usb-c-blue-tongue', 'usb-a-blue-tongue'], color.value);
-      ['usb-c-blue-tongue', 'usb-a-blue-tongue'].forEach((name) => {
+      setMaterialColor(model, ['usb-c-blue-tongue', 'usb-a-blue-tongue', 'micro-usb-blue-tongue'], color.value);
+      ['usb-c-blue-tongue', 'usb-a-blue-tongue', 'micro-usb-blue-tongue'].forEach((name) => {
         const material = materialOf(model.getObjectByName(name) ?? new THREE.Object3D()) as
           | THREE.MeshStandardMaterial
           | null;
@@ -1165,7 +1165,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   }
 
   const usbAPort = model.getObjectByName('usb-a-port');
-  const legacyUsbPort = model.getObjectByName('legacy-usb-port');
+  const legacyUsbPort = model.getObjectByName('micro-usb-port') || model.getObjectByName('legacy-usb-port');
   const usbCPort = model.getObjectByName('usb-c-port');
   const lightningPort = model.getObjectByName('lightning-port');
 

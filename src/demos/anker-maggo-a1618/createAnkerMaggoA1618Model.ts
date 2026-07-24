@@ -241,7 +241,7 @@ function makeUsbAPort(
   _blueMaterial: THREE.Material,
 ): THREE.Group {
   const port = new THREE.Group();
-  port.name = 'legacy-usb-port';
+  port.name = 'usb-a-port';
 
   const P_W   = 0.190;
   const P_H   = 0.085;
@@ -404,6 +404,7 @@ function makeUsbAPort(
 function makeMicroUsbPort(
   shadows: boolean,
   _recessMaterial: THREE.Material,
+  _blueMaterial?: THREE.Material,
 ): THREE.Group {
   const port = new THREE.Group();
   port.name = 'micro-usb-port';
@@ -463,15 +464,16 @@ function makeMicroUsbPort(
   cavity.position.set(FACE_X - 0.002, 0, 0);
   port.add(cavity);
 
-  // Center black plastic tongue (5-pin wafer)
+  // Center plastic tongue (5-pin wafer)
   const TONGUE_BW = 0.0975;
   const TONGUE_BH = 0.012;
   const TONGUE_BD = 0.0135;
   const TONGUE_PX = FACE_X - RECESS - TONGUE_BD / 2;
   const tongue = new THREE.Mesh(
     new THREE.BoxGeometry(TONGUE_BW, TONGUE_BH, TONGUE_BD),
-    new THREE.MeshStandardMaterial({ color: 0x181a1d, roughness: 0.35, metalness: 0.15 }),
+    _blueMaterial || new THREE.MeshStandardMaterial({ color: 0x181a1d, roughness: 0.35, metalness: 0.15 }),
   );
+  tongue.name = 'micro-usb-blue-tongue';
   tongue.rotation.y = -Math.PI / 2;
   tongue.position.set(TONGUE_PX, 0.0045, 0);
   port.add(tongue);
@@ -990,7 +992,7 @@ export function createAnkerMaggoA1618Model(
   lightningPort.position.y = 0.48;
   root.add(lightningPort);
 
-  const microUsbPort = makeMicroUsbPort(shadows, edgeMaterial);
+  const microUsbPort = makeMicroUsbPort(shadows, edgeMaterial, blueMaterial);
   microUsbPort.position.y = 0.33;
   root.add(microUsbPort);
 
