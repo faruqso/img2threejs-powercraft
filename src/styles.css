@@ -3402,7 +3402,7 @@ code,
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
-    padding: 1.25rem 1rem 7rem;
+    padding: 1.25rem 1rem 13rem; /* Expanded bottom padding so scrolling content clears fixed summary card */
     background: rgba(252, 253, 255, 0.94);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -3415,6 +3415,33 @@ code,
     pointer-events: auto;
     min-height: auto;
     max-height: none;
+    transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .customizer-columns.is-collapsed {
+    top: calc(100vh - 170px);
+    overflow-y: hidden;
+  }
+
+  .customizer-card.summary-card {
+    position: fixed !important;
+    bottom: 0.5rem !important;
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+    z-index: 35 !important;
+    margin: 0 !important;
+    border-radius: 16px;
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.14);
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+  }
+
+  .dark-mode .customizer-card.summary-card {
+    background: rgba(15, 23, 42, 0.96);
+    border-color: rgba(51, 65, 85, 0.9);
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.45);
   }
 
   .customizer-columns::before {
