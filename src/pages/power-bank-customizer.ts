@@ -373,7 +373,7 @@ function makeBrandPlane(name: string, value: string): THREE.Mesh {
     polygonOffset: true,
     polygonOffsetFactor: -2,
   });
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(3.36, 0.6), material);
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2.52, 0.45), material);
   mesh.name = name;
   return mesh;
 }
@@ -813,8 +813,10 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               </div>
 
               <div class="summary-collapsed-preview">
-                <span class="collapsed-qty-badge" id="collapsed-qty-val">50 units</span>
-                <strong class="collapsed-price-val" id="collapsed-price-val">£725.00</strong>
+                <div class="summary-collapsed-row">
+                  <span class="collapsed-qty-badge" id="collapsed-qty-val">50 units</span>
+                  <strong class="collapsed-price-val" id="collapsed-price-val">£725.00</strong>
+                </div>
                 <button class="btn-primary-sm place-order-btn-sm" id="collapsed-order-btn" type="button">
                   Place Order
                 </button>
@@ -993,7 +995,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const brandEngraving = makeBrandPlane('power-bank-brand-engraving', 'PowerCraft');
   // The wordmark is rotated vertically, moved slightly left to 0.53, and anchored to the top-right corner.
   brandEngraving.rotation.z = -Math.PI / 2;
-  brandEngraving.position.set(0.53, 1.46, 0.323);
+  brandEngraving.position.set(0.53, 1.35, 0.323);
   model.add(brandEngraving);
   viewer.scene.add(model);
 
@@ -1036,7 +1038,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     const invScaleZ = 1 / model.scale.z;
 
     // Keep PowerCraft text anchored at top-right corner at 1:1 scale without font stretching
-    brandEngraving.position.y = 1.46 + (model.scale.y - 1.0) * 0.72;
+    brandEngraving.position.y = 1.35 + (model.scale.y - 1.0) * 0.72;
     // brandEngraving is rotated -90deg on Z, so local X maps to world Y. Set local X to invScaleY to cancel model.scale.y!
     brandEngraving.scale.set(invScaleY, 1.0, invScaleZ);
 
@@ -1283,11 +1285,23 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
   const portDoneBtn = portCard?.querySelector<HTMLButtonElement>('.card-done-btn');
 
   const markChargingChanged = () => {
-    if (chargingDoneBtn) chargingDoneBtn.style.display = 'block';
+    if (chargingDoneBtn) {
+      chargingDoneBtn.style.display = 'block';
+      const wrapper = chargingFeaturesCard?.querySelector<HTMLElement>('.card-content-wrapper');
+      if (wrapper && !chargingFeaturesCard?.classList.contains('collapsed')) {
+        wrapper.style.height = 'auto';
+      }
+    }
   };
 
   const markPortChanged = () => {
-    if (portDoneBtn) portDoneBtn.style.display = 'block';
+    if (portDoneBtn) {
+      portDoneBtn.style.display = 'block';
+      const wrapper = portCard?.querySelector<HTMLElement>('.card-content-wrapper');
+      if (wrapper && !portCard?.classList.contains('collapsed')) {
+        wrapper.style.height = 'auto';
+      }
+    }
   };
 
   if (chargingDoneBtn) {

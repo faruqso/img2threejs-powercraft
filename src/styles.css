@@ -227,20 +227,30 @@
 
 .customizer-column {
   pointer-events: auto; /* Re-enable clicks for the sidebars */
-  width: min(340px, calc(35vw - 2rem));
+  width: min(350px, calc(35vw - 1rem));
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   overflow-y: auto;
-  padding-bottom: 6rem;
-}
-
-/* Custom sleek overlay scrollbar for columns */
-.customizer-column {
+  overflow-y: overlay;
+  padding: 0.5rem 0.65rem 6rem;
+  margin: -0.5rem -0.65rem 0;
   scrollbar-width: thin;
   scrollbar-color: rgba(13, 201, 177, 0.4) transparent;
-  overflow-y: auto;
-  overflow-y: overlay;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    black 24px,
+    black calc(100% - 32px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    black 24px,
+    black calc(100% - 32px),
+    transparent 100%
+  );
 }
 
 .customizer-column::-webkit-scrollbar {
@@ -1867,22 +1877,26 @@ code,
 .customizer-page .card-done-btn {
   display: block;
   width: 100%;
-  margin-top: 0.75rem;
-  padding: 0.5rem 0;
-  border: 1px solid #e0e5ea;
-  border-radius: 10px;
-  background: transparent;
-  color: #425068;
-  font-size: 0.75rem;
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+  padding: 0.65rem 0;
+  border: 1px solid #dce2e8;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;
-  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .customizer-page .card-done-btn:hover {
   background: #0dc9b1;
-  color: #fff;
+  color: #ffffff;
   border-color: #0dc9b1;
+  box-shadow: 0 4px 14px rgba(13, 201, 177, 0.25);
 }
 
 .customizer-page .left-benefits {
@@ -2159,16 +2173,45 @@ code,
   flex-shrink: 0;
 }
 
+.customizer-page .summary-card {
+  position: sticky;
+  bottom: 0.5rem;
+  z-index: 10;
+  margin-top: auto;
+}
+
 .customizer-page .summary-collapsed-preview {
   display: none;
-  align-items: center;
+  flex-direction: column;
   gap: 0.65rem;
-  margin-left: auto;
-  margin-right: 0.35rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.customizer-page.dark-mode .summary-collapsed-preview {
+  border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 .customizer-page .summary-card.collapsed .summary-collapsed-preview {
   display: flex;
+}
+
+.customizer-page .summary-collapsed-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.customizer-page .summary-collapsed-preview .place-order-btn-sm {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  justify-content: center;
 }
 
 .customizer-page .collapsed-qty-badge {
