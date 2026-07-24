@@ -2620,6 +2620,29 @@ code,
   border-color: rgba(255, 255, 255, 0.08);
 }
 
+.lead-time-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin: 0.85rem 0 0.25rem 0;
+  font-size: 0.82rem;
+  color: #596171;
+}
+.customizer-page.dark-mode .lead-time-notice {
+  color: #9aa4b5;
+}
+.lead-time-notice svg {
+  color: #00d0b0;
+  flex-shrink: 0;
+}
+.lead-time-notice strong {
+  color: #1a1f2b;
+}
+.customizer-page.dark-mode .lead-time-notice strong {
+  color: #fcfdfe;
+}
+
 .order-spec-item {
   display: flex;
   flex-direction: column;

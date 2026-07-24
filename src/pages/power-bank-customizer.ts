@@ -819,14 +819,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                 <span class="spec-label">Unit Price</span>
                 <strong class="spec-val" id="unit-price-val">£14.50 / unit</strong>
               </div>
-              <div class="order-spec-item">
-                <span class="spec-label">Lead Time</span>
-                <strong class="spec-val">5 - 7 Days</strong>
-              </div>
-              <div class="order-spec-item">
-                <span class="spec-label">Branding Setup</span>
-                <strong class="spec-val text-teal">Included (Free)</strong>
-              </div>
             </div>
 
             <div class="quantity-picker-row">
@@ -843,10 +835,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
                 <span id="capacity-readout">Base Power Bank (50x)</span>
                 <strong id="subtotal-val">£725.00</strong>
               </div>
-              <div class="summary-row">
-                <span>Laser Engraving / Branding</span>
-                <strong class="text-teal">Included</strong>
-              </div>
             </div>
 
             <div class="summary-total">
@@ -858,6 +846,11 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
               Place Order
             </button>
+
+            <div class="lead-time-notice">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Estimated Lead Time: <strong>5 - 7 Days</strong></span>
+            </div>
 
             <div class="order-secondary-actions">
               <button class="btn-secondary-link" id="reset-customizer" type="button">
