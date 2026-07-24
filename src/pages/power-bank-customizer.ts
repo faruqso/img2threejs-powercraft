@@ -349,11 +349,12 @@ function makeBrandTexture(value: string): THREE.CanvasTexture {
   canvas.width = 1120;
   canvas.height = 200;
   const context = canvas.getContext('2d')!;
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = '#000000';
+  context.fillRect(0, 0, canvas.width, canvas.height);
   context.textAlign = 'center';
   context.textBaseline = 'middle';
   context.font = '600 128px Arial, Helvetica, sans-serif';
-  context.fillStyle = 'rgba(13, 15, 18, 0.72)';
+  context.fillStyle = '#ffffff';
   context.fillText(value, canvas.width / 2, canvas.height / 2 + 2);
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -363,12 +364,15 @@ function makeBrandTexture(value: string): THREE.CanvasTexture {
 }
 
 function makeBrandPlane(name: string, value: string): THREE.Mesh {
-  const material = new THREE.MeshBasicMaterial({
-    map: makeBrandTexture(value),
+  const texture = makeBrandTexture(value);
+  const material = new THREE.MeshPhysicalMaterial({
+    color: 0x8a929b,
+    roughness: 0.15,
+    metalness: 0.94,
+    clearcoat: 0.5,
+    clearcoatRoughness: 0.08,
+    alphaMap: texture,
     transparent: true,
-    opacity: 0.68,
-    side: THREE.DoubleSide,
-    toneMapped: false,
     depthWrite: false,
     polygonOffset: true,
     polygonOffsetFactor: -2,
@@ -379,9 +383,9 @@ function makeBrandPlane(name: string, value: string): THREE.Mesh {
 }
 
 function updateBrandPlane(mesh: THREE.Mesh, value: string): void {
-  const material = mesh.material as THREE.MeshBasicMaterial;
-  const previous = material.map;
-  material.map = makeBrandTexture(value);
+  const material = mesh.material as THREE.MeshPhysicalMaterial;
+  const previous = material.alphaMap;
+  material.alphaMap = makeBrandTexture(value);
   material.needsUpdate = true;
   previous?.dispose();
 }
@@ -1164,14 +1168,14 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     setMaterialColor(model, ['glossy-rear-shell', 'matte-charging-face'], finish.body);
     setMaterialColor(model, ['front-polished-gasket', 'magsafe-alignment-ring'], finish.edge);
     setMaterialColor(model, ['magsafe-center-pad', 'power-button'], finish.panel);
-    setMaterialColor(model, ['status-ring'], finish.ring);
+    setMaterialColor(model, ['status-ring', 'power-bank-brand-engraving'], finish.ring);
     syncLeds();
   };
 
   const capacityReadout = mount.querySelector<HTMLElement>('#capacity-readout')!;
   const brandControl = mount.querySelector<HTMLInputElement>('#brand-control')!;
   const inscriptionDone = mount.querySelector<HTMLButtonElement>('#inscription-done')!;
-  let committedBrandName = brandControl.value.trim().toUpperCase();
+  let committedBrandName = brandControl.value.trim();
 
   const applyDimensions = (): void => {
     const capacity = CAPACITIES[selectedCapacity];
@@ -1575,7 +1579,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     if (brandControl.value.length > 10) {
       brandControl.value = brandControl.value.slice(0, 10);
     }
-    const brandName = brandControl.value.trim().toUpperCase();
+    const brandName = brandControl.value.trim();
     brandEngraving.visible = brandName.length > 0;
     if (brandName) updateBrandPlane(brandEngraving, brandName);
     inscriptionDone.hidden = brandName === committedBrandName;
@@ -1583,12 +1587,12 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
   listen(brandControl, 'focus', () => setInscriptionFocus(true));
   listen(brandControl, 'blur', () => {
-    if (brandControl.value.trim().toUpperCase() === committedBrandName) {
+    if (brandControl.value.trim() === committedBrandName) {
       setInscriptionFocus(false);
     }
   });
   listen(inscriptionDone, 'click', () => {
-    committedBrandName = brandControl.value.trim().toUpperCase();
+    committedBrandName = brandControl.value.trim();
     inscriptionDone.hidden = true;
     setInscriptionFocus(false);
     brandControl.blur();
