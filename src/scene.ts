@@ -8,6 +8,7 @@ export interface ViewerOptions {
   cameraPosition?: [number, number, number];
   cameraTarget?: [number, number, number];
   cameraFov?: number;
+  cameraOffsetY?: number;
   background?: number;
 }
 
@@ -25,9 +26,11 @@ export class Viewer {
   private readonly mount: HTMLElement;
   private rafHandle = 0;
   private readonly onResize: () => void;
+  private readonly options: ViewerOptions;
 
   constructor(mount: HTMLElement, options: ViewerOptions = {}) {
     this.mount = mount;
+    this.options = options;
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -43,9 +46,9 @@ export class Viewer {
       this.scene.background = new THREE.Color(options.background);
     }
 
-    const pmrem = new THREE.PMREMGenerator(this.renderer);
-    this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    pmrem.dispose();
+    const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+    this.scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+    pmremGenerator.dispose();
 
     this.camera = new THREE.PerspectiveCamera(options.cameraFov ?? 36, 1, 0.1, 100);
     const [px, py, pz] = options.cameraPosition ?? [1.6, 1.1, 2.4];
@@ -88,6 +91,13 @@ export class Viewer {
     const width = this.mount.clientWidth || window.innerWidth;
     const height = this.mount.clientHeight || window.innerHeight;
     this.camera.aspect = width / Math.max(1, height);
+    if (this.options.cameraOffsetY) {
+      // Offset the projection vertically. A positive offset value will push the model DOWN on the screen
+      // (by setting a negative Y offset for the subcamera viewport).
+      this.camera.setViewOffset(width, height, 0, -height * this.options.cameraOffsetY, width, height);
+    } else {
+      this.camera.clearViewOffset();
+    }
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
   }

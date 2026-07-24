@@ -103,10 +103,10 @@ function makeUsbCPort(
   const port = new THREE.Group();
   port.name = 'usb-c-port';
 
-  const P_W  = 0.185;   // total stadium width
-  const P_H  = 0.080;   // total stadium height
-  const RIM  = 0.009;   // outer-bezel ring width
-  const DEPTH = 0.030;  // how deep the cavity goes into the body
+  const P_W  = 0.13875;  // total stadium width (0.75x)
+  const P_H  = 0.060;    // total stadium height (0.75x)
+  const RIM  = 0.00675;  // outer-bezel ring width
+  const DEPTH = 0.0225;  // how deep the cavity goes into the body
   const FACE_X = -BODY_WIDTH / 2;
 
   // 1. OUTER BLACK STADIUM BEZEL
@@ -422,13 +422,13 @@ function makeMicroUsbPort(
   const port = new THREE.Group();
   port.name = 'micro-usb-port';
 
-  const P_W = 0.165;
-  const P_H = 0.065;
-  const DEPTH = 0.028;
+  const P_W = 0.13875;
+  const P_H = 0.060;
+  const DEPTH = 0.021;
   const RECESS = 0.005;
   const FACE_X = -BODY_WIDTH / 2;
 
-  const trapezoidShape = (wTop: number, wBot: number, h: number, r: number = 0.003): THREE.Shape => {
+  const trapezoidShape = (wTop: number, wBot: number, h: number, r: number = 0.00225): THREE.Shape => {
     const s = new THREE.Shape();
     const halfH = h / 2;
     const xT = wTop / 2, xB = wBot / 2;
@@ -446,11 +446,11 @@ function makeMicroUsbPort(
 
   // Outer Bezel
   const outerMat = new THREE.MeshPhysicalMaterial({ color: 0x111114, roughness: 0.55, metalness: 0.08 });
-  const outerShape = trapezoidShape(P_W, P_W * 0.82, P_H, 0.004);
-  const innerHole = trapezoidShape(P_W - 0.014, (P_W - 0.014) * 0.82, P_H - 0.014, 0.002);
+  const outerShape = trapezoidShape(P_W, P_W * 0.82, P_H, 0.003);
+  const innerHole = trapezoidShape(P_W - 0.0105, (P_W - 0.0105) * 0.82, P_H - 0.0105, 0.0015);
   outerShape.holes.push(innerHole);
-  const bezelGeom = new THREE.ExtrudeGeometry(outerShape, { depth: 0.006, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
-  bezelGeom.translate(0, 0, -0.003);
+  const bezelGeom = new THREE.ExtrudeGeometry(outerShape, { depth: 0.0045, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.00075, bevelThickness: 0.00075 });
+  bezelGeom.translate(0, 0, -0.00225);
   const outerBezel = new THREE.Mesh(bezelGeom, outerMat);
   outerBezel.rotation.y = -Math.PI / 2;
   outerBezel.position.set(FACE_X + 0.001, 0, 0);
@@ -459,18 +459,18 @@ function makeMicroUsbPort(
 
   // Chrome Liner
   const chromeMat = new THREE.MeshPhysicalMaterial({ color: 0x8a929b, roughness: 0.15, metalness: 0.94, clearcoat: 0.5 });
-  const linerOuter = trapezoidShape(P_W - 0.014, (P_W - 0.014) * 0.82, P_H - 0.014, 0.002);
-  const linerInner = trapezoidShape(P_W - 0.022, (P_W - 0.022) * 0.82, P_H - 0.022, 0.002);
+  const linerOuter = trapezoidShape(P_W - 0.0105, (P_W - 0.0105) * 0.82, P_H - 0.0105, 0.0015);
+  const linerInner = trapezoidShape(P_W - 0.0165, (P_W - 0.0165) * 0.82, P_H - 0.0165, 0.0015);
   linerOuter.holes.push(linerInner);
-  const linerGeom = new THREE.ExtrudeGeometry(linerOuter, { depth: 0.005, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
-  linerGeom.translate(0, 0, -0.0025);
+  const linerGeom = new THREE.ExtrudeGeometry(linerOuter, { depth: 0.00375, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.00075, bevelThickness: 0.00075 });
+  linerGeom.translate(0, 0, -0.001875);
   const chromeLiner = new THREE.Mesh(linerGeom, chromeMat);
   chromeLiner.rotation.y = -Math.PI / 2;
   chromeLiner.position.set(FACE_X, 0, 0);
   port.add(chromeLiner);
 
   // Cavity
-  const cavGeom = new THREE.ExtrudeGeometry(trapezoidShape(P_W - 0.022, (P_W - 0.022) * 0.82, P_H - 0.022, 0.002), { depth: DEPTH, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
+  const cavGeom = new THREE.ExtrudeGeometry(trapezoidShape(P_W - 0.0165, (P_W - 0.0165) * 0.82, P_H - 0.0165, 0.0015), { depth: DEPTH, curveSegments: 16, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.00075, bevelThickness: 0.00075 });
   cavGeom.translate(0, 0, -DEPTH);
   const cavity = new THREE.Mesh(cavGeom, new THREE.MeshStandardMaterial({ color: 0x030304, roughness: 0.85, metalness: 0.05 }));
   cavity.rotation.y = -Math.PI / 2;
@@ -478,26 +478,26 @@ function makeMicroUsbPort(
   port.add(cavity);
 
   // Center black plastic tongue (5-pin wafer)
-  const TONGUE_BW = 0.130;
-  const TONGUE_BH = 0.016;
-  const TONGUE_BD = 0.018;
+  const TONGUE_BW = 0.0975;
+  const TONGUE_BH = 0.012;
+  const TONGUE_BD = 0.0135;
   const TONGUE_PX = FACE_X - RECESS - TONGUE_BD / 2;
   const tongue = new THREE.Mesh(
     new THREE.BoxGeometry(TONGUE_BW, TONGUE_BH, TONGUE_BD),
     new THREE.MeshStandardMaterial({ color: 0x181a1d, roughness: 0.35, metalness: 0.15 }),
   );
   tongue.rotation.y = -Math.PI / 2;
-  tongue.position.set(TONGUE_PX, 0.006, 0);
+  tongue.position.set(TONGUE_PX, 0.0045, 0);
   port.add(tongue);
 
   // 5 tiny gold contact pins
-  const pinGeom = new THREE.BoxGeometry(0.012, 0.004, 0.012);
+  const pinGeom = new THREE.BoxGeometry(0.009, 0.003, 0.009);
   const goldMat = new THREE.MeshPhysicalMaterial({ color: 0xd4af37, roughness: 0.18, metalness: 0.96, clearcoat: 0.40 });
   const span = TONGUE_BW * 0.70;
   for (let i = 0; i < 5; i++) {
     const pin = new THREE.Mesh(pinGeom, goldMat);
     pin.rotation.y = -Math.PI / 2;
-    pin.position.set(TONGUE_PX + 0.001, 0.010, -span / 2 + i * (span / 4));
+    pin.position.set(TONGUE_PX + 0.001, 0.0075, -span / 2 + i * (span / 4));
     port.add(pin);
   }
 
@@ -511,19 +511,19 @@ function makeLightningPort(
   const port = new THREE.Group();
   port.name = 'lightning-port';
 
-  const P_W = 0.160;
-  const P_H = 0.062;
-  const DEPTH = 0.026;
+  const P_W = 0.13875;
+  const P_H = 0.060;
+  const DEPTH = 0.0195;
   const RECESS = 0.005;
   const FACE_X = -BODY_WIDTH / 2;
 
   // Outer Bezel
   const outerMat = new THREE.MeshPhysicalMaterial({ color: 0x111114, roughness: 0.55, metalness: 0.08 });
   const outerShape = stadiumShape(P_W, P_H);
-  const innerHole = stadiumShape(P_W - 0.014, P_H - 0.014);
+  const innerHole = stadiumShape(P_W - 0.0105, P_H - 0.0105);
   outerShape.holes.push(innerHole);
-  const bezelGeom = new THREE.ExtrudeGeometry(outerShape, { depth: 0.006, curveSegments: 24, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
-  bezelGeom.translate(0, 0, -0.003);
+  const bezelGeom = new THREE.ExtrudeGeometry(outerShape, { depth: 0.0045, curveSegments: 24, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.00075, bevelThickness: 0.00075 });
+  bezelGeom.translate(0, 0, -0.00225);
   const outerBezel = new THREE.Mesh(bezelGeom, outerMat);
   outerBezel.rotation.y = -Math.PI / 2;
   outerBezel.position.set(FACE_X + 0.001, 0, 0);
@@ -532,18 +532,18 @@ function makeLightningPort(
 
   // Chrome Liner
   const chromeMat = new THREE.MeshPhysicalMaterial({ color: 0x8a929b, roughness: 0.15, metalness: 0.94, clearcoat: 0.5 });
-  const linerOuter = stadiumShape(P_W - 0.014, P_H - 0.014);
-  const linerInner = stadiumShape(P_W - 0.022, P_H - 0.022);
+  const linerOuter = stadiumShape(P_W - 0.0105, P_H - 0.0105);
+  const linerInner = stadiumShape(P_W - 0.0165, P_H - 0.0165);
   linerOuter.holes.push(linerInner);
-  const linerGeom = new THREE.ExtrudeGeometry(linerOuter, { depth: 0.005, curveSegments: 24, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
-  linerGeom.translate(0, 0, -0.0025);
+  const linerGeom = new THREE.ExtrudeGeometry(linerOuter, { depth: 0.00375, curveSegments: 24, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.00075, bevelThickness: 0.00075 });
+  linerGeom.translate(0, 0, -0.001875);
   const chromeLiner = new THREE.Mesh(linerGeom, chromeMat);
   chromeLiner.rotation.y = -Math.PI / 2;
   chromeLiner.position.set(FACE_X, 0, 0);
   port.add(chromeLiner);
 
   // Cavity
-  const cavGeom = new THREE.ExtrudeGeometry(stadiumShape(P_W - 0.022, P_H - 0.022), { depth: DEPTH, curveSegments: 24, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.001, bevelThickness: 0.001 });
+  const cavGeom = new THREE.ExtrudeGeometry(stadiumShape(P_W - 0.0165, P_H - 0.0165), { depth: DEPTH, curveSegments: 24, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.00075, bevelThickness: 0.00075 });
   cavGeom.translate(0, 0, -DEPTH);
   const cavity = new THREE.Mesh(cavGeom, new THREE.MeshStandardMaterial({ color: 0x050507, roughness: 0.80, metalness: 0.05 }));
   cavity.rotation.y = -Math.PI / 2;
@@ -551,14 +551,14 @@ function makeLightningPort(
   port.add(cavity);
 
   // 8 Gold Contact Pins along bottom cavity wall
-  const pinGeom = new THREE.BoxGeometry(0.008, 0.004, 0.012);
+  const pinGeom = new THREE.BoxGeometry(0.006, 0.003, 0.009);
   const goldMat = new THREE.MeshPhysicalMaterial({ color: 0xd4af37, roughness: 0.18, metalness: 0.96, clearcoat: 0.40 });
-  const span = (P_W - 0.035) * 0.85;
-  const pinPX = FACE_X - RECESS - 0.010;
+  const span = (P_W - 0.02625) * 0.85;
+  const pinPX = FACE_X - RECESS - 0.0075;
   for (let i = 0; i < 8; i++) {
     const pin = new THREE.Mesh(pinGeom, goldMat);
     pin.rotation.y = -Math.PI / 2;
-    pin.position.set(pinPX, -(P_H - 0.022) / 2 + 0.004, -span / 2 + i * (span / 7));
+    pin.position.set(pinPX, -(P_H - 0.0165) / 2 + 0.003, -span / 2 + i * (span / 7));
     port.add(pin);
   }
 
