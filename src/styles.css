@@ -212,7 +212,6 @@
 }
 
 /* ---------- Columns & Layout ---------- */
-.stage-fab-wrapper,
 .bottom-sheet-handle-bar {
   display: none;
 }
@@ -696,6 +695,121 @@
   color: #718096;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+/* ---------- Desktop Stage Control Bar (Floating at Bottom Center) ---------- */
+.stage-fab-wrapper {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 1.1rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.stage-fab-button {
+  display: none;
+}
+
+.stage-popover-menu {
+  position: static;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  width: max-content;
+  max-width: 90vw;
+  padding: 0.65rem 1.4rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(220, 227, 233, 0.85);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  transition: all 0.22s ease;
+}
+
+.dark-mode .stage-popover-menu {
+  background: rgba(30, 35, 45, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.stage-control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stage-control-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #596171;
+  white-space: nowrap;
+}
+
+.dark-mode .stage-control-title {
+  color: #8a94a6;
+}
+
+.stage-control-divider {
+  display: block;
+  width: 1px;
+  height: 22px;
+  background: #dce3e9;
+}
+
+.dark-mode .stage-control-divider {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.stage-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #dce3e9;
+  background: #ffffff;
+  color: #4a5568;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.stage-btn:hover {
+  border-color: #0dc9b1;
+  color: #0dc9b1;
+  background: rgba(13, 201, 177, 0.05);
+}
+
+.dark-mode .stage-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #fcfdfe;
+}
+
+.dark-mode .stage-btn:hover {
+  border-color: #0dc9b1;
+  color: #0dc9b1;
+  background: rgba(13, 201, 177, 0.15);
 }
 
 /* ---------- Controls ---------- */
@@ -3753,6 +3867,10 @@ code,
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+  }
+
+  .stage-control-divider {
+    display: none;
   }
 
   .stage-control-title {

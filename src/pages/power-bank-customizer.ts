@@ -940,13 +940,15 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
               Stage light <strong id="light-value">70%</strong>
             </span>
-            <label class="range-control no-margin" style="width: 100%;">
+            <label class="range-control no-margin">
               <input id="light-control" type="range" min="20" max="120" value="70" />
             </label>
           </div>
 
+          <div class="stage-control-divider"></div>
+
           <div class="stage-control-group">
-            <label class="toggle-row no-margin" style="margin: 0; gap: 0.6rem; justify-content: space-between; width: 100%;">
+            <label class="toggle-row no-margin" style="margin: 0; gap: 0.6rem;">
               <span class="stage-control-title" style="margin: 0;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                 Auto rotation
@@ -954,6 +956,8 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               <input id="spin-toggle" class="apple-switch" type="checkbox" />
             </label>
           </div>
+
+          <div class="stage-control-divider"></div>
 
           <div class="stage-action-buttons">
             <button class="stage-btn" id="fab-center" type="button" title="Recenter View">
