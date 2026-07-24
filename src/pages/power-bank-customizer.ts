@@ -534,7 +534,6 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
           </div>
         </a>
         <nav class="header-nav">
-          <a href="#/">Home</a>
           <a href="#/customize/power-bank" class="active">Build</a>
           <a href="#/about">About</a>
         </nav>

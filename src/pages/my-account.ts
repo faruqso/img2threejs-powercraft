@@ -52,7 +52,6 @@ export function renderMyAccount(mount: HTMLElement): () => void {
           </div>
         </a>
         <nav class="header-nav">
-          <a href="#/">Home</a>
           <a href="#/customize/power-bank">Build</a>
           <a href="#/about">About</a>
         </nav>

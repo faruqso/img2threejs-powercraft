@@ -15,7 +15,6 @@ export function renderAbout(mount: HTMLElement): () => void {
           </div>
         </a>
         <nav class="header-nav" aria-label="Main Navigation">
-          <a href="#/">Home</a>
           <a href="#/customize/power-bank">Build</a>
           <a href="#/about" class="active">About</a>
         </nav>

@@ -149,7 +149,7 @@ function makeUsbCPort(
   const cavity = new THREE.Mesh(cavGeom, cavMat);
   cavity.name = 'usb-c-cavity';
   cavity.rotation.y = -Math.PI / 2;
-  cavity.position.set(FACE_X - 0.001, 0, 0);
+  cavity.position.set(FACE_X + 0.004, 0, 0);
   port.add(cavity);
 
   // 4. BRIGHT BLUE TONGUE — visible at cavity mouth
@@ -257,7 +257,7 @@ function makeUsbAPort(
   const cavity = new THREE.Mesh(cavGeom, new THREE.MeshStandardMaterial({ color: 0x030304, roughness: 0.85, metalness: 0.05 }));
   cavity.name = 'usb-a-cavity';
   cavity.rotation.y = -Math.PI / 2;
-  cavity.position.set(FACE_X - 0.001, 0, 0);
+  cavity.position.set(FACE_X + 0.004, 0, 0);
   port.add(cavity);
 
   // 4. USB 3.0 Electric Blue Plastic Tongue — visible at cavity mouth
@@ -355,7 +355,7 @@ function makeMicroUsbPort(
   cavGeom.translate(0, 0, -DEPTH);
   const cavity = new THREE.Mesh(cavGeom, new THREE.MeshStandardMaterial({ color: 0x030304, roughness: 0.85, metalness: 0.05 }));
   cavity.rotation.y = -Math.PI / 2;
-  cavity.position.set(FACE_X - 0.001, 0, 0);
+  cavity.position.set(FACE_X + 0.004, 0, 0);
   port.add(cavity);
 
   // Center dark plastic tongue — visible at cavity mouth
@@ -429,7 +429,7 @@ function makeLightningPort(
   cavGeom.translate(0, 0, -DEPTH);
   const cavity = new THREE.Mesh(cavGeom, new THREE.MeshStandardMaterial({ color: 0x050507, roughness: 0.80, metalness: 0.05 }));
   cavity.rotation.y = -Math.PI / 2;
-  cavity.position.set(FACE_X - 0.001, 0, 0);
+  cavity.position.set(FACE_X + 0.004, 0, 0);
   port.add(cavity);
 
   // 8 Gold Contact Pins — visible at cavity mouth
