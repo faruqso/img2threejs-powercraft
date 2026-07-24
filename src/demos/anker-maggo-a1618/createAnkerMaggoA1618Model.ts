@@ -192,16 +192,9 @@ function makeUsbCPort(
   const TONGUE_Y   = cav2H * 0.12;
   const TONGUE_PX  = FACE_X - RECESS - TONGUE_BD / 2;
 
-  const blueMat = new THREE.MeshStandardMaterial({
-    color:             0x2b8fff,
-    emissive:          0x0055dd,
-    emissiveIntensity: 0.30,
-    roughness:         0.22,
-    metalness:         0.14,
-  });
   const tongue = new THREE.Mesh(
     new THREE.BoxGeometry(TONGUE_BW, TONGUE_BH, TONGUE_BD),
-    blueMat,
+    _blueMaterial,
   );
   tongue.name = 'usb-c-blue-tongue';
   tongue.rotation.y = -Math.PI / 2;
@@ -366,16 +359,9 @@ function makeUsbAPort(
   const TONGUE_Y  = (cavInnerH / 2 - TONGUE_BH / 2) * 0.70;
   const TONGUE_PX = FACE_X - RECESS - TONGUE_BD / 2;
 
-  const blueMat = new THREE.MeshStandardMaterial({
-    color: 0x0077ff,
-    emissive: 0x0044bb,
-    emissiveIntensity: 0.20,
-    roughness: 0.30,
-    metalness: 0.10,
-  });
   const tongue = new THREE.Mesh(
     new THREE.BoxGeometry(TONGUE_BW, TONGUE_BH, TONGUE_BD),
-    blueMat,
+    _blueMaterial,
   );
   tongue.name = 'usb-a-blue-tongue';
   tongue.rotation.y = -Math.PI / 2;

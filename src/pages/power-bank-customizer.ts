@@ -551,7 +551,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
 
       <div class="customizer-columns">
         <div class="customizer-column customizer-column-left">
-          <h1 class="page-title">Custom power banks.<br>Built for <span class="text-teal">your brand.</span></h1>
+          <h1 class="page-title">Custom power banks. Built for <span class="text-teal">your brand.</span></h1>
           <p class="page-subtitle">Design, personalise and order premium power banks tailored to your brand and customers.</p>
 
           <div class="left-control-stack">
@@ -1154,11 +1154,13 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
     listen(input, 'change', () => {
       setUsbTongueFocus();
       const color = USB_COLORS[input.value as keyof typeof USB_COLORS];
-      setMaterialColor(model, ['usb-c-blue-tongue'], color.value);
-      const material = materialOf(model.getObjectByName('usb-c-blue-tongue') ?? new THREE.Object3D()) as
-        | THREE.MeshStandardMaterial
-        | null;
-      if (material?.emissive) material.emissive.setHex(color.value);
+      setMaterialColor(model, ['usb-c-blue-tongue', 'usb-a-blue-tongue'], color.value);
+      ['usb-c-blue-tongue', 'usb-a-blue-tongue'].forEach((name) => {
+        const material = materialOf(model.getObjectByName(name) ?? new THREE.Object3D()) as
+          | THREE.MeshStandardMaterial
+          | null;
+        if (material?.emissive) material.emissive.setHex(color.value);
+      });
     });
   }
 
@@ -1336,16 +1338,16 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         const targetHeight = contentWrapper!.scrollHeight;
         contentWrapper!.style.height = '0px';
 
-        // Animate chevron
+        // Update chevron transform (animated by CSS transition)
         if (chevronSvg) {
-          animate(chevronSvg, { rotate: 0 }, { duration: 0.35, ease: [0.34, 1.56, 0.64, 1] });
+          chevronSvg.style.transform = 'rotate(0deg)';
         }
 
         // Animate wrapper height & opacity using Framer Motion
         const controls = animate(
           contentWrapper!,
           { height: [0, targetHeight], opacity: [0, 1] },
-          { duration: 0.38, ease: [0.34, 1.56, 0.64, 1] }
+          { duration: 0.3, ease: 'easeOut' }
         );
 
         controls.then(() => {
@@ -1358,16 +1360,16 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
         contentWrapper!.style.overflow = 'hidden';
         const startHeight = contentWrapper!.offsetHeight;
 
-        // Animate chevron
+        // Update chevron transform (animated by CSS transition)
         if (chevronSvg) {
-          animate(chevronSvg, { rotate: -180 }, { duration: 0.3, ease: [0.16, 1, 0.3, 1] });
+          chevronSvg.style.transform = 'rotate(-180deg)';
         }
 
         // Animate wrapper height & opacity using Framer Motion
         const controls = animate(
           contentWrapper!,
           { height: [startHeight, 0], opacity: [1, 0] },
-          { duration: 0.32, ease: [0.16, 1, 0.3, 1] }
+          { duration: 0.3, ease: 'easeOut' }
         );
 
         controls.then(() => {
