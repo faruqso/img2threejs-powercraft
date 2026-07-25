@@ -633,7 +633,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               </div>
             </div>
 
-            <div class="customizer-card">
+            <div class="customizer-card collapsed">
               <div class="card-header-row">
                 <div class="card-header-icon">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M5.2 5.2A7 7 0 0 0 5 7"/><path d="M19 12a7 7 0 0 1-7 7"/></svg>
@@ -647,7 +647,7 @@ export function renderPowerBankCustomizer(mount: HTMLElement): () => void {
               </label>
             </div>
 
-            <div class="customizer-card">
+            <div class="customizer-card collapsed">
               <div class="card-header-row">
                 <div class="card-header-icon">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
